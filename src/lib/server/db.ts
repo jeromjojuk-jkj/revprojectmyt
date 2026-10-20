@@ -2,6 +2,7 @@ import "server-only";
 import { promises as fs } from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
+import os from "node:os";
 import type { Order, ProductRecord, Settings } from "../types";
 import { buildSeedProducts } from "@/data/catalog";
 
@@ -32,7 +33,13 @@ export const DEFAULT_SETTINGS: Settings = {
   ],
 };
 
-const DATA_DIR = path.resolve(/*turbopackIgnore: true*/ process.cwd(), process.env.KRIP_DATA_DIR || ".data");
+// Serverless hosts (e.g. Vercel) only allow writes under the OS temp dir, and
+// that storage is per-instance and temporary — fine for a demo, not for real orders.
+const DATA_DIR = process.env.KRIP_DATA_DIR
+  ? path.resolve(/*turbopackIgnore: true*/ process.cwd(), process.env.KRIP_DATA_DIR)
+  : process.env.VERCEL
+    ? path.join(os.tmpdir(), "krip-data")
+    : path.resolve(/*turbopackIgnore: true*/ process.cwd(), ".data");
 const DB_FILE = path.join(DATA_DIR, "db.json");
 
 type G = { __kripDb?: DB; __kripLock?: Promise<unknown> };

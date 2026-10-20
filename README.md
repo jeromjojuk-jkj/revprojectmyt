@@ -135,6 +135,15 @@ src/
   - Radio-group variant pickers, an ARIA combobox for search, live regions for toasts and counts, and visible focus rings.
   - Palette contrast: white on green #166534 ≈ 7:1. Charcoal on brand yellow #FFD703 ≈ 13:1 (sampled from the logo); green on yellow ≈ 5:1. Muted gold #B89548 is decorative only; small gold-toned text uses a darker #7A5F22 (≈5.6:1).
 
+## Deploying to Vercel (demo)
+
+1. In Vercel, **Add New → Project → Import** `jeromjojuk-jkj/revprojectmyt` (framework: Next.js, defaults are fine).
+2. Pick the branch to deploy (`main` after the PR is merged, or `claude/elegant-planck-7ou45x` for a preview).
+3. Add environment variables: `ADMIN_PASSWORD` (8+ chars) and `SESSION_SECRET` (16+ chars, e.g. `openssl rand -hex 32`). Leave `DEMO_PAYMENTS` unset to use the demo gateway.
+4. Deploy. Every push to the branch redeploys automatically.
+
+**Limitation:** on Vercel the prototype datastore lives in each serverless instance’s temporary storage. Orders, stock changes and admin edits can reset or differ between requests/instances. That’s acceptable for a click-through demo; real use needs a hosted database (step 1 below).
+
 ### Before going live
 
 1. Replace the JSON datastore (`src/lib/server/db.ts`) with a transactional database that uses row-level locks.
