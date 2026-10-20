@@ -254,3 +254,30 @@ export interface Quote {
   codAvailable: boolean;
   codReason: string | null;
 }
+
+export type OfferTheme = "saffron" | "red" | "green" | "purple" | "pink" | "ink";
+
+/**
+ * A seasonal/special offer tile on the homepage. Prices and style counts on
+ * the tile are computed from the catalogue at render time, never typed in.
+ */
+export interface Offer {
+  id: string;
+  /** Big line, e.g. "Under ₹299". Must be true for every product the link shows. */
+  headline: string;
+  /** e.g. "Kurtas & kurtis". */
+  subhead: string;
+  /** Season or campaign band, e.g. "Diwali Edit". */
+  badge: string;
+  theme: OfferTheme;
+  /** Search query string the tile opens, e.g. "type=Ethnic Wear&max=999". */
+  query: string;
+  /** Up to 2 products whose images illustrate the tile. */
+  productIds: string[];
+  /** Real offer terms, shown behind a "T&C apply" link. null = no terms line. */
+  terms: string | null;
+  /** yyyy-mm-dd, IST. null = no start/end shown or enforced. */
+  startsOn: string | null;
+  endsOn: string | null;
+  active: boolean;
+}

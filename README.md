@@ -88,6 +88,7 @@ Data is created from the sample catalogue on first run. **Admin → Overview →
   - For cosmetics: ingredients, quantity, shade, usage, manufacturer, shelf life and hygiene return rules.
   - Native share with a copy-link fallback, Complete the Look, related products and recently viewed.
   - Sticky **Add to Bag / Buy Now**. A valid in-stock variant is required before anything goes in the bag.
+- **Seasonal & special offers:** a swipeable rail of bold offer tiles (e.g. "Under ₹999 · Kurtas & kurtis · Diwali Edit"), managed in **Admin → Offers**. "From ₹…", style counts and "up to …% off MRP" are computed from the catalogue. A headline like "Under ₹299" must be backed by `max=299` in the tile's link, so saving is blocked otherwise. Optional start/end dates hide tiles automatically, and terms show behind "T&C apply" only when entered. There are no countdowns, invented bank offers or delivery promises.
 - **Vibe Finder:** four questions (who, vibe, budget, what). Results say they're based only on those answers.
 - **Complete the Look:** each piece shows its own price and variant picker, plus a combined total and "Add selected to bag".
 - **Checkout:**

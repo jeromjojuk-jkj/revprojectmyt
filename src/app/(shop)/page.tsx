@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { getPublicProducts } from "@/lib/server/catalog";
+import { getLiveOffers, getPublicProducts } from "@/lib/server/catalog";
+import { OfferRail } from "@/components/OfferRail";
 import { CATEGORIES, BUDGETS, VIBES } from "@/lib/constants";
 import { LOOKS } from "@/data/catalog";
 import { ProductGrid, ProductRail } from "@/components/ProductCard";
@@ -13,7 +14,7 @@ import { IconChevron, IconSpark } from "@/components/Icons";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const products = await getPublicProducts();
+  const [products, offers] = await Promise.all([getPublicProducts(), getLiveOffers()]);
   const inStock = (p: (typeof products)[number]) => p.status === "active" && p.variants.some((v) => v.stock > 0);
   const trending = products.filter((p) => p.collections.includes("trending")).sort((a, b) => Number(inStock(b)) - Number(inStock(a))).slice(0, 8);
   const newest = [...products].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 10);
@@ -37,7 +38,10 @@ export default async function HomePage() {
         </ul>
       </nav>
 
-      {/* 3. Campaign banner */}
+      {/* 3. Seasonal & special offers (admin-managed). Falls back to the single campaign banner. */}
+      {offers.length > 0 ? (
+        <OfferRail offers={offers} />
+      ) : (
       <div className="px-4 pt-4">
         <Link
           href="/search?collection=aura-edit"
@@ -57,6 +61,7 @@ export default async function HomePage() {
           </div>
         </Link>
       </div>
+      )}
 
       {/* 4. Trending */}
       <Section id="trending" title="Trending Now" kicker="Curated by the Krip team" href="/search?collection=trending">

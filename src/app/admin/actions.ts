@@ -177,3 +177,37 @@ export async function resetDemoAction() {
   revalidatePath("/", "layout");
   redirect("/admin?reset=1");
 }
+
+export type OfferFormState = { errors?: Record<string, string>; message?: string; values?: Record<string, string> } | null;
+
+export async function saveOfferAction(_: OfferFormState, fd: FormData): Promise<OfferFormState> {
+  await requireAdmin();
+  const raw = Object.fromEntries([...fd.entries()].filter(([, v]) => typeof v === "string")) as Record<string, string>;
+  const { validateOffer } = await import("@/lib/offers");
+  const { toPublicProduct } = await import("@/lib/server/catalog");
+  const db = await readDb();
+  const res = validateOffer(raw, db.products.filter((p) => p.status !== "draft").map(toPublicProduct));
+  if (!res.ok) return { errors: res.errors, values: raw, message: "Please fix the highlighted fields." };
+  await withDb((d) => {
+    const existing = raw.id ? d.offers.find((o) => o.id === raw.id) : undefined;
+    if (existing) Object.assign(existing, res.offer);
+    else d.offers.push({ id: `o-${Date.now().toString(36)}`, ...res.offer });
+  });
+  revalidatePath("/", "layout");
+  redirect("/admin/offers?saved=1");
+}
+
+export async function offerQuickAction(fd: FormData) {
+  await requireAdmin();
+  const id = String(fd.get("id"));
+  const op = String(fd.get("op"));
+  await withDb((d) => {
+    const i = d.offers.findIndex((o) => o.id === id);
+    if (i < 0) return;
+    if (op === "toggle") d.offers[i].active = !d.offers[i].active;
+    else if (op === "delete") d.offers.splice(i, 1);
+    else if (op === "up" && i > 0) [d.offers[i - 1], d.offers[i]] = [d.offers[i], d.offers[i - 1]];
+    else if (op === "down" && i < d.offers.length - 1) [d.offers[i + 1], d.offers[i]] = [d.offers[i], d.offers[i + 1]];
+  });
+  revalidatePath("/", "layout");
+}

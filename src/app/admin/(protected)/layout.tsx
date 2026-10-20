@@ -9,6 +9,7 @@ export const metadata = { title: "Admin", robots: { index: false } };
 const NAV = [
   { href: "/admin", label: "Overview" },
   { href: "/admin/products", label: "Products" },
+  { href: "/admin/offers", label: "Offers" },
   { href: "/admin/import", label: "CSV import" },
   { href: "/admin/orders", label: "Orders" },
   { href: "/admin/settings", label: "Fees & settings" },

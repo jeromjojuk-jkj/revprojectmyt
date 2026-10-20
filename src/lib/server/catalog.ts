@@ -31,3 +31,9 @@ export async function getPublicProductsByIds(ids: string[]): Promise<ProductPubl
 export async function getSettings() {
   return (await readDb()).settings;
 }
+
+export async function getLiveOffers() {
+  const { liveOffers } = await import("../offers");
+  const db = await readDb();
+  return liveOffers(db.offers, db.products.filter((p) => p.status !== "draft").map(toPublicProduct));
+}

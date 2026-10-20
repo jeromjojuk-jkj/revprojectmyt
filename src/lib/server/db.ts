@@ -3,8 +3,9 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import os from "node:os";
-import type { Order, ProductRecord, Settings } from "../types";
+import type { Offer, Order, ProductRecord, Settings } from "../types";
 import { buildSeedProducts } from "@/data/catalog";
+import { SEED_OFFERS } from "@/data/offers";
 
 // Prototype datastore: a single JSON file with an in-process write lock.
 // It is enough to demonstrate server-side validation, idempotency and stock
@@ -17,6 +18,7 @@ export interface DB {
   orders: Order[];
   settings: Settings;
   processedPaymentEvents: string[];
+  offers: Offer[];
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -52,6 +54,7 @@ function seed(): DB {
     orders: [],
     settings: structuredClone(DEFAULT_SETTINGS),
     processedPaymentEvents: [],
+    offers: structuredClone(SEED_OFFERS),
   };
 }
 
@@ -60,6 +63,8 @@ async function load(): Promise<DB> {
   try {
     const raw = await fs.readFile(DB_FILE, "utf8");
     g.__kripDb = JSON.parse(raw) as DB;
+    // Datastores created before offers existed get the sample offers.
+    g.__kripDb.offers ??= structuredClone(SEED_OFFERS);
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
     g.__kripDb = seed();
@@ -115,6 +120,7 @@ export async function resetDb() {
     db.orders = [];
     db.settings = fresh.settings;
     db.processedPaymentEvents = [];
+    db.offers = fresh.offers;
   });
 }
 

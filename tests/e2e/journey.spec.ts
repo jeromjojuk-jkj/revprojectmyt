@@ -17,6 +17,7 @@ async function fillAddress(page: Page) {
 test("browse → filter → product → variant → bag → COD checkout", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("heading", { name: "Trending Now" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Under ₹999" }).first()).toBeVisible();
   await noHorizontalOverflow(page);
 
   // Search with suggestions
@@ -143,4 +144,14 @@ test("key pages have no horizontal overflow at 360px", async ({ page }) => {
     await page.waitForLoadState("networkidle");
     await noHorizontalOverflow(page);
   }
+});
+
+test("seasonal offer tile opens a matching, price-capped listing", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("heading", { name: "Under ₹299" }).getByRole("link").click();
+  await expect(page).toHaveURL(/max=299/);
+  await expect(page.locator("article").first()).toBeVisible();
+  const prices = await page.locator("article span.font-semibold.text-ink").allInnerTexts();
+  expect(prices.length).toBeGreaterThan(0);
+  for (const p of prices) expect(Number(p.replace(/[₹,]/g, ""))).toBeLessThanOrEqual(299);
 });
