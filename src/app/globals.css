@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 @theme {
-  --color-sun: #f8cb46;
-  --color-sun-soft: #fdf1c7;
+  --color-sun: #ffd703;
+  --color-sun-soft: #fff5c2;
   --color-leaf: #166534;
   --color-leaf-dark: #14532d;
   --color-leaf-soft: #e7f3ea;

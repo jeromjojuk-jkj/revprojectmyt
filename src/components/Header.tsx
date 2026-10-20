@@ -68,7 +68,7 @@ export function Header() {
       <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 pb-2.5 pt-2 md:flex-row md:items-center md:gap-4 md:py-3">
         <div className="flex items-center gap-2 md:contents">
           <Link href="/" className="-ml-1 flex h-11 items-center px-1" aria-label="Krip home">
-            <Logo className="text-[30px]" />
+            <Logo className="text-[30px]" onYellow />
           </Link>
           <button
             type="button"

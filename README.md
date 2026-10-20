@@ -133,7 +133,7 @@ src/
   - Semantic landmarks and a skip link.
   - Dialogs use native `<dialog>`, which gives a focus trap, Esc to close and an inert background.
   - Radio-group variant pickers, an ARIA combobox for search, live regions for toasts and counts, and visible focus rings.
-  - Palette contrast: white on green #166534 ≈ 7:1. Charcoal on yellow #F8CB46 ≈ 12:1. Muted gold #B89548 is decorative only; small gold-toned text uses a darker #7A5F22 (≈5.6:1).
+  - Palette contrast: white on green #166534 ≈ 7:1. Charcoal on brand yellow #FFD703 ≈ 13:1 (sampled from the logo); green on yellow ≈ 5:1. Muted gold #B89548 is decorative only; small gold-toned text uses a darker #7A5F22 (≈5.6:1).
 
 ### Before going live
 

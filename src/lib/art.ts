@@ -150,7 +150,7 @@ export const ART_KINDS = Object.keys(SHAPES) as ArtKind[];
 
 export function renderArt(kind: ArtKind, hex: string, view: 1 | 2): string {
   const h = /^[0-9a-f]{6}$/i.test(hex) ? hex.toLowerCase() : "999999";
-  const bg = view === 1 ? mix(h, "f7f8f5", 0.9) : mix("f8cb46", "ffffff", 0.72);
+  const bg = view === 1 ? mix(h, "f7f8f5", 0.9) : mix("ffd703", "ffffff", 0.72);
   const line = lum(h) < 0.08 ? mix(h, "ffffff", 0.45) : mix(h, "000000", 0.35);
   const fill = "#" + h;
   const body = SHAPES[kind](fill, line, h).replace(/var\(--bg\)/g, bg);
