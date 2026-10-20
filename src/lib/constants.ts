@@ -1,0 +1,53 @@
+import type { CategoryId, VibeId } from "./types.ts";
+
+export const BRAND = {
+  name: "krip",
+  tagline: "Trending looks. Your kind of price.",
+} as const;
+
+export const CATEGORIES: { id: CategoryId; name: string; short: string; art: string; hex: string }[] = [
+  { id: "women", name: "Women’s Clothing", short: "Women", art: "dress", hex: "c2410c" },
+  { id: "men", name: "Men’s Clothing", short: "Men", art: "shirt", hex: "1e3a8a" },
+  { id: "footwear", name: "Footwear", short: "Footwear", art: "sneaker", hex: "f5f5f4" },
+  { id: "beauty", name: "Cosmetics & Beauty", short: "Beauty", art: "lipstick", hex: "be123c" },
+  { id: "bags", name: "Bags", short: "Bags", art: "tote", hex: "a16207" },
+  { id: "jewellery", name: "Jewellery", short: "Jewellery", art: "earrings", hex: "b89548" },
+  { id: "accessories", name: "Accessories", short: "Accessories", art: "sunglasses", hex: "171717" },
+];
+
+export const CATEGORY_NAME: Record<CategoryId, string> = Object.fromEntries(
+  CATEGORIES.map((c) => [c.id, c.name]),
+) as Record<CategoryId, string>;
+
+export const isCategoryId = (v: string): v is CategoryId => CATEGORIES.some((c) => c.id === v);
+
+export const VIBES: { id: VibeId; name: string; line: string }[] = [
+  { id: "campus", name: "Campus", line: "Easy layers for long days" },
+  { id: "streetwear", name: "Streetwear", line: "Boxy fits, loud details" },
+  { id: "everyday", name: "Everyday", line: "Comfy basics on repeat" },
+  { id: "date-night", name: "Date Night", line: "A little extra, on purpose" },
+  { id: "festive", name: "Festive", line: "Light, bright, celebration-ready" },
+];
+
+export const isVibeId = (v: string): v is VibeId => VIBES.some((x) => x.id === v);
+
+export const COLLECTIONS: Record<string, { name: string; line: string }> = {
+  trending: { name: "Trending Now", line: "Curated by the Krip team" },
+  "aura-edit": { name: "Aura Edit", line: "Soft-glow pieces for every day" },
+  "modern-legends": { name: "Modern Legends", line: "Classics, re-cut for now" },
+};
+
+export const BUDGETS = [
+  { max: 299, label: "Under ₹299" },
+  { max: 499, label: "Under ₹499" },
+  { max: 999, label: "Under ₹999" },
+] as const;
+
+export const INDIAN_STATES = [
+  "Andaman and Nicobar Islands", "Andhra Pradesh", "Arunachal Pradesh", "Assam", "Bihar", "Chandigarh",
+  "Chhattisgarh", "Dadra and Nagar Haveli and Daman and Diu", "Delhi", "Goa", "Gujarat", "Haryana",
+  "Himachal Pradesh", "Jammu and Kashmir", "Jharkhand", "Karnataka", "Kerala", "Ladakh", "Lakshadweep",
+  "Madhya Pradesh", "Maharashtra", "Manipur", "Meghalaya", "Mizoram", "Nagaland", "Odisha", "Puducherry",
+  "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
+  "West Bengal",
+];
