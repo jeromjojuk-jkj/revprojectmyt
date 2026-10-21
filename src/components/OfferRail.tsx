@@ -60,7 +60,7 @@ export function OfferRail({ offers }: { offers: OfferView[] }) {
   const [terms, setTerms] = useState<OfferView | null>(null);
   if (!offers.length) return null;
   return (
-    <section aria-labelledby="offers-title" className="pt-4">
+    <section id="offers" aria-labelledby="offers-title" className="scroll-mt-[calc(var(--header-h)+8px)] pt-4">
       <h2 id="offers-title" className="sr-only">Special offers</h2>
       <ul className="no-scrollbar flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 pb-1 scroll-px-4">
         {offers.map((v, i) => (

@@ -17,6 +17,7 @@ export function SearchBox() {
   const [open, setOpen] = useState(false);
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [active, setActive] = useState(-1);
+  const [cat, setCat] = useState(pathname === "/search" ? (params.get("cat") ?? "").split(",")[0] : "");
   const recent = useStore((s) => s.recentSearches);
   const addSearch = useStore((s) => s.addSearch);
   const clearSearches = useStore((s) => s.clearSearches);
@@ -69,7 +70,10 @@ export function SearchBox() {
   const submit = () => {
     const t = q.trim();
     if (active >= 0 && items[active]) return go(items[active].href, items[active].kind === "product" ? undefined : t || items[active].label);
-    go(t ? `/search?q=${encodeURIComponent(t)}` : "/search", t);
+    const sp = new URLSearchParams();
+    if (t) sp.set("q", t);
+    if (cat) sp.set("cat", cat);
+    go(sp.toString() ? `/search?${sp}` : "/search", t);
   };
 
   return (
@@ -80,15 +84,23 @@ export function SearchBox() {
           e.preventDefault();
           submit();
         }}
-        className={`flex h-11 items-center gap-2 rounded-xl border-2 bg-white px-3 transition-colors ${open ? "border-leaf" : "border-transparent ring-1 ring-line"}`}
+        className={`flex h-11 items-center overflow-hidden rounded-lg bg-white ring-2 transition-shadow ${open ? "ring-sun" : "ring-transparent"}`}
       >
-        {open ? (
-          <button type="button" aria-label="Close search" className="-ml-2 grid h-10 w-10 place-items-center md:hidden" onClick={() => { setOpen(false); inputRef.current?.blur(); }}>
+        {open && (
+          <button type="button" aria-label="Close search" className="grid h-full w-11 shrink-0 place-items-center md:hidden" onClick={() => { setOpen(false); inputRef.current?.blur(); }}>
             <IconBack size={20} />
           </button>
-        ) : (
-          <IconSearch size={20} className="shrink-0 text-ink-soft" />
         )}
+        <label htmlFor="search-cat" className="sr-only">Search in</label>
+        <select
+          id="search-cat"
+          value={cat}
+          onChange={(e) => setCat(e.target.value)}
+          className="hidden h-full max-w-28 shrink-0 cursor-pointer border-r border-line bg-paper pl-3 pr-1 text-xs text-ink-soft outline-none hover:bg-neutral-200 sm:block"
+        >
+          <option value="">All</option>
+          {CATEGORIES.map((c) => <option key={c.id} value={c.id}>{c.short}</option>)}
+        </select>
         <input
           ref={inputRef}
           type="search"
@@ -120,13 +132,16 @@ export function SearchBox() {
           aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
           autoComplete="off"
           enterKeyHint="search"
-          className="h-full min-w-0 flex-1 bg-transparent text-[15px] outline-none focus-visible:outline-none placeholder:text-neutral-500 [&::-webkit-search-cancel-button]:hidden"
+          className="h-full min-w-0 flex-1 bg-transparent px-3 text-[15px] outline-none focus-visible:outline-none placeholder:text-neutral-500 [&::-webkit-search-cancel-button]:hidden"
         />
         {q && (
-          <button type="button" aria-label="Clear search" className="-mr-2 grid h-10 w-10 place-items-center text-ink-soft" onClick={() => { setQ(""); inputRef.current?.focus(); }}>
+          <button type="button" aria-label="Clear search" className="grid h-10 w-10 shrink-0 place-items-center text-ink-soft" onClick={() => { setQ(""); inputRef.current?.focus(); }}>
             <IconX size={18} />
           </button>
         )}
+        <button type="submit" aria-label="Search" className="grid h-full w-12 shrink-0 place-items-center bg-sun text-ink hover:brightness-95">
+          <IconSearch size={22} />
+        </button>
       </form>
 
       {open && (

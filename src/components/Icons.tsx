@@ -36,3 +36,4 @@ export const IconExternal = ({ size, ...p }: P) => <svg {...base(size, p)}><path
 export const IconZoom = ({ size, ...p }: P) => <svg {...base(size, p)}><circle cx="11" cy="11" r="7" /><path d="m20 20-3.5-3.5M11 8v6M8 11h6" /></svg>;
 export const IconRuler = ({ size, ...p }: P) => <svg {...base(size, p)}><path d="M3 17 17 3l4 4L7 21l-4-4Z" /><path d="m7 13 2 2M10 10l2 2M13 7l2 2" /></svg>;
 export const IconClock = ({ size, ...p }: P) => <svg {...base(size, p)}><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 2" /></svg>;
+export const IconMenu = ({ size, ...p }: P) => <svg {...base(size, p)}><path d="M4 7h16M4 12h16M4 17h16" /></svg>;

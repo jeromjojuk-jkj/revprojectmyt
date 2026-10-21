@@ -67,7 +67,7 @@ Data is created from the sample catalogue on first run. **Admin → Overview →
 
 ## Shopper features
 
-- **Mobile-first shell:** a sticky yellow header with logo, search and delivery pincode, plus a cart badge.
+- **Marketplace-style top bar:** a charcoal main bar with the logo, delivery pincode, a search box with a category picker and a yellow search button, "Hello, guest / Account & Lists", "Returns & Orders" and the bag count. Below it, a green department strip has an "All" menu, category links and the live season promo, e.g. "Diwali Edit | Live now". The promo only shows while an offer is live.
   The bottom nav has Home, Categories, Drops, Wishlist and Account. Fixed bars respect safe areas.
   Touch targets are at least 44px, and the layout is tested for no horizontal overflow at 360px.
 - **Homepage (shopping-led):** category shortcuts → one campaign banner (Aura Edit) → Trending Now

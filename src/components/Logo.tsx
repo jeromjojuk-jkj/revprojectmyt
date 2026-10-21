@@ -22,11 +22,11 @@ export function LogoMark({ onYellow = false, className = "" }: { onYellow?: bool
   );
 }
 
-export function Logo({ className = "", onYellow = false }: { className?: string; onYellow?: boolean }) {
+export function Logo({ className = "", onYellow = false, onDark = false }: { className?: string; onYellow?: boolean; onDark?: boolean }) {
   return (
     <span role="img" aria-label="krip" className={`inline-flex select-none items-center gap-[0.18em] leading-none ${className}`}>
       <LogoMark onYellow={onYellow} className="h-[1.15em] w-auto" />
-      <span aria-hidden className="font-bold tracking-[-0.03em] text-ink">krip</span>
+      <span aria-hidden className={`font-bold tracking-[-0.03em] ${onDark ? "text-white" : "text-ink"}`}>krip</span>
     </span>
   );
 }
