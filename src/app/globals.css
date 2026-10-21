@@ -228,3 +228,19 @@ html:has(dialog[open]) { overflow: hidden; }
   0%, 60%, 100% { transform: rotate(6deg) translateX(0); }
   75% { transform: rotate(18deg) translateX(14px); }
 }
+
+/* ---------- Moving product slides ---------- */
+.marquee-track { animation: marquee linear infinite; }
+.marquee:hover .marquee-track,
+.marquee:focus-within .marquee-track,
+.marquee:active .marquee-track,
+.marquee[data-paused] .marquee-track { animation-play-state: paused; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(calc(-50% - 5px)); } }
+/* Edge fade so slides glide in and out */
+.marquee { mask-image: linear-gradient(90deg, transparent, #000 16px, #000 calc(100% - 16px), transparent); }
+@media (prefers-reduced-motion: reduce) {
+  .marquee { overflow-x: auto; mask-image: none; }
+  .marquee-track { animation: none; }
+  .marquee-track > li[aria-hidden] { display: none; }
+  .marquee-toggle { display: none; }
+}

@@ -111,6 +111,11 @@ Data is created from the sample catalogue on first run. **Admin → Overview →
   - Cards rise in as you scroll, where the browser supports scroll-driven animation.
   - Adding to bag flies a thumbnail into the bag icon.
   - All motion respects reduced-motion settings.
+- **Navigation & motion extras:**
+  - A **Back** button at the top of every page except home. It returns to the previous Krip page, or home if you arrived from outside.
+  - **Moving product slides**: New Drops and Beauty & accessories glide continuously, and the offer tiles auto-advance every 4.5 s.
+  - Slides pause on touch, hover or keyboard focus, and each row has a Pause/Play button.
+  - With reduced motion on, slides stay still and become normal swipe rows.
 - **Footer:** a "See picks for your vibe" prompt, Back to top, four link columns (Get to Know Us, Connect with Us, Sell with Krip, Let Us Help You) and English / India chips. Social links say "soon" until real accounts exist.
 - **Vibe Finder:** four questions (who, vibe, budget, what). Results say they're based only on those answers.
 - **Complete the Look:** each piece shows its own price and variant picker, plus a combined total and "Add selected to bag".

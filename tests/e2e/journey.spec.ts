@@ -198,3 +198,19 @@ test("location outside India is refused", async ({ request }) => {
   const res = await request.post("/api/locate", { data: { lat: 51.5, lon: -0.12 } });
   expect(res.status()).toBe(422);
 });
+
+test("back button returns to the previous page", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("button", { name: "Back", exact: true })).toHaveCount(0);
+  await page.getByRole("link", { name: "Women", exact: true }).first().click();
+  await expect(page).toHaveURL(/cat=women/);
+  await page.getByRole("button", { name: "Back", exact: true }).click();
+  await expect(page).toHaveURL(/\/$/);
+});
+
+test("sliding product rows can be paused", async ({ page }) => {
+  await page.goto("/");
+  const toggle = page.getByRole("button", { name: /Pause slides/ }).first();
+  await toggle.click();
+  await expect(page.getByRole("button", { name: /Play slides/ }).first()).toBeVisible();
+});

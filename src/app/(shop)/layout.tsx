@@ -1,6 +1,7 @@
 import { Header } from "@/components/Header";
 import { BottomNav } from "@/components/BottomNav";
 import { Footer } from "@/components/HelpLinks";
+import { BackBar } from "@/components/BackBar";
 import { getLiveOffers } from "@/lib/server/catalog";
 
 // Reads live offers for the header promo, so render per request.
@@ -12,6 +13,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   return (
     <>
       <Header promo={promo} />
+      <BackBar />
       <main id="main" className="mx-auto w-full max-w-7xl">
         {children}
       </main>
