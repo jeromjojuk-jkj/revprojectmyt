@@ -17,6 +17,8 @@ export function slugify(s: string) {
 
 export function isAllowedImageUrl(u: string) {
   if (/^\/art\/[a-z]+-[0-9a-f]{6}-[12]\.svg$/i.test(u)) return true;
+  // Images uploaded to the hosted demo's asset store.
+  if (/^\/_blob\/[0-9a-f]{32}$/.test(u)) return true;
   try {
     const url = new URL(u);
     return url.protocol === "https:";

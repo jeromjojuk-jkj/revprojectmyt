@@ -95,7 +95,6 @@ Data is created from the sample catalogue on first run. **Admin → Overview →
   - The shopper always confirms the detected pincode.
   - If no geocoder is reachable, it shows the nearest city as "approximate" and asks for the pincode. It never guesses one.
 - **Meesho-style shopping aids:**
-  - A home strip that only lists things true for every order: returns shown up front, COD on eligible pincodes, GST included.
   - "New" and "Trending" card badges, plus return info on each card.
   - One-tap quick filters: Women, Men, Under ₹299/₹499, In stock, Price low→high.
   - Product page: product highlights, a seller card and Share on WhatsApp.
