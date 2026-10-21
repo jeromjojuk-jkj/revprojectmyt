@@ -3,6 +3,7 @@ import { getOrderForCustomer } from "@/lib/server/orders";
 import { paymentConfig } from "@/lib/server/payments";
 import { formatPrice } from "@/lib/format";
 import { DemoGateway } from "./DemoGateway";
+import { CheckoutSteps } from "@/components/CheckoutSteps";
 
 export const dynamic = "force-dynamic";
 export const metadata = { title: "Payment", robots: { index: false } };
@@ -16,6 +17,8 @@ export default async function PayPage({ params, searchParams }: { params: Promis
   const cfg = paymentConfig();
 
   return (
+    <>
+    <CheckoutSteps current={2} />
     <div className="mx-auto max-w-md px-4 pt-6 pb-10">
       <div className="overflow-hidden rounded-2xl bg-white ring-1 ring-line">
         <div className="bg-ink px-4 py-3 text-white">
@@ -41,5 +44,6 @@ export default async function PayPage({ params, searchParams }: { params: Promis
         </div>
       </div>
     </div>
+    </>
   );
 }

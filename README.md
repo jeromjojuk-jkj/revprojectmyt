@@ -89,6 +89,18 @@ Data is created from the sample catalogue on first run. **Admin → Overview →
   - Native share with a copy-link fallback, Complete the Look, related products and recently viewed.
   - Sticky **Add to Bag / Buy Now**. A valid in-stock variant is required before anything goes in the bag.
 - **Seasonal & special offers:** a swipeable rail of bold offer tiles (e.g. "Under ₹999 · Kurtas & kurtis · Diwali Edit"), managed in **Admin → Offers**. "From ₹…", style counts and "up to …% off MRP" are computed from the catalogue. A headline like "Under ₹299" must be backed by `max=299` in the tile's link, so saving is blocked otherwise. Optional start/end dates hide tiles automatically, and terms show behind "T&C apply" only when entered. There are no countdowns, invented bank offers or delivery promises.
+- **Live location:**
+  - **Use my current location** appears in the pincode sheet and at checkout. The browser asks permission only after the tap.
+  - The server reverse-geocodes the coordinates through OpenStreetMap Nominatim (`GEOCODE_PROVIDER`; set `GEOCODE_USER_AGENT` to identify your app). It is rate-limited and India-only, and coordinates are not stored.
+  - The shopper always confirms the detected pincode.
+  - If no geocoder is reachable, it shows the nearest city as "approximate" and asks for the pincode. It never guesses one.
+- **Meesho-style shopping aids:**
+  - A home strip that only lists things true for every order: returns shown up front, COD on eligible pincodes, GST included.
+  - "New" and "Trending" card badges, plus return info on each card.
+  - One-tap quick filters: Women, Men, Under ₹299/₹499, In stock, Price low→high.
+  - Product page: product highlights, a seller card and Share on WhatsApp.
+  - A Bag → Address & payment → Pay → Confirmed progress stepper.
+  - Price details with Total MRP, Discount on MRP and a "You save ₹X" banner. This only appears when a real MRP exists.
 - **New-gen extras:**
   - **Style Swipe** (`/swipe`): swipe right to save to your wishlist, left to skip. Buttons and arrow keys work too.
   - **Shop by colour** swatches.

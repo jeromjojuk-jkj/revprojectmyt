@@ -10,6 +10,11 @@ import { IconEye } from "./Icons";
 import { QuickView } from "./QuickView";
 import { colorsOf, isPurchasable, sizesOf } from "./VariantPicker";
 
+/** Added to the catalogue in the last 21 days. */
+function isNew(p: ProductPublic) {
+  return Date.now() - Date.parse(p.createdAt) < 21 * 86_400_000;
+}
+
 export function ProductCard({
   product,
   priority = false,
@@ -58,6 +63,11 @@ export function ProductCard({
             </span>
           )}
         </Link>
+        {available && (product.collections.includes("trending") || isNew(product)) && (
+          <span className="absolute left-2 top-2 z-[2] rounded-md bg-sun px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink shadow-sm">
+            {isNew(product) ? "New" : "Trending"}
+          </span>
+        )}
         {!available && (
           <span className="absolute left-2 top-2 rounded-md bg-ink/85 px-2 py-1 text-[11px] font-semibold text-white">
             Out of stock
@@ -85,7 +95,10 @@ export function ProductCard({
             {product.title}
           </Link>
         </h3>
-        <Price price={product.price} mrp={product.mrp} size="sm" />
+        <Price price={product.price} mrp={product.mrp} size="md" />
+        {product.returnPolicy.type !== "non-returnable" && (
+          <p className="text-[11px] font-medium text-leaf">{product.returnPolicy.days}-day {product.returnPolicy.type === "exchange-only" ? "exchange" : "returns"}</p>
+        )}
         <div className="mt-auto flex items-center gap-1.5 pt-1">
           <span className="flex -space-x-1" aria-hidden>
             {colors.slice(0, 4).map((c) => (

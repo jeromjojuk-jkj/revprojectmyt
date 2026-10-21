@@ -130,6 +130,19 @@ export function ProductDetail({
   };
 
   const rp = product.returnPolicy;
+  const highlights: [string, string][] = (
+    [
+      ["Fabric / material", product.material],
+      ["Fit", product.fit],
+      ["Net quantity", product.beauty?.quantity ?? null],
+      ["Type", product.subcategory],
+      ["Country of origin", product.origin],
+      ["In the box", product.packageContents],
+    ] as [string, string | null][]
+  ).filter((x): x is [string, string] => !!x[1]);
+  const [origin, setOrigin] = useState("");
+  useEffect(() => setOrigin(window.location.origin), []);
+  const waText = `${product.title} for ${formatPrice(product.price)} on krip ${origin}/product/${product.slug}`;
 
   return (
     <div className="pb-actionbar md:pb-10">
@@ -167,6 +180,21 @@ export function ProductDetail({
             {product.reviews.length === 0 && <p className="text-xs text-ink-soft">No ratings yet</p>}
           </div>
 
+          {/* Product highlights — only fields the supplier gave us */}
+          {highlights.length > 0 && (
+            <section aria-labelledby="hl-title" className="rounded-2xl bg-white p-4 ring-1 ring-line">
+              <h2 id="hl-title" className="mb-2 text-sm font-semibold">Product highlights</h2>
+              <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+                {highlights.map(([k, v]) => (
+                  <div key={k}>
+                    <dt className="text-xs text-ink-soft">{k}</dt>
+                    <dd className="font-medium">{v}</dd>
+                  </div>
+                ))}
+              </dl>
+            </section>
+          )}
+
           <div ref={pickerRef}>
             {available ? (
               <VariantPicker product={product} sel={sel} error={error} onSizeGuide={() => setGuideOpen(true)} />
@@ -190,6 +218,15 @@ export function ProductDetail({
           </div>
 
           <div className="flex flex-wrap gap-2">
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(waText)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex h-11 items-center gap-2 rounded-xl bg-[#1f7a43] px-4 text-sm font-semibold text-white"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2Zm0 18.2a8.2 8.2 0 0 1-4.2-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2Zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8s-.4-.1-.6.1-.7.8-.8 1-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4a.5.5 0 0 0 0-.4l-.8-1.9c-.2-.5-.4-.4-.6-.4h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4c1.7.7 2.3.8 3.2.6a2.7 2.7 0 0 0 1.8-1.2 2.2 2.2 0 0 0 .2-1.3c-.1-.1-.3-.2-.5-.3Z"/></svg>
+              Share on WhatsApp
+            </a>
             <WishlistButton productId={product.id} title={product.title} withLabel className="h-11 rounded-xl bg-white px-4 ring-1 ring-line" />
             <button type="button" onClick={() => setListOpen(true)} className="flex h-11 items-center gap-1 rounded-xl bg-white px-4 text-sm font-medium ring-1 ring-line" aria-haspopup="dialog">
               <IconPlus size={16} /> Save to list
@@ -210,6 +247,21 @@ export function ProductDetail({
                 <p className="text-xs text-ink-soft">{rp.note}</p>
               </div>
             </div>
+          </section>
+
+          {/* Seller */}
+          <section aria-labelledby="seller-title" className="flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-line">
+            <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-sun text-sm font-bold text-ink" aria-hidden>
+              {product.brand.slice(0, 1)}
+            </span>
+            <div className="min-w-0 flex-1">
+              <h2 id="seller-title" className="text-xs text-ink-soft">Sold by</h2>
+              <p className="truncate font-semibold">{product.seller ?? "Krip"}</p>
+              <p className="text-xs text-ink-soft">Brand: {product.brand}{product.origin ? ` · Made in ${product.origin}` : ""}</p>
+            </div>
+            <Link href={`/search?q=${encodeURIComponent(product.brand)}`} className="flex h-10 shrink-0 items-center rounded-lg px-3 text-sm font-semibold text-leaf ring-1 ring-leaf">
+              View brand
+            </Link>
           </section>
 
           {/* Details */}

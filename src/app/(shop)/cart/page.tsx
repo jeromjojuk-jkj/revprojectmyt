@@ -11,6 +11,7 @@ import { formatPrice, plural } from "@/lib/format";
 import { MAX_QTY_PER_LINE } from "@/lib/pricing";
 import { ProductImage } from "@/components/ProductImage";
 import { PriceSummary } from "@/components/Summary";
+import { CheckoutSteps } from "@/components/CheckoutSteps";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { IconMinus, IconPlus, IconTrash } from "@/components/Icons";
 
@@ -109,6 +110,7 @@ export default function CartPage() {
   return (
     <>
     {sharedBanner}
+    <CheckoutSteps current={0} />
     <div className="px-4 pt-4 md:grid md:grid-cols-[1fr_360px] md:gap-6">
       <div>
         <div className="flex items-center justify-between gap-2">

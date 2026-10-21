@@ -83,6 +83,8 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
         <p>We collect only what we need to deliver your order: name, phone, optional email, delivery address and order details.</p>
         <h2>On your device</h2>
         <p>Your bag, wishlist, recently viewed items, recent searches, saved pincode and order links are stored in your browser’s local storage. You can clear them anytime from your browser settings or the Account page.</p>
+        <h2>Location</h2>
+        <p>If you tap “Use my current location”, your browser asks your permission and then shares your coordinates with Krip once, to look up your pincode and city through a mapping service (OpenStreetMap in this prototype). We don’t store your coordinates. You can always type your pincode instead.</p>
         <h2>Payments</h2>
         <p>Card and UPI details are handled by the payment provider. Krip never sees or stores your full card number or UPI PIN.</p>
         <h2>Sharing</h2>

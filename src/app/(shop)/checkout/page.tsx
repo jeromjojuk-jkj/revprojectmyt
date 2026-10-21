@@ -10,8 +10,10 @@ import { formatPrice } from "@/lib/format";
 import { estimateDelivery, isValidPincode } from "@/lib/pincode";
 import { INDIAN_STATES } from "@/lib/constants";
 import { PriceSummary } from "@/components/Summary";
+import { CheckoutSteps } from "@/components/CheckoutSteps";
 import { ProductImage } from "@/components/ProductImage";
 import { IconBack, IconInfo, IconTruck } from "@/components/Icons";
+import { LocateButton } from "@/components/LocateButton";
 
 interface Config {
   payment: { onlineEnabled: boolean; provider: string; demo: boolean; note: string };
@@ -150,6 +152,8 @@ export default function CheckoutPage() {
   };
 
   return (
+    <>
+    <CheckoutSteps current={1} />
     <div className="pb-actionbar px-4 pt-3 md:pb-10">
       <div className="flex items-center gap-2">
         <Link href="/cart" aria-label="Back to bag" className="-ml-2 grid h-11 w-11 place-items-center rounded-full hover:bg-black/5"><IconBack /></Link>
@@ -169,6 +173,19 @@ export default function CheckoutPage() {
         >
           <section aria-labelledby="addr-title" className="space-y-3 rounded-2xl bg-white p-4 ring-1 ring-line">
             <h2 id="addr-title" className="font-semibold">Delivery address</h2>
+            <LocateButton
+              confirmLabel="Fill my address"
+              onConfirm={(r) => {
+                setAddr((a) => ({
+                  ...a,
+                  pincode: r.pincode ?? a.pincode,
+                  city: r.city ?? a.city,
+                  state: r.state && INDIAN_STATES.includes(r.state) ? r.state : a.state,
+                  line2: a.line2 || r.locality || "",
+                }));
+                setErrors((er) => ({ ...er, pincode: "", city: "", state: "" }));
+              }}
+            />
             <Field id="name" label="Full name" error={errors.name}>
               <input id="name" autoComplete="name" value={addr.name} onChange={set("name")} className={inputCls(errors.name)} {...aria("name")} />
             </Field>
@@ -288,5 +305,6 @@ export default function CheckoutPage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

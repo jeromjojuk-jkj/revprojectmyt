@@ -39,6 +39,13 @@ export default async function HomePage() {
 
   return (
     <div className="pb-4">
+      {/* Promise strip — only things that are true for every order */}
+      <ul className="mx-4 mt-3 grid grid-cols-3 divide-x divide-sun/60 rounded-xl bg-sun-soft text-center text-[11px] font-medium leading-tight ring-1 ring-sun/60 md:text-xs" aria-label="Shopping with Krip">
+        <li className="px-1 py-2.5"><span aria-hidden className="block text-base">↩︎</span>Returns shown before you buy</li>
+        <li className="px-1 py-2.5"><span aria-hidden className="block text-base">💵</span>Cash on Delivery on eligible pincodes</li>
+        <li className="px-1 py-2.5"><span aria-hidden className="block text-base">🧾</span>GST included, no hidden fees</li>
+      </ul>
+
       {/* 2. Category shortcuts */}
       <nav aria-label="Shop by category" className="pt-3">
         <ul className="no-scrollbar flex gap-3 overflow-x-auto px-4 pb-1 md:justify-center">

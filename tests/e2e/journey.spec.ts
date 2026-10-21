@@ -181,3 +181,20 @@ test("footer has back-to-top and help columns", async ({ page }) => {
   await page.getByRole("button", { name: "Back to top" }).click();
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(5);
 });
+
+test("live location: asks only on tap and never applies a guess silently", async ({ page, context }) => {
+  await context.grantPermissions(["geolocation"]);
+  await context.setGeolocation({ latitude: 12.9352, longitude: 77.6245 });
+  await page.goto("/");
+  await page.getByRole("button", { name: /Add pincode/ }).first().click();
+  await page.getByRole("button", { name: "Use my current location" }).click();
+  // With a reachable geocoder the exact pincode is offered for confirmation;
+  // offline it falls back to the nearest city and asks for the pincode.
+  await expect(page.getByText(/Bengaluru|560\d{3}/).first()).toBeVisible({ timeout: 15_000 });
+  await expect(page.getByRole("button", { name: /Add pincode/ }).first()).toBeVisible();
+});
+
+test("location outside India is refused", async ({ request }) => {
+  const res = await request.post("/api/locate", { data: { lat: 51.5, lon: -0.12 } });
+  expect(res.status()).toBe(422);
+});

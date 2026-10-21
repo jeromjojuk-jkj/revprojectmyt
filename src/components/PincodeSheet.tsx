@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { Sheet } from "./Sheet";
 import { useStore } from "@/lib/store";
 import { estimateDelivery, isValidPincode } from "@/lib/pincode";
+import { LocateButton } from "./LocateButton";
 
 export function PincodeForm({ onSaved, compact = false }: { onSaved?: () => void; compact?: boolean }) {
   const saved = useStore((s) => s.pincode);
@@ -44,6 +45,17 @@ export function PincodeForm({ onSaved, compact = false }: { onSaved?: () => void
         <button className="h-12 rounded-xl bg-leaf px-5 font-semibold text-white">Check</button>
       </div>
       {error && <p id="pin-err" role="alert" className="text-sm text-danger">{error}</p>}
+      {!compact && (
+        <LocateButton
+          onConfirm={(r) => {
+            if (!r.pincode) return;
+            setValue(r.pincode);
+            setError(null);
+            setPincode(r.pincode);
+            onSaved?.();
+          }}
+        />
+      )}
       {est && !error && (
         <div className="rounded-xl bg-leaf-soft px-3 py-2 text-sm" aria-live="polite">
           <p className="font-semibold text-leaf">{est.message}</p>
