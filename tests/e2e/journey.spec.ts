@@ -214,3 +214,20 @@ test("sliding product rows can be paused", async ({ page }) => {
   await toggle.click();
   await expect(page.getByRole("button", { name: /Play slides/ }).first()).toBeVisible();
 });
+
+test("Krip Lab: Build a Fit totals, Colour Match reads a sample, Size Finder suggests a size", async ({ page }) => {
+  await page.goto("/fit");
+  await expect(page.getByRole("heading", { name: /Swipe each row/ })).toBeVisible();
+  await expect(page.getByText(/pieces · individual prices added up/)).toBeVisible();
+  await page.goto("/colour-match");
+  await page.getByRole("button", { name: "Try a sample" }).click();
+  await expect(page.getByText("Colours we found")).toBeVisible();
+  await expect(page.getByText(/in stock$/).first()).toBeVisible();
+  await page.goto("/product/constellation-oversized-tee");
+  await page.getByRole("button", { name: /Find my size/ }).click();
+  await page.getByLabel(/Your chest/).fill("37");
+  await page.getByRole("dialog").getByRole("button", { name: "Find my size" }).click();
+  await expect(page.getByText("Suggested size")).toBeVisible();
+  await page.getByRole("button", { name: /^Select / }).click();
+  await expect(page.getByRole("radio", { name: "S", exact: true })).toHaveAttribute("aria-checked", "true");
+});

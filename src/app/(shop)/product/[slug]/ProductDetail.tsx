@@ -9,7 +9,7 @@ import { imageForColor } from "@/lib/art";
 import { CATEGORY_NAME } from "@/lib/constants";
 import { formatPrice } from "@/lib/format";
 import { estimateDelivery } from "@/lib/pincode";
-import { useHydrated, useStore } from "@/lib/store";
+import { toast, useHydrated, useStore } from "@/lib/store";
 import { Gallery } from "@/components/Gallery";
 import { Price } from "@/components/Price";
 import { Sheet } from "@/components/Sheet";
@@ -21,6 +21,8 @@ import { ProductRail } from "@/components/ProductCard";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { Section } from "@/components/Section";
 import { LookBuilder } from "@/components/LookBuilder";
+import { SizeFinder, Spotlight } from "@/components/LabTools";
+import { fitQuestion } from "@/lib/fitfinder";
 import { VariantPicker, addSelectionToBag, isPurchasable, useVariantSelection } from "@/components/VariantPicker";
 import { IconChevron, IconExternal, IconInfo, IconPlus, IconReturn, IconTruck } from "@/components/Icons";
 
@@ -107,6 +109,8 @@ export function ProductDetail({
   const [error, setError] = useState<string | null>(null);
   const [guideOpen, setGuideOpen] = useState(false);
   const [listOpen, setListOpen] = useState(false);
+  const [finderOpen, setFinderOpen] = useState(false);
+  const [spotOpen, setSpotOpen] = useState(false);
   const pickerRef = useRef<HTMLDivElement>(null);
   const viewed = useStore((s) => s.viewed);
   const pincode = useStore((s) => s.pincode);
@@ -153,7 +157,15 @@ export function ProductDetail({
       </nav>
 
       <div className="md:grid md:grid-cols-2 md:gap-8 md:px-4 md:pt-4">
-        <Gallery images={images} alt={`${product.title} in ${sel.color}`} />
+        <div className="relative">
+          <Gallery images={images} alt={`${product.title} in ${sel.color}`} />
+          <div className="absolute bottom-12 right-3 z-10 flex flex-col items-end gap-2">
+            <button type="button" onClick={() => setSpotOpen(true)} aria-haspopup="dialog" className="glass-chip flex h-10 items-center gap-1.5 rounded-full px-3 text-xs font-semibold">✨ Spotlight 3D</button>
+            {fitQuestion(product.sizeGuide) && available && (
+              <button type="button" onClick={() => setFinderOpen(true)} aria-haspopup="dialog" className="glass-chip flex h-10 items-center gap-1.5 rounded-full px-3 text-xs font-semibold">📏 Find my size</button>
+            )}
+          </div>
+        </div>
 
         <div className="space-y-5 px-4 pt-4 md:px-0 md:pt-0">
           {product.isSample && (
@@ -382,6 +394,8 @@ export function ProductDetail({
         </Sheet>
       )}
       <ListPicker productId={product.id} open={listOpen} onClose={() => setListOpen(false)} />
+      <SizeFinder product={product} open={finderOpen} onClose={() => setFinderOpen(false)} onPick={(sz) => { sel.setSize(sz); toast({ message: `Size ${sz} selected` }); }} />
+      <Spotlight src={images[0]} title={product.title} open={spotOpen} onClose={() => setSpotOpen(false)} />
     </div>
   );
 }

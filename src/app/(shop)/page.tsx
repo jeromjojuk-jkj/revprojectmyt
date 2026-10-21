@@ -58,7 +58,9 @@ export default async function HomePage() {
 
       {/* 3. Seasonal & special offers (admin-managed). Falls back to the single campaign banner. */}
       {offers.length > 0 ? (
-        <OfferRail offers={offers} />
+        <div className="aurora-band relative">
+          <OfferRail offers={offers} />
+        </div>
       ) : (
       <div className="px-4 pt-4">
         <Link
@@ -85,6 +87,33 @@ export default async function HomePage() {
       <Section id="trending" title="Trending Now" kicker="Curated by the Krip team" href="/search?collection=trending">
         <ProductGrid products={trending} priorityCount={4} />
       </Section>
+
+      {/* Krip Lab — futuristic shopping tools */}
+      <section aria-labelledby="lab-title" className="px-4 pt-7">
+        <div className="lab-hero relative overflow-hidden rounded-3xl p-4 text-white">
+          <span className="aurora-blob a1" aria-hidden />
+          <span className="aurora-blob a2" aria-hidden />
+          <span className="aurora-blob a3" aria-hidden />
+          <p className="relative text-[11px] font-semibold uppercase tracking-[0.16em] text-sun">New · Krip Lab</p>
+          <h2 id="lab-title" className="relative text-xl font-bold">Shop like it’s 2030</h2>
+          <ul className="relative mt-3 grid grid-cols-2 gap-2.5 md:grid-cols-4">
+            {[
+              ["/fit", "🎲", "Build a Fit", "Swipe rows into a full look"],
+              ["/colour-match", "🎨", "Colour Match", "Shop the colours in any photo"],
+              ["/swipe", "💘", "Style Swipe", "Right for love, left for nope"],
+              ["/product/constellation-oversized-tee", "📏", "Size Finder", "One measurement, your size"],
+            ].map(([href, e, t, d]) => (
+              <li key={t}>
+                <Link href={href} className="glass-tile pressable flex h-full flex-col gap-1 rounded-2xl p-3">
+                  <span className="text-2xl" aria-hidden>{e}</span>
+                  <span className="font-semibold">{t}</span>
+                  <span className="text-[11px] text-white/75">{d}</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
 
       {/* 5. Budget edits */}
       <Section id="budget" title="Budget edits" kicker="Your kind of price">

@@ -12,6 +12,8 @@ import { CATEGORIES, VIBES } from "@/lib/constants";
 import { cartCount, useHydrated, useStore } from "@/lib/store";
 
 const STRIP: { href: string; label: string; wide?: boolean }[] = [
+  { href: "/fit", label: "Build a Fit" },
+  { href: "/colour-match", label: "Colour Match" },
   { href: "/search?cat=women", label: "Women" },
   { href: "/search?cat=men", label: "Men" },
   { href: "/search?cat=footwear", label: "Footwear" },
@@ -54,7 +56,7 @@ export function CartButton() {
 
 function AllMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const groups: { title: string; links: { href: string; label: string }[] }[] = [
-    { title: "Trending", links: [{ href: "/search?collection=trending", label: "Trending Now" }, { href: "/drops", label: "New Drops" }, { href: "/#offers", label: "Seasonal offers" }, { href: "/swipe", label: "Style Swipe" }, { href: "/looks", label: "Complete the Look" }, { href: "/vibe", label: "Vibe Finder" }] },
+    { title: "Trending", links: [{ href: "/search?collection=trending", label: "Trending Now" }, { href: "/drops", label: "New Drops" }, { href: "/#offers", label: "Seasonal offers" }, { href: "/fit", label: "Build a Fit" }, { href: "/colour-match", label: "Colour Match" }, { href: "/swipe", label: "Style Swipe" }, { href: "/looks", label: "Complete the Look" }, { href: "/vibe", label: "Vibe Finder" }] },
     { title: "Shop by category", links: CATEGORIES.map((c) => ({ href: `/search?cat=${c.id}`, label: c.name })) },
     { title: "Shop by vibe", links: VIBES.map((v) => ({ href: `/search?vibe=${v.id}`, label: v.name })) },
     { title: "Help & settings", links: [{ href: "/account", label: "Your account" }, { href: "/orders", label: "Your orders" }, { href: "/wishlist", label: "Wishlist & lists" }, { href: "/help", label: "Help & contact" }, { href: "/help/returns", label: "Returns & exchanges" }] },
@@ -100,6 +102,13 @@ export function Header({ promo }: { promo?: { label: string; href: string } | nu
     return () => ro.disconnect();
   }, []);
 
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const on = () => setScrolled(window.scrollY > 8);
+    on();
+    window.addEventListener("scroll", on, { passive: true });
+    return () => window.removeEventListener("scroll", on);
+  }, []);
   const pin = hydrated && pincode ? pincode : null;
   const deliver = (
     <button type="button" onClick={() => setPinOpen(true)} aria-haspopup="dialog" className={`flex h-11 min-w-0 items-center gap-1 px-1.5 text-left ${hit}`}>
@@ -112,7 +121,7 @@ export function Header({ promo }: { promo?: { label: string; href: string } | nu
   );
 
   return (
-    <header ref={ref} className="sticky top-0 z-30 text-white" style={{ paddingTop: "env(safe-area-inset-top, 0px)", background: "#171717" }}>
+    <header ref={ref} className={`glass-header sticky top-0 z-30 text-white ${scrolled ? "scrolled" : ""}`} style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
       {/* Main bar */}
       <div className="mx-auto flex max-w-7xl flex-wrap items-center gap-x-1 gap-y-2 px-2 py-1.5 md:flex-nowrap md:gap-2 md:px-4">
         <button type="button" onClick={() => setMenuOpen(true)} aria-label="All departments" aria-haspopup="dialog" className={`grid h-11 w-10 place-items-center md:hidden ${hit}`}>

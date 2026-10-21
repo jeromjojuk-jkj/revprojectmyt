@@ -111,6 +111,16 @@ Data is created from the sample catalogue on first run. **Admin → Overview →
   - Cards rise in as you scroll, where the browser supports scroll-driven animation.
   - Adding to bag flies a thumbnail into the bag icon.
   - All motion respects reduced-motion settings.
+- **Krip Lab (futuristic tools):**
+  - **Build a Fit** (`/fit`): swipe four rows (top/dress, bottom, footwear, extra) into an outfit. It has a 🎲 Surprise-me shuffle, a live total and "Save fit".
+  - **Colour Match** (`/colour-match`): pick any photo, and its dominant colours are read on the device with a canvas. They map to shop colour families, and you can shop the in-stock matches. The photo is never uploaded.
+  - **Size Finder** on product pages: one body measurement is compared with that item's own size chart, with a snug, regular or relaxed preference. It suggests a size and the next size up.
+  - **Spotlight 3D**: a dark stage where you drag to turn the product, with lighting and a reflection.
+- **UI polish:**
+  - A frosted-glass header on scroll and an animated aurora glow behind the offers.
+  - Glass "Krip Lab" tiles, shimmering New/Trending badges, and confetti the first time a successful order shows.
+  - Smooth page cross-fades in the demo.
+  - All of it respects reduced-motion settings.
 - **Navigation & motion extras:**
   - A **Back** button at the top of every page except home. It returns to the previous Krip page, or home if you arrived from outside.
   - **Moving product slides**: New Drops and Beauty & accessories glide continuously, and the offer tiles auto-advance every 4.5 s.

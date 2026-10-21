@@ -40,6 +40,17 @@ export function OrderView({ order, token }: { order: CustomerOrder; token: strin
     saveOrder({ id: order.id, token, createdAt: order.createdAt });
   }, [order.id, order.createdAt, token, saveOrder]);
 
+  // A short celebration the first time a successful order is shown on this device.
+  useEffect(() => {
+    if (!["placed", "confirmed"].includes(order.status)) return;
+    try {
+      const key = `krip-celebrated-${order.id}`;
+      if (sessionStorage.getItem(key) || localStorage.getItem(key)) return;
+      localStorage.setItem(key, "1");
+    } catch {}
+    import("@/lib/confetti").then((m) => m.confetti());
+  }, [order.id, order.status]);
+
   const post = async (path: string) => {
     setBusy(true);
     setError(null);

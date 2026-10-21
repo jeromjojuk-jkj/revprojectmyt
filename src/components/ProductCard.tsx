@@ -64,7 +64,7 @@ export function ProductCard({
           )}
         </Link>
         {available && (product.collections.includes("trending") || isNew(product)) && (
-          <span className="absolute left-2 top-2 z-[2] rounded-md bg-sun px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink shadow-sm">
+          <span className="shimmer absolute left-2 top-2 z-[2] overflow-hidden rounded-md bg-sun px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wide text-ink shadow-sm">
             {isNew(product) ? "New" : "Trending"}
           </span>
         )}
