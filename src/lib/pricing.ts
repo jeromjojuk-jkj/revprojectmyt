@@ -1,4 +1,5 @@
-import type { PaymentMethod, ProductPublic, Quote, QuoteLine, Settings } from "./types.ts";
+import type { CouponUsage, PaymentMethod, ProductPublic, Quote, QuoteLine, Settings } from "./types.ts";
+import { evaluateCoupon } from "./coupons.ts";
 import { estimateDelivery } from "./pincode.ts";
 
 export const MAX_QTY_PER_LINE = 5;
@@ -17,6 +18,7 @@ export function computeQuote(
   settings: Settings,
   /** Units of each sku held by other pending orders. */
   held: Record<string, number> = {},
+  ctx: { now?: Date; couponUsage?: CouponUsage } = {},
 ): Quote {
   const bySku = new Map<string, { product: ProductPublic; variantIdx: number }>();
   for (const p of products) p.variants.forEach((v, i) => bySku.set(v.sku, { product: p, variantIdx: i }));
@@ -75,13 +77,16 @@ export function computeQuote(
   let couponMessage: string | null = null;
   const code = input.couponCode?.trim().toUpperCase();
   if (code) {
-    const c = settings.coupons.find((x) => x.code.toUpperCase() === code && x.active);
+    const c = settings.coupons.find((x) => x.code.toUpperCase() === code);
     if (!c) couponMessage = "This code isn’t valid.";
-    else if (subtotal < c.minSubtotal) couponMessage = `Add items worth ₹${c.minSubtotal - subtotal} more to use ${c.code}.`;
     else {
-      discount = Math.min(c.amountOff, subtotal);
-      couponCode = c.code;
-      couponMessage = c.description;
+      const category = new Map(products.map((p) => [p.id, p.category]));
+      const r = evaluateCoupon(c, okLines.map((l) => ({ category: category.get(l.productId!)!, lineTotal: l.lineTotal })), ctx.now ?? new Date(), ctx.couponUsage);
+      couponMessage = r.message;
+      if (r.ok) {
+        discount = r.discount;
+        couponCode = c.code.toUpperCase();
+      }
     }
   }
 

@@ -105,7 +105,7 @@ export function validateProductInput(
   else if (mrp !== null && price && mrp < price) e.mrp = "MRP can’t be lower than the selling price.";
 
   const status = str(raw.status) || "draft";
-  if (!["draft", "active", "out-of-stock"].includes(status)) e.status = "Status must be draft, active or out-of-stock.";
+  if (!["draft", "active", "out-of-stock", "archived"].includes(status)) e.status = "Status must be draft, active, out-of-stock or archived.";
 
   const images = lines(raw.images);
   if (!images.length) e.images = "Add at least one image URL.";

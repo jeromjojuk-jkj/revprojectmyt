@@ -1,7 +1,9 @@
 import { CSV_COLUMNS, CSV_REQUIRED } from "@/lib/productInput";
 import { ImportForm } from "./ImportForm";
+import { requirePerm } from "@/lib/server/auth";
 
-export default function ImportPage() {
+export default async function ImportPage() {
+  await requirePerm("products.create");
   return (
     <div className="space-y-4">
       <h1 className="text-xl font-semibold">CSV import</h1>

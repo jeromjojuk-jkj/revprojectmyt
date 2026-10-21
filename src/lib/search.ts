@@ -227,7 +227,7 @@ function passesGroup(p: ProductPublic, g: Group, selected: string[], inStock: bo
 }
 
 function baseMatches(p: ProductPublic, s: SearchState) {
-  if (p.status === "draft") return false;
+  if (p.status === "draft" || p.status === "archived") return false;
   if (s.vibe && !p.vibes.includes(s.vibe)) return false;
   if (s.collection && !p.collections.includes(s.collection)) return false;
   if (s.max && p.price > s.max) return false;
@@ -331,7 +331,7 @@ export function suggest(products: ProductPublic[], q: string, limit = 8): Sugges
   const families = new Set(products.flatMap((p) => p.variants.map((v) => colorFamily(v.color))));
   for (const f of families) if (normalize(f).startsWith(n)) push({ kind: "color", label: `${f} colour`, href: `/search?color=${f}` });
   const matches = products
-    .filter((p) => p.status !== "draft")
+    .filter((p) => p.status !== "draft" && p.status !== "archived")
     .map((p) => ({ p, s: scoreProduct(p, q) }))
     .filter((x) => x.s > 0)
     .sort((a, b) => b.s - a.s);

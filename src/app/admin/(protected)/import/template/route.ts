@@ -1,9 +1,10 @@
-import { isAdmin } from "@/lib/server/auth";
+import { checkPerm } from "@/lib/server/auth";
 import { CSV_COLUMNS } from "@/lib/productInput";
 import { toCsvRow } from "@/lib/csv";
 
 export async function GET() {
-  if (!(await isAdmin())) return new Response("Unauthorized", { status: 401 });
+  const { denied } = await checkPerm("products.create");
+  if (denied) return denied;
   const ex: Record<string, string> = {
     slug: "example-linen-shirt", title: "Example Linen Shirt", brand: "Krip Studio", category: "men", subcategory: "Shirts",
     description: "Supplier-provided factual description.", price: "799", mrp: "", status: "draft",

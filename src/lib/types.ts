@@ -12,7 +12,7 @@ export type CategoryId =
 
 export type VibeId = "campus" | "streetwear" | "everyday" | "date-night" | "festive";
 
-export type ProductStatus = "draft" | "active" | "out-of-stock";
+export type ProductStatus = "draft" | "active" | "out-of-stock" | "archived";
 
 export type ArtKind =
   | "tee" | "shirt" | "hoodie" | "jeans" | "cargo" | "dress" | "kurti" | "top" | "skirt" | "coord"
@@ -134,12 +134,37 @@ export interface ChannelFee {
   fixedFee: number;
 }
 
+export type CouponKind = "fixed" | "percent";
+
 export interface Coupon {
   code: string;
   description: string;
+  /** fixed = ₹ off; percent = % off the eligible subtotal. */
+  kind: CouponKind;
+  /** ₹ for fixed coupons, % (1–90) for percent coupons. */
   amountOff: number;
+  /** Cap on a percent discount in ₹. null = no cap. */
+  maxDiscount: number | null;
   minSubtotal: number;
   active: boolean;
+  /** yyyy-mm-dd (IST), inclusive. null = no limit. */
+  startsOn: string | null;
+  endsOn: string | null;
+  /** Total redemptions allowed across all customers. null = unlimited. */
+  usageLimit: number | null;
+  /** Redemptions allowed per customer (by phone number). null = unlimited. */
+  perCustomerLimit: number | null;
+  /** Only for customers with no earlier booked order. */
+  firstOrderOnly: boolean;
+  /** Restrict to these categories; empty = whole bag. */
+  categories: CategoryId[];
+}
+
+/** Redemption context, known only at checkout. Counts exclude failed/cancelled orders. */
+export interface CouponUsage {
+  total: number;
+  byCustomer: number;
+  customerHasOrders: boolean;
 }
 
 export interface Settings {
@@ -165,6 +190,33 @@ export type OrderStatus =
   | "shipped"
   | "delivered"
   | "cancelled";
+
+export interface OrderNote {
+  at: string;
+  by: string;
+  text: string;
+}
+
+export interface Shipment {
+  id: string;
+  carrier: string;
+  awb: string;
+  trackingUrl: string | null;
+  createdAt: string;
+  createdBy: string;
+  events: { at: string; status: string; note?: string }[];
+}
+
+export interface RefundRecord {
+  id: string;
+  amount: number;
+  reason: string;
+  /** demo = no money moved (demo order); provider = refund issued in the payment provider / bank, reference recorded here. */
+  mode: "demo" | "provider" | "cod-manual";
+  reference: string;
+  at: string;
+  by: string;
+}
 
 export interface OrderItem {
   productId: string;
@@ -221,6 +273,13 @@ export interface Order {
   reservationExpiresAt: string | null;
   stockHeld: boolean;
   demo: boolean;
+  /** Admin-only fields below. Never sent to shoppers. */
+  onHold?: boolean;
+  notes?: OrderNote[];
+  assignee?: string | null;
+  shipments?: Shipment[];
+  refunds?: RefundRecord[];
+  codCollectedAt?: string | null;
 }
 
 export interface QuoteLine {
@@ -280,4 +339,114 @@ export interface Offer {
   startsOn: string | null;
   endsOn: string | null;
   active: boolean;
+}
+
+/** Public store profile, edited in Admin → Store settings. Blank fields are hidden on the storefront. */
+export interface StoreProfile {
+  name: string;
+  legalName: string;
+  supportEmail: string;
+  supportPhone: string;
+  whatsapp: string;
+  supportHours: string;
+  address: string;
+  gstin: string;
+  grievanceName: string;
+  grievanceEmail: string;
+  acceptedPayments: string[];
+  social: { instagram: string; facebook: string; youtube: string; x: string };
+  announcement: { active: boolean; text: string; href: string };
+  maintenance: { active: boolean; message: string };
+  lowStockThreshold: number;
+}
+
+// ---- Admin / back-office records (server only) ----
+
+export interface StaffUser {
+  id: string;
+  email: string;
+  name: string;
+  roleId: string;
+  /** scrypt$<saltB64>$<hashB64>. Never plaintext. */
+  passwordHash: string;
+  active: boolean;
+  /** Base32 TOTP secret, set only after the user verifies a code. */
+  mfaSecret: string | null;
+  /** Pending TOTP secret during setup. */
+  mfaPending: string | null;
+  failedLogins: number;
+  lockedUntil: string | null;
+  createdAt: string;
+  createdBy: string;
+  lastLoginAt: string | null;
+  passwordChangedAt: string;
+  /** sha256 of a one-time reset token, and its expiry. */
+  resetTokenHash: string | null;
+  resetTokenExpires: string | null;
+  notificationsSeenAt: string | null;
+}
+
+export interface CustomRole {
+  id: string;
+  name: string;
+  description: string;
+  permissions: string[];
+  privileged: boolean;
+}
+
+export interface AdminSession {
+  /** sha256 of the cookie token; the token itself is never stored. */
+  idHash: string;
+  staffId: string;
+  createdAt: string;
+  expiresAt: string;
+  lastSeenAt: string;
+  ip: string;
+  userAgent: string;
+  revokedAt: string | null;
+}
+
+export interface LoginEvent {
+  at: string;
+  email: string;
+  staffId: string | null;
+  ip: string;
+  userAgent: string;
+  outcome: "success" | "bad_password" | "bad_code" | "locked" | "inactive" | "unknown_user" | "rate_limited";
+}
+
+export interface AuditEntry {
+  seq: number;
+  at: string;
+  actorId: string;
+  actorName: string;
+  action: string;
+  entityType: string;
+  entityId: string;
+  outcome: "ok" | "denied" | "failed";
+  before?: unknown;
+  after?: unknown;
+  requestId: string;
+  /** sha256(prevHash + this entry without hash). Breaks if any earlier entry is edited or removed. */
+  hash: string;
+}
+
+export type MovementReason =
+  | "order_reserved" | "order_released" | "received" | "returned" | "damaged" | "lost" | "correction" | "audit_count" | "product_edit" | "import";
+
+export interface InventoryMovement {
+  id: string;
+  at: string;
+  sku: string;
+  productId: string;
+  delta: number;
+  balanceAfter: number;
+  reason: MovementReason;
+  ref: string;
+  by: string;
+}
+
+export interface CustomerMeta {
+  notes: OrderNote[];
+  groups: string[];
 }

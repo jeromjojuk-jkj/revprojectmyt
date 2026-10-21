@@ -234,12 +234,19 @@ test("Krip Lab: Build a Fit totals, Colour Match reads a sample, Size Finder sug
 
 test("footer columns and legal pages", async ({ page }) => {
   await page.goto("/");
-  for (const h of ["Get to Know Us", "Connect with Us", "Let Us Help You", "Shop", "Legal"]) {
+  for (const h of ["Get to Know Us", "Connect with Us", "Let Us Help You", "Shop", "Customer Support", "Legal & Policies"]) {
     await expect(page.getByRole("heading", { name: h, exact: true })).toBeVisible();
   }
   const footer = page.getByRole("navigation", { name: "Footer" });
-  await footer.getByRole("link", { name: "Refund Policy" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Refund Policy" })).toBeVisible();
+  for (const l of ["Help Center / FAQs", "Exchange Policy", "Order Tracking", "Cookie Policy", "Shipping Policy"]) await expect(footer.getByRole("link", { name: l })).toBeVisible();
+  // WhatsApp support only appears once a number is configured.
+  await expect(footer.getByRole("link", { name: "WhatsApp Support" })).toHaveCount(0);
+  await expect(page.getByText("© 2026 Krip. All rights reserved.")).toBeVisible();
+  await expect(page.getByText("Currency: INR (₹)")).toBeVisible();
+  await footer.getByRole("link", { name: "Return & Refund Policy" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Return & Refund Policy" })).toBeVisible();
+  await page.goto("/help/cookies");
+  await expect(page.getByRole("heading", { level: 1, name: "Cookie Policy" })).toBeVisible();
   await page.goto("/help/contact");
   await expect(page.getByRole("heading", { level: 1, name: "Contact Krip" })).toBeVisible();
 });

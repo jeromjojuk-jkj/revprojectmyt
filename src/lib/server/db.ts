@@ -3,7 +3,8 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import os from "node:os";
-import type { Offer, Order, ProductRecord, Settings } from "../types";
+import type { AdminSession, AuditEntry, CustomerMeta, CustomRole, InventoryMovement, LoginEvent, Offer, Order, ProductRecord, Settings, StaffUser, StoreProfile } from "../types";
+import { normalizeCoupon } from "../coupons";
 import { buildSeedProducts } from "@/data/catalog";
 import { SEED_OFFERS } from "@/data/offers";
 
@@ -19,7 +20,34 @@ export interface DB {
   settings: Settings;
   processedPaymentEvents: string[];
   offers: Offer[];
+  store: StoreProfile;
+  staff: StaffUser[];
+  roles: CustomRole[];
+  sessions: AdminSession[];
+  loginEvents: LoginEvent[];
+  audit: AuditEntry[];
+  movements: InventoryMovement[];
+  /** Keyed by customer id (hash of phone number). */
+  customers: Record<string, CustomerMeta>;
 }
+
+export const DEFAULT_STORE: StoreProfile = {
+  name: "Krip",
+  legalName: "",
+  supportEmail: "",
+  supportPhone: "",
+  whatsapp: "",
+  supportHours: "",
+  address: "",
+  gstin: "",
+  grievanceName: "",
+  grievanceEmail: "",
+  acceptedPayments: [],
+  social: { instagram: "", facebook: "", youtube: "", x: "" },
+  announcement: { active: false, text: "", href: "" },
+  maintenance: { active: false, message: "We’re updating the store. Please check back soon." },
+  lowStockThreshold: 3,
+};
 
 export const DEFAULT_SETTINGS: Settings = {
   deliveryFee: 49,
@@ -31,7 +59,7 @@ export const DEFAULT_SETTINGS: Settings = {
     { channel: "Krip", marketplaceFeePct: 0, paymentFeePct: 2, fixedFee: 0 },
   ],
   coupons: [
-    { code: "AURA50", description: "Sample code: ₹50 off orders of ₹699 or more", amountOff: 50, minSubtotal: 699, active: true },
+    normalizeCoupon({ code: "AURA50", description: "Sample code: ₹50 off orders of ₹699 or more", amountOff: 50, minSubtotal: 699, active: true }),
   ],
 };
 
@@ -55,7 +83,30 @@ function seed(): DB {
     settings: structuredClone(DEFAULT_SETTINGS),
     processedPaymentEvents: [],
     offers: structuredClone(SEED_OFFERS),
+    ...emptyBackOffice(),
   };
+}
+
+function emptyBackOffice() {
+  return {
+    store: structuredClone(DEFAULT_STORE),
+    staff: [] as StaffUser[],
+    roles: [] as CustomRole[],
+    sessions: [] as AdminSession[],
+    loginEvents: [] as LoginEvent[],
+    audit: [] as AuditEntry[],
+    movements: [] as InventoryMovement[],
+    customers: {} as Record<string, CustomerMeta>,
+  };
+}
+
+/** Upgrades datastores written by earlier versions in place. */
+function migrate(db: DB) {
+  db.offers ??= structuredClone(SEED_OFFERS);
+  const fresh = emptyBackOffice();
+  for (const k of Object.keys(fresh) as (keyof typeof fresh)[]) (db as unknown as Record<string, unknown>)[k] ??= fresh[k];
+  db.store = { ...structuredClone(DEFAULT_STORE), ...db.store, social: { ...DEFAULT_STORE.social, ...db.store.social } };
+  db.settings.coupons = db.settings.coupons.map(normalizeCoupon);
 }
 
 async function load(): Promise<DB> {
@@ -63,8 +114,7 @@ async function load(): Promise<DB> {
   try {
     const raw = await fs.readFile(DB_FILE, "utf8");
     g.__kripDb = JSON.parse(raw) as DB;
-    // Datastores created before offers existed get the sample offers.
-    g.__kripDb.offers ??= structuredClone(SEED_OFFERS);
+    migrate(g.__kripDb);
   } catch (e) {
     if ((e as NodeJS.ErrnoException).code !== "ENOENT") throw e;
     g.__kripDb = seed();
@@ -121,6 +171,10 @@ export async function resetDb() {
     db.settings = fresh.settings;
     db.processedPaymentEvents = [];
     db.offers = fresh.offers;
+    // Staff, roles and the audit trail survive a demo-data reset.
+    db.movements = [];
+    db.customers = {};
+    db.store = fresh.store;
   });
 }
 

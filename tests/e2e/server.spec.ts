@@ -61,14 +61,17 @@ test("admin requires sign-in and shows private costs only after login", async ({
   expect(unauth.status()).toBe(401);
   await page.goto("/admin/products");
   await expect(page).toHaveURL(/\/admin\/login/);
+  await page.getByLabel("Email").fill("owner@krip.local");
   await page.getByLabel("Password").fill("wrong-password");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByText("Incorrect password.")).toBeVisible();
+  await expect(page.getByText("Email or password is incorrect.")).toBeVisible();
   await page.getByLabel("Password").fill("e2e-admin-password");
   await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByRole("heading", { name: "Overview" })).toBeVisible();
+  await expect(page).toHaveURL(/\/admin$/);
   await page.goto("/admin/products");
-  await expect(page.getByText("Sample Supplier — Tiruppur Knits").first()).toBeVisible();
+  await expect(page.getByText("Cost · est. margin")).toBeVisible();
+  const csv = await page.request.get("/admin/export");
+  expect(await csv.text()).toContain("Sample Supplier — Tiruppur Knits");
 
   // CSV import validates before committing
   await page.goto("/admin/import");

@@ -32,15 +32,13 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
           <li>Returns and refunds: see the <a href="/help/refunds">Refund Policy</a> and the return rule on each product page.</li>
           <li>Sizes: every clothing and footwear page has a size chart and a Size Finder.</li>
         </ul>
-        <h2>Ways to reach us</h2>
-        <p>Email, phone/WhatsApp support hours and the grievance officer’s details (required under the Consumer Protection (E-Commerce) Rules, 2020) will be published here before launch. This prototype doesn’t have a staffed support channel yet.</p>
         <h2>Suppliers</h2>
         <p>Want to sell through Krip? See <a href="/help/suppliers">Sell with Krip</a>.</p>
       </>
     ),
   },
   refunds: {
-    title: "Refund Policy",
+    title: "Return & Refund Policy",
     body: (
       <>
         <p>This policy explains when and how you get money back. What’s returnable is shown on each product page before you buy.</p>
@@ -83,7 +81,7 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
     ),
   },
   shipping: {
-    title: "Shipping & delivery",
+    title: "Shipping & Delivery Policy",
     body: (
       <>
         <p>We ship across India through courier partners. Delivery dates shown on product pages and at checkout are estimates based on your pincode — they’re not guarantees.</p>
@@ -92,12 +90,12 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
         <h2>Cash on Delivery</h2>
         <p>COD is available on eligible pincodes and order values, and a small COD fee applies. Eligibility is shown at checkout.</p>
         <h2>Tracking</h2>
-        <p>Your order page shows the latest status. Courier tracking links will be added once a shipping partner is connected.</p>
+        <p>Your order page shows the latest status. Once your order ships, the courier name, AWB number and tracking link (when the courier provides one) appear there.</p>
       </>
     ),
   },
   returns: {
-    title: "Returns & exchanges",
+    title: "Returns & Refunds",
     body: (
       <>
         <p>Every product page shows whether that item can be returned or exchanged, and for how long, <b>before</b> you buy.</p>
@@ -113,7 +111,7 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
     ),
   },
   cancellation: {
-    title: "Cancellation",
+    title: "Cancellation Policy",
     body: (
       <>
         <p>You can cancel an order from its order page until it’s packed. Once packed or shipped, use returns instead (where the item is returnable).</p>
@@ -123,7 +121,7 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
     ),
   },
   privacy: {
-    title: "Privacy policy",
+    title: "Privacy Policy",
     body: (
       <>
         <p>We collect only what we need to deliver your order: name, phone, optional email, delivery address and order details.</p>
@@ -141,7 +139,7 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
     ),
   },
   terms: {
-    title: "Terms of use",
+    title: "Terms & Conditions",
     body: (
       <>
         <p>By using Krip you agree to these terms. Krip sources products from vendors and sells them to you; seller and country-of-origin details are shown on each product where supplied.</p>
@@ -151,6 +149,60 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
         <p>An online-paid order is confirmed only after our payment provider confirms the payment to us. If a payment fails, no order is confirmed.</p>
         <h2>Other marketplaces</h2>
         <p>Some Krip products may also be sold on other marketplaces. Purchases made there follow that marketplace’s own terms.</p>
+      </>
+    ),
+  },
+  faq: {
+    title: "Help Center & FAQs",
+    body: (
+      <>
+        <h2>Orders</h2>
+        <p><b>Where’s my order?</b> Open <a href="/orders">Your Orders</a>. Once your order ships, the courier name and AWB number appear on the order page.</p>
+        <p><b>Can I change my address after ordering?</b> Not from the site yet. Cancel the order before it’s packed and place it again with the right address.</p>
+        <p><b>How do I cancel?</b> From the order page, until the order is packed. See the <a href="/help/cancellation">Cancellation Policy</a>.</p>
+        <h2>Payments</h2>
+        <p><b>When is my order confirmed?</b> For online payments, only after the payment provider confirms the payment to us. For Cash on Delivery, as soon as it’s placed.</p>
+        <p><b>Is COD available?</b> On eligible pincodes and order values. Checkout shows whether it’s available for you, and the COD fee, before you place the order.</p>
+        <p><b>My money was deducted but the order shows payment failed.</b> Contact us with your order ID. Banks usually reverse failed debits automatically; we’ll check with the payment provider.</p>
+        <h2>Sizes, returns and exchanges</h2>
+        <p><b>Which size should I pick?</b> Every clothing and footwear page has a size chart and a Size Finder.</p>
+        <p><b>Can I return or exchange this?</b> Each product page shows its return or exchange rule before you buy. See <a href="/help/returns">Returns & Refunds</a> and the <a href="/help/exchange">Exchange Policy</a>.</p>
+        <h2>Account</h2>
+        <p><b>Do I need an account?</b> No. Your bag, wishlist and order links are saved on this device.</p>
+      </>
+    ),
+  },
+  exchange: {
+    title: "Exchange Policy",
+    body: (
+      <>
+        <p>Some items can be exchanged for a different size or colour of the same product. Whether an item is exchangeable, and for how many days, is shown on its product page before you buy.</p>
+        <h2>Conditions</h2>
+        <ul>
+          <li>Ask for the exchange within the window shown on the product page, counted from delivery.</li>
+          <li>The item must be unused, unwashed and have its tags and original packaging.</li>
+          <li>Exchanges depend on the size or colour you want being in stock. If it isn’t, we’ll offer a refund for returnable items or keep your request open, whichever you choose.</li>
+        </ul>
+        <h2>Not exchangeable</h2>
+        <ul>
+          <li>Cosmetics, earrings and other items marked “Not returnable”, except when they arrive damaged, defective or wrong — report that within 48 hours with photos.</li>
+        </ul>
+        <h2>How to ask</h2>
+        <p>Contact us with your order ID and the size or colour you want. See <a href="/help/contact">Contact Us</a>.</p>
+      </>
+    ),
+  },
+  cookies: {
+    title: "Cookie Policy",
+    body: (
+      <>
+        <p>This page explains what Krip stores in your browser.</p>
+        <h2>Cookies</h2>
+        <p>The shopping site doesn’t set advertising or analytics cookies. The only cookie Krip sets is a strictly necessary sign-in cookie for Krip staff using the admin area.</p>
+        <h2>Local storage on your device</h2>
+        <p>Your bag, wishlist, recently viewed items, recent searches, saved pincode and links to your orders are kept in your browser’s local storage so they’re there next time. They aren’t sent to us until you place an order. You can clear them anytime from your browser settings.</p>
+        <h2>Third parties</h2>
+        <p>If analytics, advertising or chat tools are added later, this page will list them and, where required, ask for your consent first.</p>
       </>
     ),
   },

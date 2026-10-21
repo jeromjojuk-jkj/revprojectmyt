@@ -9,7 +9,7 @@ export function toPublicProduct(p: ProductRecord): ProductPublic {
   return { ...pub, variants: pub.variants.map((v) => ({ ...v })) };
 }
 
-const visible = (p: ProductRecord) => p.status !== "draft";
+const visible = (p: ProductRecord) => p.status !== "draft" && p.status !== "archived";
 
 export async function getPublicProducts(): Promise<ProductPublic[]> {
   const db = await readDb();
@@ -35,5 +35,10 @@ export async function getSettings() {
 export async function getLiveOffers() {
   const { liveOffers } = await import("../offers");
   const db = await readDb();
-  return liveOffers(db.offers, db.products.filter((p) => p.status !== "draft").map(toPublicProduct));
+  return liveOffers(db.offers, db.products.filter(visible).map(toPublicProduct));
+}
+
+/** Public store profile (contact details, social links, announcement). */
+export async function getStore() {
+  return (await readDb()).store;
 }

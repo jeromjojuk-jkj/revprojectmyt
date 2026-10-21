@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { readDb } from "@/lib/server/db";
+import { requirePerm } from "@/lib/server/auth";
 import { toPublicProduct } from "@/lib/server/catalog";
 import { evaluateOffer, OFFER_THEMES, type OfferState } from "@/lib/offers";
 import { offerQuickAction } from "../../actions";
@@ -14,6 +15,7 @@ const STATE: Record<OfferState, { label: string; cls: string }> = {
 };
 
 export default async function OffersAdmin({ searchParams }: { searchParams: Promise<{ edit?: string; saved?: string }> }) {
+  await requirePerm("offers.view");
   const { edit, saved } = await searchParams;
   const db = await readDb();
   const products = db.products.filter((p) => p.status !== "draft").map(toPublicProduct);

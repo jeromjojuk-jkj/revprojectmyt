@@ -28,11 +28,6 @@ export function SettingsForm({ initial }: { initial: Record<string, string> }) {
         <textarea id="channelFees" name="channelFees" rows={4} defaultValue={initial.channelFees} className="w-full rounded-xl border-2 border-line px-3 py-2 font-mono text-sm" />
         <p className="text-xs text-ink-soft">Enter the fee rates from your actual marketplace and payment-provider agreements. Defaults are placeholders.</p>
       </fieldset>
-      <fieldset className="space-y-3 rounded-2xl bg-white p-4 ring-1 ring-line">
-        <legend className="px-1 font-semibold">Coupon codes</legend>
-        <label htmlFor="coupons" className="text-sm font-medium">One per line: CODE | ₹ off | min subtotal | active/inactive | description</label>
-        <textarea id="coupons" name="coupons" rows={3} defaultValue={initial.coupons} className="w-full rounded-xl border-2 border-line px-3 py-2 font-mono text-sm" />
-      </fieldset>
       {state?.errors && state.errors.length > 0 && (
         <ul role="alert" className="rounded-xl bg-danger-soft p-3 text-sm text-danger">{state.errors.map((e) => <li key={e}>{e}</li>)}</ul>
       )}

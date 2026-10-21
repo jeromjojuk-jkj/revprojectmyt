@@ -18,11 +18,11 @@ npm run dev            # http://localhost:3000
 
 | Command | What it does |
 | --- | --- |
-| `npm run dev` | Development server (admin password defaults to `krip-admin-demo`) |
+| `npm run dev` | Development server (first admin: `owner@krip.local` / `krip-admin-demo`) |
 | `npm run build && npm start` | Production build/server (requires the env vars below for admin) |
 | `npm run typecheck` | TypeScript check |
-| `npm test` | Unit tests: search, filters, pricing, CSV import, validation (Node test runner) |
-| `npm run test:e2e` | Playwright mobile journeys against a fresh production build |
+| `npm test` | Unit tests: search, pricing, coupons, roles, TOTP, passwords, order rules, metrics, CSV import (Node test runner) |
+| `npm run test:e2e` | Playwright storefront and admin journeys against a fresh production build |
 
 For Playwright in an environment with a preinstalled Chromium, set `PW_CHROMIUM_PATH=/path/to/chrome`.
 
@@ -32,15 +32,16 @@ Copy `.env.example` to `.env.local`.
 
 | Variable | Purpose |
 | --- | --- |
-| `ADMIN_PASSWORD` | Admin sign-in (8+ chars). **Required in production**; admin is disabled without it. |
-| `SESSION_SECRET` | Signs admin session cookies (16+ chars). **Required in production.** |
+| `ADMIN_EMAIL` | Email of the first Super Admin, created the first time anyone signs in (default `owner@krip.local`). |
+| `ADMIN_PASSWORD` | That first Super Admin's password (8+ chars). **Required in production**; admin is disabled without it. Once the account exists, change the password in Admin → Security; further staff are invited from Admin → Staff & roles. |
+| `SESSION_SECRET` | Required in production (16+ chars); also signs development fallbacks. Admin sessions are random tokens stored server-side (hashed) so they can be revoked. |
 | `PAYMENT_PROVIDER` | Name of a real provider. With no adapter implemented, setting it **disables** online payment instead of faking it. |
 | `PAYMENT_WEBHOOK_SECRET` | HMAC secret used to verify payment webhooks. |
 | `DEMO_PAYMENTS` | `true` (default) enables the demo gateway when no provider is set; `false` hides online payment. |
 | `NOTIFY_PROVIDER` | Back-in-stock alerts are offered only when a notification service is connected. |
 | `KRIP_DATA_DIR` | Location of the prototype JSON datastore (default `.data`). |
 
-Data is created from the sample catalogue on first run. **Admin → Overview → Reset demo data** restores it.
+Data is created from the sample catalogue on first run. **Admin → Dashboard → Reset demo data** restores it (staff, roles and the audit log are kept).
 
 ## Connected vs demo
 
@@ -51,7 +52,9 @@ Data is created from the sample catalogue on first run. **Admin → Overview →
 | Overselling protection | ✅ Stock is reserved in a serialised write; pending online payments hold stock for 15 min |
 | Duplicate-order protection | ✅ Idempotency key per checkout attempt |
 | Guest bag, wishlist + named lists, recently viewed, recent searches, pincode | ✅ Persisted on the device (localStorage) |
-| Admin: products, variants, images, supplier, costs, channel prices, status | ✅ Working, password protected |
+| Admin: staff accounts, roles and permissions, 2-step sign-in, audit log | ✅ Working, enforced on the server |
+| Admin: products, variants, images, supplier, costs, channel prices, status, bulk edits | ✅ Working |
+| Admin: orders, shipments, holds, refunds (recorded), inventory ledger, customers, coupons, store settings | ✅ Working (see Admin below for what's recorded vs. integrated) |
 | Validated CSV import (all-or-nothing) and CSV export | ✅ Working |
 | Contribution estimates (per product/channel and per order) | ✅ Working, labelled as estimates |
 | Order fulfilment status and customer tracking timeline | ✅ Working (statuses updated manually in admin) |
@@ -63,7 +66,9 @@ Data is created from the sample catalogue on first run. **Admin → Overview →
 | Back-in-stock alerts | ⚪ Not offered, because no notification service is connected |
 | Account sign-in / cross-device sync | ⚪ Not connected; guest checkout only |
 | Marketplace sync (Amazon/Flipkart/Meesho) | ⚪ Not built. Products are entered manually or by CSV. Each product can link out to a real Krip listing elsewhere, with a clear label. |
-| Courier tracking links | ⚪ Not connected |
+| Courier tracking | 🟡 Courier, AWB and tracking updates are recorded by staff and shown to the customer; no courier API is connected |
+| Refunds | 🟡 Recorded with the provider/bank reference; there is no refund API, so real refunds are issued in the provider's dashboard |
+| Email / SMS / WhatsApp | ⚪ Not connected. Staff invites and password resets use one-time links shared by a Super Admin |
 
 ## Shopper features
 
@@ -144,17 +149,32 @@ Data is created from the sample catalogue on first run. **Admin → Overview →
 
 ## Admin (`/admin`)
 
-- Products: list with search and status filter, supplier/source ref, cost, price and estimated contribution
-  per channel. You can edit everything, including variants, images, size guides, beauty label info and
-  return rules. Products can be draft, active or out-of-stock. Activating one requires confirming Krip may
-  use the photos and descriptions.
-- CSV import: template download, preview with row-level errors, and all-or-nothing commit. Export includes private columns.
-- Orders: fulfilment actions (confirm → packed → shipped → delivered, or cancel), payment events, history,
-  and estimated contribution per order.
-- Fees & settings: delivery fee, optional free-delivery threshold, COD fee and limit, return allowance,
-  channel fee rates, and coupon codes.
-- Supplier, cost and channel-pricing data live in `product.private`. `toPublicProduct()` strips it from
-  every shopper response, and an e2e test checks that it never reaches the public API.
+A grouped, collapsible sidebar shows only the modules a person's role allows. The top bar has global search (order ID, phone, email, AWB, SKU, customer), breadcrumbs, a notification centre and the account menu. The layout works on phones (the sidebar becomes a drawer).
+
+| Module | What it does |
+| --- | --- |
+| **Dashboard** | 7/30/90-day KPIs with comparison to the previous period: gross sales, discounts, refunds, net sales, total revenue, orders, AOV, new vs returning customers. It also shows daily sales, sales by category, payment method and state, order status, top products, recent orders and a "needs attention" queue. Every formula is defined in `src/lib/metrics.ts` and shown as a tooltip. Conversion and return rates are listed as "not measured" rather than invented. |
+| **Orders** | Status tabs, search and filters (status, payment status, method, dates, value, hold/review flags), sorting, pagination and CSV export. The order page has a state-aware action panel: confirm, pack, ship (courier + AWB + tracking link), tracking updates, deliver, COD collected, hold/release, cancel (releases stock) and refund (capped at money received minus earlier refunds). It also shows internal notes, a full timeline and a printable packing slip and receipt. Order, payment and fulfilment states are separate (`src/lib/orderflow.ts`). |
+| **Products** | Table with thumbnails, sort, filters, column visibility, bulk activate/draft/archive, bulk category and price changes (never above MRP), duplicate-as-draft, store preview and per-product change history. The full editor covers variants, images, size guides, beauty info, return rules, supplier and costs. Archived products leave the storefront but stay in records. |
+| **Inventory** | Available / held (unpaid online orders) / allocated (sold, not shipped) per variant, low-stock and sold-out views, stock value at cost, and adjustments with a reason. The **stock ledger** records every change (orders, releases, adjustments, imports, product edits) with the resulting balance. |
+| **Customers** | Guest shoppers grouped by phone number: orders, lifetime spend, AOV, addresses, segments (new, returning, frequent, high value, inactive, unfinished payment, refunded), manual groups, internal notes and an audited CSV export. |
+| **Coupons** | Fixed or % off with a cap, minimum order, start/end dates (IST), total and per-customer limits, first-order-only and category restrictions, with redemption and discount reporting. Limits are enforced inside the order-creation lock, so two shoppers can't both take the last redemption. |
+| **Offer tiles, CSV import** | As before. |
+| **Store & footer** | Support email/phone/WhatsApp/hours, business address, GSTIN, grievance officer, accepted payment methods and social links. These feed the storefront footer and Contact page, and blank fields stay hidden. Also the announcement bar, maintenance mode (shoppers see a maintenance page and checkout is refused; staff still see the store) and the low-stock threshold. |
+| **Fees & charges** | Delivery and COD fees, the free-delivery threshold, return allowance and channel fee rates (used for contribution estimates). |
+| **Staff & roles** | Invite staff with a one-time link, change roles, deactivate, unlock, reset password or 2FA, sign out everywhere, and view sign-in history. 9 built-in roles (Super Admin, Store/Catalog/Inventory/Order/Marketing/Finance Manager, Support Agent, Read-Only Analyst) plus custom roles from a module × action permission grid. You can never grant more than you have, and at least one Super Admin always remains. |
+| **Security** | Change password (ends all sessions), TOTP two-step sign-in, active sessions with revoke, and your own sign-in history. |
+| **Audit log** | Every staff and system change with before/after values and a request ID. Secrets are redacted. Entries are hash-chained and verified on view, so tampering with the datastore shows up. |
+| **System health** | Datastore, secrets, payments, webhooks, reservations, stock integrity, audit chain, 2FA coverage, plus integrations and backups that aren't connected yet. |
+| **Roadmap** | Modules from the admin brief that aren't built yet, and what each needs. |
+
+Security model:
+- Passwords are hashed with scrypt.
+- Sessions are random tokens stored hashed on the server: 8 hours absolute, 2 hours idle, and revocable. Changing a password or role ends them.
+- An account locks for 15 minutes after 5 failed attempts, and each IP is throttled.
+- Cookies are `httpOnly`, `SameSite=Strict` and `Secure` in production.
+- Every page, server action and admin route checks a permission on the server (`requirePerm` / `checkPerm`). Hidden links are also refused by the server.
+- Supplier and cost data stays in `product.private` and is only shown to finance roles. `toPublicProduct()` strips it from every shopper response.
 
 ## Architecture
 
@@ -166,8 +186,10 @@ src/
   app/art/[file]         generated SVG sample illustrations
   components/            UI: Sheet (native <dialog>), ProductCard, QuickView, VariantPicker, Gallery…
   data/catalog.ts        SAMPLE catalogue + curated looks
-  lib/                   pure logic: search, pricing, pincode, CSV, product validation (unit tested)
-  lib/server/            server-only: datastore, auth, orders/payments, estimates
+  lib/                   pure logic (unit tested): search, pricing, coupons, rbac, orderflow,
+                         metrics, orderQuery, storeProfile, totp, passwords, CSV, product validation
+  lib/server/            server-only: datastore, auth/sessions, audit, inventory ledger, customers,
+                         orders/payments, estimates
 ```
 
 - **Stack:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4 and Zustand.
@@ -194,5 +216,6 @@ src/
 2. Implement a payment adapter (create order → provider checkout → signed webhook → `handlePaymentWebhook`).
 3. Connect a courier for serviceability, rates and tracking. Replace the sample pincode rules.
 4. Load real, authorised product photos and supplier specifications. Remove the sample catalogue.
-5. Publish real contact and grievance-officer details. Have the policies reviewed (Consumer Protection (E-Commerce) Rules, DPDP Act).
-6. Add customer accounts if cross-device order history is needed.
+5. Fill in Admin → Store & footer with real contact and grievance-officer details. Have the policies reviewed (Consumer Protection (E-Commerce) Rules, DPDP Act).
+6. Turn on two-step sign-in for every Super Admin, Store Manager and Finance Manager.
+7. Add customer accounts if cross-device order history is needed.

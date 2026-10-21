@@ -63,7 +63,7 @@ export function ProductForm({ initial, id }: { initial: RawProductInput; id: str
           <div className="space-y-1">
             <label htmlFor="status" className="text-sm font-medium">Status</label>
             <select id="status" name="status" defaultValue={v.status ?? "draft"} className="h-11 w-full rounded-xl border-2 border-line bg-white px-2">
-              <option value="draft">Draft (hidden)</option><option value="active">Active</option><option value="out-of-stock">Out of stock (visible, can’t buy)</option>
+              <option value="draft">Draft (hidden)</option><option value="active">Active</option><option value="out-of-stock">Out of stock (visible, can’t buy)</option><option value="archived">Archived (hidden, kept for records)</option>
             </select>
             {err.status && <p className="text-xs font-medium text-danger">{err.status}</p>}
           </div>

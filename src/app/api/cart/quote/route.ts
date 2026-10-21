@@ -16,7 +16,7 @@ export async function POST(req: Request) {
       paymentMethod: body.paymentMethod === "cod" ? "cod" : body.paymentMethod === "online" ? "online" : null,
       couponCode: typeof body.couponCode === "string" ? body.couponCode.slice(0, 30) : null,
     },
-    db.products.filter((p) => p.status !== "draft").map(toPublicProduct),
+    db.products.filter((p) => p.status !== "draft" && p.status !== "archived").map(toPublicProduct),
     db.settings,
   );
   return NextResponse.json({ quote });

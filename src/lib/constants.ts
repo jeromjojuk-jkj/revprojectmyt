@@ -53,11 +53,14 @@ export const INDIAN_STATES = [
 ];
 
 export const POLICY_LINKS = [
-  { href: "/help/contact", label: "Help & contact" },
-  { href: "/help/shipping", label: "Shipping & delivery" },
-  { href: "/help/returns", label: "Returns & exchanges" },
-  { href: "/help/cancellation", label: "Cancellation" },
-  { href: "/help/refunds", label: "Refund policy" },
-  { href: "/help/privacy", label: "Privacy policy" },
-  { href: "/help/terms", label: "Terms & conditions" },
+  { href: "/help/contact", label: "Contact Us" },
+  { href: "/help/faq", label: "Help Center & FAQs" },
+  { href: "/help/shipping", label: "Shipping & Delivery" },
+  { href: "/help/returns", label: "Returns & Refunds" },
+  { href: "/help/exchange", label: "Exchange Policy" },
+  { href: "/help/cancellation", label: "Cancellation Policy" },
+  { href: "/help/refunds", label: "Return & Refund Policy" },
+  { href: "/help/privacy", label: "Privacy Policy" },
+  { href: "/help/terms", label: "Terms & Conditions" },
+  { href: "/help/cookies", label: "Cookie Policy" },
 ];
