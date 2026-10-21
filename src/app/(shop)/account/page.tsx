@@ -42,6 +42,21 @@ export default function AccountPage() {
         ))}
       </ul>
 
+      <section aria-labelledby="lab-h" className="lab-hero relative mt-4 overflow-hidden rounded-2xl p-4 text-white">
+        <span className="aurora-blob a1" aria-hidden />
+        <span className="aurora-blob a3" aria-hidden />
+        <h2 id="lab-h" className="relative text-sm font-semibold text-sun">Your Krip Lab</h2>
+        <ul className="relative mt-2 grid grid-cols-3 gap-2">
+          {[["/fit", "🎲", "Build a Fit"], ["/colour-match", "🎨", "Colour Match"], ["/swipe", "💘", "Style Swipe"]].map(([href, e, t]) => (
+            <li key={href}>
+              <Link href={href} className="glass-tile flex flex-col items-center gap-1 rounded-xl p-2.5 text-center text-xs font-semibold">
+                <span className="text-xl" aria-hidden>{e}</span>{t}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </section>
+
       <section className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-line">
         <PincodeForm compact />
       </section>

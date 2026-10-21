@@ -231,3 +231,23 @@ test("Krip Lab: Build a Fit totals, Colour Match reads a sample, Size Finder sug
   await page.getByRole("button", { name: /^Select / }).click();
   await expect(page.getByRole("radio", { name: "S", exact: true })).toHaveAttribute("aria-checked", "true");
 });
+
+test("footer columns and legal pages", async ({ page }) => {
+  await page.goto("/");
+  for (const h of ["Get to Know Us", "Connect with Us", "Let Us Help You", "Shop", "Legal"]) {
+    await expect(page.getByRole("heading", { name: h, exact: true })).toBeVisible();
+  }
+  const footer = page.getByRole("navigation", { name: "Footer" });
+  await footer.getByRole("link", { name: "Refund Policy" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Refund Policy" })).toBeVisible();
+  await page.goto("/help/contact");
+  await expect(page.getByRole("heading", { level: 1, name: "Contact Krip" })).toBeVisible();
+});
+
+test("slash key focuses search", async ({ page }) => {
+  await page.goto("/drops");
+  await page.waitForLoadState("networkidle");
+  await page.locator("body").click({ position: { x: 5, y: 600 } });
+  await page.keyboard.press("/");
+  await expect(page.getByRole("combobox", { name: "Search Krip" })).toBeFocused();
+});

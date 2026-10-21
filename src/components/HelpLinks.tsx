@@ -11,25 +11,15 @@ const COLUMNS: { title: string; links: { href?: string; label: string; note?: st
     title: "Get to Know Us",
     links: [
       { href: "/help/about", label: "About Krip" },
-      { href: "/drops", label: "New Drops" },
-      { href: "/looks", label: "Complete the Look" },
-      { href: "/vibe", label: "Vibe Finder" },
+      { href: "/help/contact", label: "Contact" },
     ],
   },
   {
-    // No social accounts are live yet, so these are labels, not links.
+    // Social accounts aren't live yet, so these are labels until real links exist.
     title: "Connect with Us",
     links: [
       { label: "Instagram", note: "soon" },
-      { label: "YouTube", note: "soon" },
-      { label: "WhatsApp updates", note: "soon" },
-    ],
-  },
-  {
-    title: "Sell with Krip",
-    links: [
-      { href: "/help/suppliers", label: "Become a supplier" },
-      { href: "/help/suppliers", label: "Product data requirements" },
+      { label: "Facebook", note: "soon" },
     ],
   },
   {
@@ -37,10 +27,24 @@ const COLUMNS: { title: string; links: { href?: string; label: string; note?: st
     links: [
       { href: "/account", label: "Your Account" },
       { href: "/orders", label: "Your Orders" },
-      { href: "/help/returns", label: "Returns Centre" },
-      { href: "/help/shipping", label: "Shipping & delivery" },
-      { href: "/help/cancellation", label: "Cancellations" },
-      { href: "/help", label: "Help" },
+      { href: "/wishlist", label: "Your Wishlist" },
+    ],
+  },
+  {
+    title: "Shop",
+    links: [
+      { href: "/search", label: "Shop All" },
+      { href: "/drops", label: "New Drops" },
+      { href: "/swipe", label: "Style Swipe" },
+      { href: "/categories", label: "Categories" },
+    ],
+  },
+  {
+    title: "Legal",
+    links: [
+      { href: "/help/privacy", label: "Privacy Policy" },
+      { href: "/help/terms", label: "Terms & Conditions" },
+      { href: "/help/refunds", label: "Refund Policy" },
     ],
   },
 ];
@@ -71,7 +75,7 @@ export function Footer() {
       </button>
 
       <div className="bg-[#1c1c1c] text-white">
-        <nav aria-label="Footer" className="mx-auto grid max-w-5xl grid-cols-2 gap-x-6 gap-y-8 px-6 py-10 md:grid-cols-4">
+        <nav aria-label="Footer" className="mx-auto grid max-w-6xl grid-cols-2 gap-x-6 gap-y-8 px-6 py-10 sm:grid-cols-3 lg:grid-cols-5">
           {COLUMNS.map((col) => (
             <div key={col.title}>
               <h2 className="mb-2 text-[15px] font-bold">{col.title}</h2>

@@ -22,8 +22,8 @@ const STRIP: { href: string; label: string; wide?: boolean }[] = [
   { href: "/search?cat=jewellery", label: "Jewellery" },
   { href: "/search?cat=accessories", label: "Accessories" },
   { href: "/drops", label: "New Drops" },
-  { href: "/search?max=499&sort=price-asc", label: "Under ₹499" },
-  { href: "/swipe", label: "Style Swipe" },
+  { href: "/search?max=499&sort=price-asc", label: "Under ₹499", wide: true },
+  { href: "/swipe", label: "Style Swipe", wide: true },
   { href: "/looks", label: "Complete the Look", wide: true },
   { href: "/vibe", label: "Vibe Finder", wide: true },
 ];
@@ -169,7 +169,7 @@ export function Header({ promo }: { promo?: { label: string; href: string } | nu
               </li>
             )}
             {STRIP.map((l) => (
-              <li key={l.href} className={`shrink-0 ${l.wide ? "md:hidden xl:block" : ""}`}>
+              <li key={l.href} className={`shrink-0 ${l.wide ? "md:hidden 2xl:block" : ""}`}>
                 <Link href={l.href} aria-current={pathname === l.href ? "page" : undefined} className={`flex h-8 items-center whitespace-nowrap px-2 text-[13px] md:text-sm ${hit}`}>
                   {l.label}
                 </Link>

@@ -126,7 +126,12 @@ Data is created from the sample catalogue on first run. **Admin → Overview →
   - **Moving product slides**: New Drops and Beauty & accessories glide continuously, and the offer tiles auto-advance every 4.5 s.
   - Slides pause on touch, hover or keyboard focus, and each row has a Pause/Play button.
   - With reduced motion on, slides stay still and become normal swipe rows.
-- **Footer:** a "See picks for your vibe" prompt, Back to top, four link columns (Get to Know Us, Connect with Us, Sell with Krip, Let Us Help You) and English / India chips. Social links say "soon" until real accounts exist.
+- **UX helpers:**
+  - A scroll-progress line under the header and a floating "scroll to top" button.
+  - Press `/` or Ctrl/⌘+K anywhere to jump to search.
+  - "Recently viewed" now sits near the top of home for returning shoppers.
+  - The Account page doubles as a hub with Krip Lab shortcuts.
+- **Footer:** a "See picks for your vibe" prompt, Back to top, five link columns (Get to Know Us: About, Contact · Connect with Us: Instagram, Facebook · Let Us Help You: Account, Orders, Wishlist · Shop: Shop All, New Drops, Style Swipe, Categories · Legal: Privacy, Terms & Conditions, Refund Policy) and English / India chips. Social links say "soon" until real accounts exist.
 - **Vibe Finder:** four questions (who, vibe, budget, what). Results say they're based only on those answers.
 - **Complete the Look:** each piece shows its own price and variant picker, plus a combined total and "Add selected to bag".
 - **Checkout:**

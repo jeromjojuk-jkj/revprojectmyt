@@ -9,7 +9,6 @@ import { ProductImage } from "@/components/ProductImage";
 import { Section } from "@/components/Section";
 import { LookCard } from "@/components/LookCard";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
-import { POLICY_LINKS } from "@/lib/constants";
 import { IconChevron, IconSpark } from "@/components/Icons";
 import { colorFamily } from "@/lib/search";
 
@@ -83,6 +82,9 @@ export default async function HomePage() {
       </div>
       )}
 
+      {/* Returning shoppers pick up where they left off (hidden for first visits). */}
+      <RecentlyViewed />
+
       {/* 4. Trending */}
       <Section id="trending" title="Trending Now" kicker="Curated by the Krip team" href="/search?collection=trending">
         <ProductGrid products={trending} priorityCount={4} />
@@ -136,7 +138,6 @@ export default async function HomePage() {
         </ul>
       </Section>
 
-      <RecentlyViewed />
 
       {/* 6. New Drops */}
       <Section id="drops" title="New Drops" kicker="Just landed" href="/drops" hrefLabel="All drops">
@@ -211,18 +212,6 @@ export default async function HomePage() {
         <AutoMarquee products={beautyAcc} label="Beauty and accessories, sliding" secondsPerItem={3.6} />
       </Section>
 
-      {/* 10. Help */}
-      <Section id="help" title="Need a hand?">
-        <ul className="grid grid-cols-2 gap-2 md:grid-cols-3">
-          {POLICY_LINKS.map((l) => (
-            <li key={l.href}>
-              <Link href={l.href} className="flex min-h-12 items-center justify-between rounded-xl bg-white px-3 text-sm ring-1 ring-line">
-                {l.label} <IconChevron size={14} />
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </Section>
     </div>
   );
 }

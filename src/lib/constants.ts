@@ -53,10 +53,11 @@ export const INDIAN_STATES = [
 ];
 
 export const POLICY_LINKS = [
-  { href: "/help", label: "Help & contact" },
+  { href: "/help/contact", label: "Help & contact" },
   { href: "/help/shipping", label: "Shipping & delivery" },
   { href: "/help/returns", label: "Returns & exchanges" },
   { href: "/help/cancellation", label: "Cancellation" },
+  { href: "/help/refunds", label: "Refund policy" },
   { href: "/help/privacy", label: "Privacy policy" },
-  { href: "/help/terms", label: "Terms of use" },
+  { href: "/help/terms", label: "Terms & conditions" },
 ];

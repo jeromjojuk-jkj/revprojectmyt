@@ -170,6 +170,11 @@ export function SearchBox() {
             <IconX size={18} />
           </button>
         )}
+        {!q && !open && (
+          <kbd className="mr-1 hidden h-6 items-center rounded-md border border-line bg-paper px-1.5 text-[11px] font-medium text-ink-soft lg:flex" aria-hidden>
+            Ctrl K
+          </kbd>
+        )}
         {voice !== "unsupported" && !q && (
           <button
             type="button"

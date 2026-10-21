@@ -21,6 +21,52 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
       </>
     ),
   },
+  contact: {
+    title: "Contact Krip",
+    body: (
+      <>
+        <p>We’d love to hear from you — about an order, a size question, a return, or working with us.</p>
+        <h2>Before you write</h2>
+        <ul>
+          <li>Order questions: open <a href="/orders">Your Orders</a> and keep your order ID handy (it looks like KRP-261020-ABC123).</li>
+          <li>Returns and refunds: see the <a href="/help/refunds">Refund Policy</a> and the return rule on each product page.</li>
+          <li>Sizes: every clothing and footwear page has a size chart and a Size Finder.</li>
+        </ul>
+        <h2>Ways to reach us</h2>
+        <p>Email, phone/WhatsApp support hours and the grievance officer’s details (required under the Consumer Protection (E-Commerce) Rules, 2020) will be published here before launch. This prototype doesn’t have a staffed support channel yet.</p>
+        <h2>Suppliers</h2>
+        <p>Want to sell through Krip? See <a href="/help/suppliers">Sell with Krip</a>.</p>
+      </>
+    ),
+  },
+  refunds: {
+    title: "Refund Policy",
+    body: (
+      <>
+        <p>This policy explains when and how you get money back. What’s returnable is shown on each product page before you buy.</p>
+        <h2>When you can get a refund</h2>
+        <ul>
+          <li><b>Returned items:</b> items marked “returnable”, sent back within their return window unused, unwashed and with tags attached.</li>
+          <li><b>Cancelled orders:</b> orders you cancel before they’re packed.</li>
+          <li><b>Problems on arrival:</b> damaged, defective or wrong items reported within 48 hours of delivery with photos (for non-returnable items like cosmetics and earrings we replace the item; if a replacement isn’t available we refund).</li>
+          <li><b>Items we can’t deliver:</b> if we cancel because an item became unavailable or your pincode can’t be served.</li>
+        </ul>
+        <h2>Not refundable</h2>
+        <ul>
+          <li>Items marked “Not returnable” or “Exchange only”, except when damaged, defective or wrong.</li>
+          <li>Items returned used, washed, without tags, or after the return window.</li>
+        </ul>
+        <h2>How refunds are paid</h2>
+        <ul>
+          <li><b>Paid online (UPI/card):</b> back to the original payment method through our payment provider.</li>
+          <li><b>Cash on Delivery:</b> to a bank account or UPI ID you give us.</li>
+          <li>The delivery charge is refunded when the whole order is cancelled before dispatch or when we sent a wrong or damaged item. The COD fee is refunded in the same cases.</li>
+        </ul>
+        <h2>Timing</h2>
+        <p>We start the refund once a returned item passes a quality check, or immediately for cancellations. How long it then takes to reach you depends on your bank or payment provider — we’ll show the status on your order page.</p>
+      </>
+    ),
+  },
   suppliers: {
     title: "Sell with Krip",
     body: (
