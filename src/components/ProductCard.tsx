@@ -25,12 +25,33 @@ export function ProductCard({
   const available = isPurchasable(product);
   const href = `/product/${product.slug}`;
 
+  // Desktop: gentle 3D tilt + light glare that follows the pointer.
+  const onMove = (e: React.PointerEvent<HTMLElement>) => {
+    if (e.pointerType !== "mouse") return;
+    const r = e.currentTarget.getBoundingClientRect();
+    const x = (e.clientX - r.left) / r.width;
+    const y = (e.clientY - r.top) / r.height;
+    e.currentTarget.style.setProperty("--ry", `${(x - 0.5) * 8}deg`);
+    e.currentTarget.style.setProperty("--rx", `${(0.5 - y) * 8}deg`);
+    e.currentTarget.style.setProperty("--gx", `${x * 100}%`);
+    e.currentTarget.style.setProperty("--gy", `${y * 100}%`);
+  };
+  const onLeave = (e: React.PointerEvent<HTMLElement>) => {
+    e.currentTarget.style.setProperty("--rx", "0deg");
+    e.currentTarget.style.setProperty("--ry", "0deg");
+  };
+
   return (
     <>
-    <article className="pressable group relative flex flex-col overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[0_1px_0_rgba(0,0,0,0.04)] ring-1 ring-line">
+    <article
+      onPointerMove={onMove}
+      onPointerLeave={onLeave}
+      className="card3d reveal pressable group relative flex flex-col overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[0_1px_0_rgba(0,0,0,0.04)] ring-1 ring-line"
+    >
       <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
+        <span aria-hidden className="glare pointer-events-none absolute inset-0 z-[1]" />
         <Link href={href} onClick={onNavigate} tabIndex={-1} aria-hidden className="absolute inset-0">
-          <ProductImage src={product.images[0]} alt="" priority={priority} />
+          <ProductImage src={product.images[0]} alt="" priority={priority} className="card-img" />
           {product.images[1] && (
             <span className="absolute inset-0 opacity-0 transition-opacity duration-200 [@media(hover:hover)]:group-hover:opacity-100">
               <ProductImage src={product.images[1]} alt="" />

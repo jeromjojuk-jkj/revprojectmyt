@@ -155,3 +155,29 @@ test("seasonal offer tile opens a matching, price-capped listing", async ({ page
   expect(prices.length).toBeGreaterThan(0);
   for (const p of prices) expect(Number(p.replace(/[₹,]/g, ""))).toBeLessThanOrEqual(299);
 });
+
+test("Style Swipe saves to the wishlist", async ({ page }) => {
+  await page.goto("/swipe");
+  await expect(page.getByRole("heading", { name: "Style Swipe" })).toBeVisible();
+  await page.getByRole("button", { name: /^Save / }).click();
+  await page.getByRole("button", { name: /^Skip / }).click();
+  await expect(page.getByText(/1 saved/)).toBeVisible();
+  await page.goto("/wishlist");
+  await expect(page.locator("article")).toHaveCount(1);
+});
+
+test("a shared bag link can be added to your own bag", async ({ page }) => {
+  await page.goto("/cart?share=P008-BLAC-M*2,NOPE*1");
+  await expect(page.getByText("A friend shared a bag with you")).toBeVisible();
+  await expect(page.getByText(/no longer available/)).toBeVisible();
+  await page.getByRole("button", { name: "Add to my bag" }).click();
+  await expect(page.getByRole("heading", { name: "Your bag" })).toBeVisible();
+  await expect(page.locator("output")).toHaveText("2");
+});
+
+test("footer has back-to-top and help columns", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.getByRole("heading", { name: "Let Us Help You" })).toBeVisible();
+  await page.getByRole("button", { name: "Back to top" }).click();
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeLessThan(5);
+});

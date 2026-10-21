@@ -5,6 +5,37 @@ import type { ReactNode } from "react";
 // before launch. Nothing here promises timelines Krip can't yet keep.
 
 export const PAGES: Record<string, { title: string; body: ReactNode }> = {
+  about: {
+    title: "About Krip",
+    body: (
+      <>
+        <p>Krip sells trending, affordable fashion, beauty and accessories for Gen Z and young adults across India. Trending looks. Your kind of price.</p>
+        <h2>How we work</h2>
+        <p>We source products from vendors we work with directly, check them, and sell them here and on other marketplaces. Every product page shows the seller, country of origin and return rules before you buy.</p>
+        <h2>What we won’t do</h2>
+        <ul>
+          <li>No fake reviews, ratings or “only 2 left” warnings.</li>
+          <li>No countdown timers that reset.</li>
+          <li>No delivery promises we can’t keep — dates are shown as estimates.</li>
+        </ul>
+      </>
+    ),
+  },
+  suppliers: {
+    title: "Sell with Krip",
+    body: (
+      <>
+        <p>Make or source fashion, beauty or accessories? Krip works with vendors who can supply authorised product photos, accurate specifications and consistent stock.</p>
+        <h2>What we need from suppliers</h2>
+        <ul>
+          <li>Product data in our CSV format (size charts measured on the garment, materials, care, country of origin).</li>
+          <li>For cosmetics: full ingredient lists, net quantity, manufacturer/importer details and expiry information from the label.</li>
+          <li>Rights to the photos and descriptions you share.</li>
+        </ul>
+        <p>A supplier enquiry form and contact details will be published here before launch.</p>
+      </>
+    ),
+  },
   shipping: {
     title: "Shipping & delivery",
     body: (

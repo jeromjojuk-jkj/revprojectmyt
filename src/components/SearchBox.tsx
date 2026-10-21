@@ -5,7 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useId, useRef, useState } from "react";
 import { useHydrated, useStore } from "@/lib/store";
 import type { Suggestion } from "@/lib/search";
-import { IconBack, IconClock, IconSearch, IconX } from "./Icons";
+import { IconBack, IconClock, IconMic, IconSearch, IconX } from "./Icons";
 import { CATEGORIES } from "@/lib/constants";
 
 export function SearchBox() {
@@ -27,6 +27,37 @@ export function SearchBox() {
   const listId = useId();
 
   useEffect(() => setQ(urlQ), [urlQ]);
+
+  // Voice search, only where the browser supports speech recognition.
+  type Rec = { lang: string; interimResults: boolean; onresult: ((e: { results: ArrayLike<ArrayLike<{ transcript: string }>> }) => void) | null; onend: (() => void) | null; onerror: (() => void) | null; start: () => void; stop: () => void };
+  const [voice, setVoice] = useState<"unsupported" | "idle" | "listening">("unsupported");
+  const recRef = useRef<Rec | null>(null);
+  useEffect(() => {
+    const w = window as unknown as { SpeechRecognition?: new () => Rec; webkitSpeechRecognition?: new () => Rec };
+    if (w.SpeechRecognition || w.webkitSpeechRecognition) setVoice("idle");
+  }, []);
+  const listen = () => {
+    const w = window as unknown as { SpeechRecognition?: new () => Rec; webkitSpeechRecognition?: new () => Rec };
+    const Ctor = w.SpeechRecognition ?? w.webkitSpeechRecognition;
+    if (!Ctor) return;
+    if (voice === "listening") return recRef.current?.stop();
+    const rec = new Ctor();
+    rec.lang = "en-IN";
+    rec.interimResults = false;
+    rec.onresult = (e) => {
+      const said = e.results[0]?.[0]?.transcript?.trim();
+      if (said) {
+        setQ(said);
+        addSearch(said);
+        router.push(`/search?q=${encodeURIComponent(said)}`);
+      }
+    };
+    rec.onend = () => setVoice("idle");
+    rec.onerror = () => setVoice("idle");
+    recRef.current = rec;
+    setVoice("listening");
+    rec.start();
+  };
 
   useEffect(() => {
     if (q.trim().length < 2) {
@@ -137,6 +168,17 @@ export function SearchBox() {
         {q && (
           <button type="button" aria-label="Clear search" className="grid h-10 w-10 shrink-0 place-items-center text-ink-soft" onClick={() => { setQ(""); inputRef.current?.focus(); }}>
             <IconX size={18} />
+          </button>
+        )}
+        {voice !== "unsupported" && !q && (
+          <button
+            type="button"
+            onClick={listen}
+            aria-label={voice === "listening" ? "Stop voice search" : "Search by voice"}
+            aria-pressed={voice === "listening"}
+            className={`grid h-10 w-10 shrink-0 place-items-center rounded-full ${voice === "listening" ? "animate-pulse bg-danger-soft text-danger" : "text-ink-soft hover:text-ink"}`}
+          >
+            <IconMic size={20} />
           </button>
         )}
         <button type="submit" aria-label="Search" className="grid h-full w-12 shrink-0 place-items-center bg-sun text-ink hover:brightness-95">

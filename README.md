@@ -89,6 +89,18 @@ Data is created from the sample catalogue on first run. **Admin → Overview →
   - Native share with a copy-link fallback, Complete the Look, related products and recently viewed.
   - Sticky **Add to Bag / Buy Now**. A valid in-stock variant is required before anything goes in the bag.
 - **Seasonal & special offers:** a swipeable rail of bold offer tiles (e.g. "Under ₹999 · Kurtas & kurtis · Diwali Edit"), managed in **Admin → Offers**. "From ₹…", style counts and "up to …% off MRP" are computed from the catalogue. A headline like "Under ₹299" must be backed by `max=299` in the tile's link, so saving is blocked otherwise. Optional start/end dates hide tiles automatically, and terms show behind "T&C apply" only when entered. There are no countdowns, invented bank offers or delivery promises.
+- **New-gen extras:**
+  - **Style Swipe** (`/swipe`): swipe right to save to your wishlist, left to skip. Buttons and arrow keys work too.
+  - **Shop by colour** swatches.
+  - **Voice search**: a mic in the search box, shown only where the browser supports speech recognition.
+  - **Ask a friend**: share your bag as a link. The friend sees the items and can add them to their own bag, with prices and stock re-checked on the server.
+- **Motion:**
+  - Product illustrations get studio lighting, depth, a fabric texture and a floor shadow.
+  - On desktop, cards tilt in 3D with a light glare.
+  - Cards rise in as you scroll, where the browser supports scroll-driven animation.
+  - Adding to bag flies a thumbnail into the bag icon.
+  - All motion respects reduced-motion settings.
+- **Footer:** a "See picks for your vibe" prompt, Back to top, four link columns (Get to Know Us, Connect with Us, Sell with Krip, Let Us Help You) and English / India chips. Social links say "soon" until real accounts exist.
 - **Vibe Finder:** four questions (who, vibe, budget, what). Results say they're based only on those answers.
 - **Complete the Look:** each piece shows its own price and variant picker, plus a combined total and "Add selected to bag".
 - **Checkout:**

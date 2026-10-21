@@ -51,3 +51,12 @@ export const INDIAN_STATES = [
   "Punjab", "Rajasthan", "Sikkim", "Tamil Nadu", "Telangana", "Tripura", "Uttar Pradesh", "Uttarakhand",
   "West Bengal",
 ];
+
+export const POLICY_LINKS = [
+  { href: "/help", label: "Help & contact" },
+  { href: "/help/shipping", label: "Shipping & delivery" },
+  { href: "/help/returns", label: "Returns & exchanges" },
+  { href: "/help/cancellation", label: "Cancellation" },
+  { href: "/help/privacy", label: "Privacy policy" },
+  { href: "/help/terms", label: "Terms of use" },
+];

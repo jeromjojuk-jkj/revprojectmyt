@@ -8,8 +8,23 @@ import { ProductImage } from "@/components/ProductImage";
 import { Section } from "@/components/Section";
 import { LookCard } from "@/components/LookCard";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
-import { POLICY_LINKS } from "@/components/HelpLinks";
+import { POLICY_LINKS } from "@/lib/constants";
 import { IconChevron, IconSpark } from "@/components/Icons";
+import { colorFamily } from "@/lib/search";
+
+const COLOUR_ROW = [
+  { name: "Black", css: "radial-gradient(circle at 30% 30%, #555, #111)" },
+  { name: "White", css: "radial-gradient(circle at 30% 30%, #fff, #e6e3dc)" },
+  { name: "Blue", css: "radial-gradient(circle at 30% 30%, #8aa7e0, #1e3a8a)" },
+  { name: "Green", css: "radial-gradient(circle at 30% 30%, #b5d3a6, #3f6b35)" },
+  { name: "Red", css: "radial-gradient(circle at 30% 30%, #f28b8b, #9b1c1c)" },
+  { name: "Pink", css: "radial-gradient(circle at 30% 30%, #f9c4d8, #be185d)" },
+  { name: "Yellow", css: "radial-gradient(circle at 30% 30%, #fff1a6, #d4a017)" },
+  { name: "Brown", css: "radial-gradient(circle at 30% 30%, #d7b48c, #6b4423)" },
+  { name: "Purple", css: "radial-gradient(circle at 30% 30%, #d9c6fb, #6b21a8)" },
+  { name: "Gold", css: "radial-gradient(circle at 30% 30%, #f6e2a0, #a67c1a)" },
+  { name: "Grey", css: "radial-gradient(circle at 30% 30%, #d4d4d8, #6b7280)" },
+];
 
 export const dynamic = "force-dynamic";
 
@@ -18,6 +33,8 @@ export default async function HomePage() {
   const inStock = (p: (typeof products)[number]) => p.status === "active" && p.variants.some((v) => v.stock > 0);
   const trending = products.filter((p) => p.collections.includes("trending")).sort((a, b) => Number(inStock(b)) - Number(inStock(a))).slice(0, 8);
   const newest = [...products].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 10);
+  const colourCounts: Record<string, number> = {};
+  for (const p of products.filter(inStock)) for (const f of new Set(p.variants.filter((v) => v.stock > 0).map((v) => colorFamily(v.color)))) colourCounts[f] = (colourCounts[f] ?? 0) + 1;
   const beautyAcc = products.filter((p) => ["beauty", "jewellery", "accessories"].includes(p.category) && inStock(p)).slice(0, 10);
 
   return (
@@ -96,6 +113,21 @@ export default async function HomePage() {
         <ProductRail products={newest} />
       </Section>
 
+      {/* Shop by colour */}
+      <Section id="colour" title="Shop by colour" kicker="Pick a shade">
+        <ul className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 md:justify-center">
+          {COLOUR_ROW.filter((c) => colourCounts[c.name]).map((c) => (
+            <li key={c.name} className="shrink-0">
+              <Link href={`/search?color=${c.name}`} className="pressable flex w-16 flex-col items-center gap-1.5 text-center">
+                <span className="swatch-orb h-14 w-14 rounded-full ring-1 ring-black/10" style={{ background: c.css }} />
+                <span className="text-[12px] font-medium">{c.name}</span>
+                <span className="text-[10px] text-ink-soft">{colourCounts[c.name]} styles</span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </Section>
+
       {/* 7. Shop your vibe */}
       <Section id="vibes" title="Shop Your Vibe" kicker="Pick a mood">
         <ul className="no-scrollbar -mx-4 flex gap-2.5 overflow-x-auto px-4 md:grid md:grid-cols-5 md:overflow-visible">
@@ -113,7 +145,18 @@ export default async function HomePage() {
             </li>
           ))}
         </ul>
-        <Link href="/vibe" className="mt-3 flex min-h-12 items-center justify-between rounded-xl bg-white px-4 text-sm ring-1 ring-line">
+        <Link href="/swipe" className="constellation-bg mt-3 flex min-h-16 items-center justify-between gap-3 overflow-hidden rounded-2xl bg-ink px-4 py-3 text-white">
+          <span>
+            <span className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-sun">New · Style Swipe</span>
+            <span className="block font-semibold">Swipe right on styles you love</span>
+            <span className="block text-xs text-white/75">Saves straight to your wishlist</span>
+          </span>
+          <span className="swipe-cards relative h-14 w-16 shrink-0" aria-hidden>
+            <span className="absolute inset-0 rotate-[-10deg] rounded-lg bg-sun" />
+            <span className="absolute inset-0 rotate-[6deg] rounded-lg bg-leaf ring-2 ring-white/70" />
+          </span>
+        </Link>
+        <Link href="/vibe" className="mt-2 flex min-h-12 items-center justify-between rounded-xl bg-white px-4 text-sm ring-1 ring-line">
           <span className="flex items-center gap-2">
             <IconSpark size={18} className="text-gold-ink" />
             <span><b>Not sure?</b> Try the Vibe Finder — 4 quick questions</span>

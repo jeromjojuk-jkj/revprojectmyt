@@ -47,8 +47,8 @@ function QuickViewBody({ product, onDone }: { product: ProductPublic; onDone: ()
         <button
           type="button"
           disabled={!available}
-          onClick={() => {
-            const r = addSelectionToBag(product, sel);
+          onClick={(e) => {
+            const r = addSelectionToBag(product, sel, e.currentTarget);
             if (r.ok) onDone();
             else setError(r.error ?? null);
           }}

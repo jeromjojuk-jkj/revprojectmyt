@@ -119,8 +119,8 @@ export function ProductDetail({
   useEffect(() => viewed(product.id), [product.id, viewed]);
   useEffect(() => setError(null), [sel.color, sel.size]);
 
-  const add = (thenCheckout: boolean) => {
-    const r = addSelectionToBag(product, sel);
+  const add = (thenCheckout: boolean, from?: Element | null) => {
+    const r = addSelectionToBag(product, sel, from);
     if (!r.ok) {
       setError(r.error ?? null);
       pickerRef.current?.scrollIntoView({ behavior: "smooth", block: "center" });
@@ -181,10 +181,10 @@ export function ProductDetail({
           </div>
 
           <div className="hidden gap-2 md:flex">
-            <button type="button" onClick={() => add(false)} disabled={!available} className="h-12 flex-1 rounded-xl font-semibold text-leaf ring-2 ring-leaf disabled:opacity-40">
+            <button type="button" onClick={(e) => add(false, e.currentTarget)} disabled={!available} className="h-12 flex-1 rounded-xl font-semibold text-leaf ring-2 ring-leaf disabled:opacity-40">
               Add to Bag
             </button>
-            <button type="button" onClick={() => add(true)} disabled={!available} className="h-12 flex-1 rounded-xl bg-leaf font-semibold text-white disabled:bg-neutral-300">
+            <button type="button" onClick={(e) => add(true, e.currentTarget)} disabled={!available} className="h-12 flex-1 rounded-xl bg-leaf font-semibold text-white disabled:bg-neutral-300">
               Buy Now
             </button>
           </div>
@@ -309,10 +309,10 @@ export function ProductDetail({
           <WishlistButton productId={product.id} title={product.title} className="h-12 w-12 shrink-0 rounded-xl ring-1 ring-line" />
           {available ? (
             <>
-              <button type="button" onClick={() => add(false)} className="pressable h-12 flex-1 rounded-xl font-semibold text-leaf ring-2 ring-leaf">
+              <button type="button" onClick={(e) => add(false, e.currentTarget)} className="pressable h-12 flex-1 rounded-xl font-semibold text-leaf ring-2 ring-leaf">
                 Add to Bag
               </button>
-              <button type="button" onClick={() => add(true)} className="pressable h-12 flex-1 rounded-xl bg-leaf font-semibold text-white">
+              <button type="button" onClick={(e) => add(true, e.currentTarget)} className="pressable h-12 flex-1 rounded-xl bg-leaf font-semibold text-white">
                 Buy Now
               </button>
             </>

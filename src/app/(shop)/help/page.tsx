@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { POLICY_LINKS } from "@/components/HelpLinks";
+import { POLICY_LINKS } from "@/lib/constants";
 import { IconChevron } from "@/components/Icons";
 
 export const metadata = { title: "Help & contact" };

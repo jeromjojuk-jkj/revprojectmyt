@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import type { Quote } from "@/lib/types";
+import { toast } from "@/lib/store";
+import { IconShare } from "@/components/Icons";
 import { useHydrated, useStore } from "@/lib/store";
 import { useQuote } from "@/lib/useQuote";
 import { formatPrice, plural } from "@/lib/format";
@@ -21,6 +24,58 @@ export default function CartPage() {
   const setCoupon = useStore((s) => s.setCoupon);
   const [code, setCode] = useState(couponCode ?? "");
   const { quote, error, loading, refresh } = useQuote(cart, { pincode, couponCode, enabled: hydrated });
+  const addToCart = useStore((s) => s.addToCart);
+
+  // Shared bags arrive as /cart?share=SKU*2,SKU*1 — prices and stock are re-checked by the server.
+  const [shared, setShared] = useState<Quote | null>(null);
+  useEffect(() => {
+    const raw = new URLSearchParams(window.location.search).get("share");
+    if (!raw) return;
+    const items = raw.split(",").slice(0, 20).map((x) => { const [sku, qty] = x.split("*"); return { sku, qty: Math.max(1, Math.min(5, Number(qty) || 1)) }; });
+    fetch("/api/cart/quote", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ items }) })
+      .then((r) => r.json())
+      .then((d) => setShared(d.quote))
+      .catch(() => {});
+  }, []);
+  const acceptShared = () => {
+    if (!shared) return;
+    const ok = shared.lines.filter((l) => l.ok);
+    for (const l of ok) addToCart({ sku: l.sku, productId: l.productId!, slug: l.slug!, title: l.title, color: l.color, size: l.size, image: l.image, price: l.unitPrice }, l.qty);
+    toast({ message: `Added ${ok.length} shared item${ok.length === 1 ? "" : "s"} to your bag` });
+    setShared(null);
+    window.history.replaceState(null, "", "/cart");
+  };
+  const shareBag = async () => {
+    const url = `${window.location.origin}/cart?share=${cart.map((l) => `${l.sku}*${l.qty}`).join(",")}`;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title: "My krip bag", text: "What do you think of these?", url });
+        return;
+      } catch (e) {
+        if ((e as DOMException).name === "AbortError") return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toast({ message: "Bag link copied — send it to a friend", tone: "info" });
+    } catch {
+      window.prompt("Copy this link:", url);
+    }
+  };
+  const sharedBanner = shared && (
+    <div className="mx-4 mt-4 rounded-2xl bg-sun-soft p-4 ring-1 ring-sun" role="status">
+      <p className="font-semibold">A friend shared a bag with you</p>
+      <ul className="mt-1 text-sm text-ink-soft">
+        {shared.lines.map((l) => (
+          <li key={l.sku}>{l.qty} × {l.title}{l.color ? ` (${l.color}${l.size ? `, ${l.size}` : ""})` : ""}{l.ok ? "" : ` — ${l.problem}`}</li>
+        ))}
+      </ul>
+      <div className="mt-3 flex gap-2">
+        <button type="button" onClick={acceptShared} disabled={!shared.lines.some((l) => l.ok)} className="h-11 rounded-xl bg-leaf px-4 text-sm font-semibold text-white disabled:opacity-50">Add to my bag</button>
+        <button type="button" onClick={() => { setShared(null); window.history.replaceState(null, "", "/cart"); }} className="h-11 rounded-xl px-4 text-sm font-semibold ring-1 ring-line">No thanks</button>
+      </div>
+    </div>
+  );
 
   if (!hydrated) {
     return (
@@ -34,6 +89,8 @@ export default function CartPage() {
 
   if (cart.length === 0) {
     return (
+      <>
+      {sharedBanner}
       <div className="px-4 pt-10 text-center">
         <h1 className="text-xl font-semibold">Your bag is empty</h1>
         <p className="mt-1 text-sm text-ink-soft">Find something you love — it’ll wait for you here.</p>
@@ -42,6 +99,7 @@ export default function CartPage() {
         </Link>
         <RecentlyViewed />
       </div>
+      </>
     );
   }
 
@@ -49,9 +107,16 @@ export default function CartPage() {
   const blocked = !!quote && !quote.allAvailable;
 
   return (
+    <>
+    {sharedBanner}
     <div className="px-4 pt-4 md:grid md:grid-cols-[1fr_360px] md:gap-6">
       <div>
-        <h1 className="text-xl font-semibold">Your bag</h1>
+        <div className="flex items-center justify-between gap-2">
+          <h1 className="text-xl font-semibold">Your bag</h1>
+          <button type="button" onClick={shareBag} className="flex h-10 items-center gap-1.5 rounded-full bg-white px-3 text-sm font-medium ring-1 ring-line">
+            <IconShare size={16} /> Ask a friend
+          </button>
+        </div>
         <p className="text-sm text-ink-soft">{plural(cart.reduce((n, l) => n + l.qty, 0), "item")}</p>
         <ul className="mt-3 space-y-2.5">
           {cart.map((l) => {
@@ -160,5 +225,6 @@ export default function CartPage() {
       </div>
       <div className="h-24 md:hidden" aria-hidden />
     </div>
+    </>
   );
 }

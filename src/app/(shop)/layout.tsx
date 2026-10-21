@@ -16,7 +16,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
         {children}
       </main>
       <Footer />
-      <div className="pb-nav md:hidden" aria-hidden />
+      <div className="pb-nav bg-[#141414] md:hidden" aria-hidden />
       <BottomNav />
     </>
   );

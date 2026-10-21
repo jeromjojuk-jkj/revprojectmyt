@@ -1,38 +1,123 @@
+"use client";
+
 import Link from "next/link";
 import { Logo } from "./Logo";
-import { BRAND } from "@/lib/constants";
+import { IconChevron } from "./Icons";
+import { POLICY_LINKS } from "@/lib/constants";
 
-export const POLICY_LINKS = [
-  { href: "/help", label: "Help & contact" },
-  { href: "/help/shipping", label: "Shipping & delivery" },
-  { href: "/help/returns", label: "Returns & exchanges" },
-  { href: "/help/cancellation", label: "Cancellation" },
-  { href: "/help/privacy", label: "Privacy policy" },
-  { href: "/help/terms", label: "Terms of use" },
+
+const COLUMNS: { title: string; links: { href?: string; label: string; note?: string }[] }[] = [
+  {
+    title: "Get to Know Us",
+    links: [
+      { href: "/help/about", label: "About Krip" },
+      { href: "/drops", label: "New Drops" },
+      { href: "/looks", label: "Complete the Look" },
+      { href: "/vibe", label: "Vibe Finder" },
+    ],
+  },
+  {
+    // No social accounts are live yet, so these are labels, not links.
+    title: "Connect with Us",
+    links: [
+      { label: "Instagram", note: "soon" },
+      { label: "YouTube", note: "soon" },
+      { label: "WhatsApp updates", note: "soon" },
+    ],
+  },
+  {
+    title: "Sell with Krip",
+    links: [
+      { href: "/help/suppliers", label: "Become a supplier" },
+      { href: "/help/suppliers", label: "Product data requirements" },
+    ],
+  },
+  {
+    title: "Let Us Help You",
+    links: [
+      { href: "/account", label: "Your Account" },
+      { href: "/orders", label: "Your Orders" },
+      { href: "/help/returns", label: "Returns Centre" },
+      { href: "/help/shipping", label: "Shipping & delivery" },
+      { href: "/help/cancellation", label: "Cancellations" },
+      { href: "/help", label: "Help" },
+    ],
+  },
 ];
 
 export function Footer() {
   return (
-    <footer className="mt-10 border-t border-line bg-white">
-      <div className="mx-auto grid max-w-7xl gap-6 px-4 py-8 md:grid-cols-[1fr_2fr]">
-        <div className="space-y-2">
-          <Logo className="text-[30px]" />
-          <p className="text-sm text-ink-soft">{BRAND.tagline}</p>
-          <p className="text-xs text-ink-soft">
-            Prototype storefront. Products, prices and images shown are sample data; payments run in demo mode.
-          </p>
+    <footer className="mt-10">
+      {/* Personal picks prompt (sign-in isn't connected, so picks come from this device) */}
+      <section aria-labelledby="picks-title" className="border-t border-line bg-white px-4 py-8 text-center">
+        <h2 id="picks-title" className="text-xl font-bold md:text-2xl">See picks for your vibe</h2>
+        <p className="mx-auto mt-1 max-w-md text-sm text-ink-soft">Swipe through styles to train your wishlist, or answer four quick questions.</p>
+        <div className="mx-auto mt-4 flex max-w-sm flex-col gap-2 sm:flex-row sm:justify-center">
+          <Link href="/swipe" className="flex h-11 flex-1 items-center justify-center rounded-full bg-sun px-6 text-sm font-semibold text-ink">
+            Start Style Swipe
+          </Link>
         </div>
-        <nav aria-label="Help and policies">
-          <ul className="grid grid-cols-2 gap-x-4 sm:grid-cols-3">
-            {POLICY_LINKS.map((l) => (
+        <p className="mt-2 text-xs text-ink-soft">
+          New here? <Link href="/vibe" className="font-medium text-leaf underline">Take the Vibe Finder.</Link>
+        </p>
+      </section>
+
+      <button
+        type="button"
+        onClick={() => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" })}
+        className="block h-12 w-full bg-[#2b2b2b] text-sm font-medium text-white hover:bg-[#333]"
+      >
+        Back to top
+      </button>
+
+      <div className="bg-[#1c1c1c] text-white">
+        <nav aria-label="Footer" className="mx-auto grid max-w-5xl grid-cols-2 gap-x-6 gap-y-8 px-6 py-10 md:grid-cols-4">
+          {COLUMNS.map((col) => (
+            <div key={col.title}>
+              <h2 className="mb-2 text-[15px] font-bold">{col.title}</h2>
+              <ul>
+                {col.links.map((l) => (
+                  <li key={l.label}>
+                    {l.href ? (
+                      <Link href={l.href} className="flex min-h-10 items-center text-sm text-white/80 hover:text-white hover:underline">
+                        {l.label}
+                      </Link>
+                    ) : (
+                      <span className="flex min-h-10 items-center gap-2 text-sm text-white/60">
+                        {l.label}
+                        {l.note && <span className="rounded bg-white/10 px-1.5 py-0.5 text-[10px] uppercase tracking-wide">{l.note}</span>}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </nav>
+        <div className="border-t border-white/10">
+          <div className="mx-auto flex max-w-5xl flex-wrap items-center justify-center gap-4 px-6 py-6">
+            <Logo onDark className="text-[24px]" />
+            <span className="flex h-10 items-center gap-2 rounded border border-white/30 px-3 text-sm" title="More languages coming soon">
+              <span aria-hidden>🌐</span> English
+            </span>
+            <span className="flex h-10 items-center gap-2 rounded border border-white/30 px-3 text-sm">
+              <span aria-hidden>🇮🇳</span> India
+            </span>
+          </div>
+        </div>
+        <div className="bg-[#141414] px-6 pb-6 pt-4 text-center text-xs text-white/60">
+          <ul className="flex flex-wrap justify-center gap-x-4">
+            {POLICY_LINKS.slice(4).map((l) => (
               <li key={l.href}>
-                <Link href={l.href} className="flex min-h-11 items-center text-sm text-ink hover:text-leaf hover:underline">
-                  {l.label}
-                </Link>
+                <Link href={l.href} className="inline-flex min-h-10 items-center hover:underline">{l.label}</Link>
               </li>
             ))}
+            <li>
+              <Link href="/help" className="inline-flex min-h-10 items-center gap-0.5 hover:underline">Help & contact <IconChevron size={12} /></Link>
+            </li>
           </ul>
-        </nav>
+          <p>© 2026 Krip · Trending looks. Your kind of price. · Prototype: sample products, demo payments.</p>
+        </div>
       </div>
     </footer>
   );

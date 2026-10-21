@@ -11,7 +11,7 @@ import { Sheet } from "./Sheet";
 import { CATEGORIES, VIBES } from "@/lib/constants";
 import { cartCount, useHydrated, useStore } from "@/lib/store";
 
-const STRIP = [
+const STRIP: { href: string; label: string; wide?: boolean }[] = [
   { href: "/search?cat=women", label: "Women" },
   { href: "/search?cat=men", label: "Men" },
   { href: "/search?cat=footwear", label: "Footwear" },
@@ -21,8 +21,9 @@ const STRIP = [
   { href: "/search?cat=accessories", label: "Accessories" },
   { href: "/drops", label: "New Drops" },
   { href: "/search?max=499&sort=price-asc", label: "Under ₹499" },
-  { href: "/looks", label: "Complete the Look" },
-  { href: "/vibe", label: "Vibe Finder" },
+  { href: "/swipe", label: "Style Swipe" },
+  { href: "/looks", label: "Complete the Look", wide: true },
+  { href: "/vibe", label: "Vibe Finder", wide: true },
 ];
 
 // Thin outline on hover/focus, like a marketplace top bar.
@@ -40,7 +41,7 @@ export function CartButton() {
   const n = hydrated ? count : 0;
   return (
     <Link href="/cart" className={`flex h-11 items-end gap-0.5 px-1.5 pb-1 ${hit}`} aria-label={n ? `Bag, ${n} item${n === 1 ? "" : "s"}` : "Bag, empty"}>
-      <span className="relative">
+      <span id="bag-target" className="relative">
         <IconBag size={28} />
         <span key={bump} aria-hidden className={`absolute left-1/2 top-[9px] -translate-x-1/2 text-[13px] font-bold leading-none text-sun ${bump ? "badge-bump" : ""}`}>
           {n > 99 ? "99+" : n}
@@ -53,7 +54,7 @@ export function CartButton() {
 
 function AllMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const groups: { title: string; links: { href: string; label: string }[] }[] = [
-    { title: "Trending", links: [{ href: "/search?collection=trending", label: "Trending Now" }, { href: "/drops", label: "New Drops" }, { href: "/#offers", label: "Seasonal offers" }, { href: "/looks", label: "Complete the Look" }, { href: "/vibe", label: "Vibe Finder" }] },
+    { title: "Trending", links: [{ href: "/search?collection=trending", label: "Trending Now" }, { href: "/drops", label: "New Drops" }, { href: "/#offers", label: "Seasonal offers" }, { href: "/swipe", label: "Style Swipe" }, { href: "/looks", label: "Complete the Look" }, { href: "/vibe", label: "Vibe Finder" }] },
     { title: "Shop by category", links: CATEGORIES.map((c) => ({ href: `/search?cat=${c.id}`, label: c.name })) },
     { title: "Shop by vibe", links: VIBES.map((v) => ({ href: `/search?vibe=${v.id}`, label: v.name })) },
     { title: "Help & settings", links: [{ href: "/account", label: "Your account" }, { href: "/orders", label: "Your orders" }, { href: "/wishlist", label: "Wishlist & lists" }, { href: "/help", label: "Help & contact" }, { href: "/help/returns", label: "Returns & exchanges" }] },
@@ -159,7 +160,7 @@ export function Header({ promo }: { promo?: { label: string; href: string } | nu
               </li>
             )}
             {STRIP.map((l) => (
-              <li key={l.href} className="shrink-0">
+              <li key={l.href} className={`shrink-0 ${l.wide ? "md:hidden xl:block" : ""}`}>
                 <Link href={l.href} aria-current={pathname === l.href ? "page" : undefined} className={`flex h-8 items-center whitespace-nowrap px-2 text-[13px] md:text-sm ${hit}`}>
                   {l.label}
                 </Link>

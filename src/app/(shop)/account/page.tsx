@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useHydrated, useStore } from "@/lib/store";
 import { PincodeForm } from "@/components/PincodeSheet";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
-import { POLICY_LINKS } from "@/components/HelpLinks";
+import { POLICY_LINKS } from "@/lib/constants";
 import { IconBag, IconChevron, IconHeart, IconSpark, IconUser } from "@/components/Icons";
 
 export default function AccountPage() {

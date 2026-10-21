@@ -5,6 +5,7 @@ import type { ProductPublic, Variant } from "@/lib/types";
 import { compareSizes } from "@/lib/search";
 import { toast, useStore } from "@/lib/store";
 import { imageForColor } from "@/lib/art";
+import { flyToBag } from "@/lib/fly";
 import { IconRuler } from "./Icons";
 
 export function colorsOf(p: ProductPublic) {
@@ -38,7 +39,7 @@ export function useVariantSelection(p: ProductPublic, initialColor?: string) {
 
 export type Selection = ReturnType<typeof useVariantSelection>;
 
-export function addSelectionToBag(p: ProductPublic, sel: Selection): { ok: boolean; error?: string } {
+export function addSelectionToBag(p: ProductPublic, sel: Selection, from?: Element | null): { ok: boolean; error?: string } {
   if (!isPurchasable(p)) return { ok: false, error: "This product is out of stock." };
   if (sel.needsSize && !sel.size) return { ok: false, error: "Please select a size." };
   const v = sel.variant;
@@ -54,6 +55,7 @@ export function addSelectionToBag(p: ProductPublic, sel: Selection): { ok: boole
     image: imageForColor(p.images[0] ?? "", v.colorHex),
     price: p.price,
   });
+  flyToBag(imageForColor(p.images[0] ?? "", v.colorHex), from ?? null);
   toast({
     message: `Added to bag — ${v.color}${v.size ? ", " + v.size : ""}`,
     action: { label: "View bag", href: "/cart" },

@@ -148,22 +148,37 @@ const SHAPES: Record<ArtKind, Draw> = {
 
 export const ART_KINDS = Object.keys(SHAPES) as ArtKind[];
 
+const FABRIC: ArtKind[] = ["tee", "shirt", "hoodie", "jeans", "cargo", "dress", "kurti", "top", "skirt", "coord", "cap", "tote", "scrunchie"];
+
 export function renderArt(kind: ArtKind, hex: string, view: 1 | 2): string {
   const h = /^[0-9a-f]{6}$/i.test(hex) ? hex.toLowerCase() : "999999";
   const bg = view === 1 ? mix(h, "f7f8f5", 0.9) : mix("ffd703", "ffffff", 0.72);
   const line = lum(h) < 0.08 ? mix(h, "ffffff", 0.45) : mix(h, "000000", 0.35);
-  const fill = "#" + h;
-  const body = SHAPES[kind](fill, line, h).replace(/var\(--bg\)/g, bg);
+  // Studio lighting: key light from top-left gives each piece volume.
+  const hi = lum(h) < 0.05 ? mix(h, "ffffff", 0.32) : mix(h, "ffffff", 0.3);
+  const lo = mix(h, "000000", 0.3);
+  const body = SHAPES[kind]("url(#tone)", line, h).replace(/var\(--bg\)/g, bg);
+  const texture = FABRIC.includes(kind)
+    ? SHAPES[kind]("url(#weave)", "none", h).replace(/var\(--bg\)/g, "none").replace(/fill="#(?:fbfbf8|fffdf6|c9a24a|1f1f1f|2a2a2a)"/g, 'fill="none"')
+    : "";
   const zoom = view === 2 ? `transform="translate(200 260) scale(1.45) translate(-200 -260)"` : "";
   const star = (x: number, y: number) => `<circle cx="${x}" cy="${y}" r="2.6" fill="#b89548"/>`;
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 500" width="800" height="1000" role="img" aria-label="Illustration">
+<defs>
+<radialGradient id="studio" cx="50%" cy="38%" r="75%"><stop offset="0" stop-color="#ffffff" stop-opacity=".75"/><stop offset=".6" stop-color="${bg}" stop-opacity="0"/><stop offset="1" stop-color="#000000" stop-opacity=".06"/></radialGradient>
+<linearGradient id="tone" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${hi}"/><stop offset=".45" stop-color="#${h}"/><stop offset="1" stop-color="${lo}"/></linearGradient>
+<pattern id="weave" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(35)"><rect width="6" height="6" fill="none"/><path d="M0 0 L0 6" stroke="#ffffff" stroke-opacity=".05" stroke-width="1"/></pattern>
+<radialGradient id="floor" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#000" stop-opacity=".22"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>
+<filter id="lift" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="0" dy="10" stdDeviation="9" flood-color="#000" flood-opacity=".18"/></filter>
+</defs>
 <rect width="400" height="500" fill="${bg}"/>
+<rect width="400" height="500" fill="url(#studio)"/>
 <circle cx="200" cy="255" r="170" fill="none" stroke="#b89548" stroke-opacity=".35" stroke-width="1.4"/>
-<circle cx="200" cy="255" r="150" fill="#ffffff" fill-opacity="${view === 1 ? 0.35 : 0.2}"/>
 <g stroke="#b89548" stroke-opacity=".45" stroke-width="1">
 <path d="M34 64 L74 40 L108 72 L72 98" fill="none"/><path d="M300 446 L334 424 L366 452" fill="none"/></g>
 ${star(34, 64)}${star(74, 40)}${star(108, 72)}${star(72, 98)}${star(300, 446)}${star(334, 424)}${star(366, 452)}
-<g ${zoom}>${body}</g>
+<ellipse cx="200" cy="452" rx="130" ry="16" fill="url(#floor)"/>
+<g ${zoom}><g filter="url(#lift)">${body}</g>${texture}</g>
 <text x="16" y="488" font-family="Poppins, Arial, sans-serif" font-size="12" fill="#171717" fill-opacity=".45">krip · sample illustration</text>
 </svg>`;
 }
