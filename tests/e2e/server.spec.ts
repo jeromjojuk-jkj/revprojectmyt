@@ -6,12 +6,12 @@ const key = () => `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`
 test("public catalogue never exposes supplier or cost data", async ({ request }) => {
   const body = await (await request.get("/api/products")).text();
   expect(body).not.toMatch(/purchaseCost|supplierName|sourceRef|channelPrices|Sample Supplier/);
-  expect(body).not.toContain("draft-silk-scarf");
+  expect(body).not.toContain("mini-handheld-fan-draft");
 });
 
 test("server rejects a tampered total and recalculates", async ({ request }) => {
   const res = await request.post("/api/orders", {
-    data: { idempotencyKey: key(), items: [{ sku: "P008-BLAC-M", qty: 1 }], address, paymentMethod: "cod", expectedTotal: 1 },
+    data: { idempotencyKey: key(), items: [{ sku: "H602-WHIT", qty: 1 }], address, paymentMethod: "cod", expectedTotal: 1 },
   });
   expect(res.status()).toBe(409);
   const d = await res.json();
@@ -21,7 +21,7 @@ test("server rejects a tampered total and recalculates", async ({ request }) => 
 
 test("duplicate submits create one order", async ({ request }) => {
   const k = key();
-  const payload = { idempotencyKey: k, items: [{ sku: "P008-WHIT-L", qty: 1 }], address, paymentMethod: "cod", expectedTotal: 249 + 49 + 20 };
+  const payload = { idempotencyKey: k, items: [{ sku: "H602-YELL", qty: 1 }], address, paymentMethod: "cod", expectedTotal: 249 + 49 + 20 };
   const [a, b] = await Promise.all([request.post("/api/orders", { data: payload }), request.post("/api/orders", { data: payload })]);
   expect(a.status()).toBe(200);
   expect(b.status()).toBe(200);
@@ -71,7 +71,7 @@ test("admin requires sign-in and shows private costs only after login", async ({
   await page.goto("/admin/products");
   await expect(page.getByText("Cost · est. margin")).toBeVisible();
   const csv = await page.request.get("/admin/export");
-  expect(await csv.text()).toContain("Sample Supplier — Tiruppur Knits");
+  expect(await csv.text()).toContain("Sample Supplier — Delhi Home Goods");
 
   // CSV import validates before committing
   await page.goto("/admin/import");

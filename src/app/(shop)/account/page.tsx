@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useHydrated, useStore } from "@/lib/store";
 import { PincodeForm } from "@/components/PincodeSheet";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
-import { POLICY_LINKS } from "@/lib/constants";
+import { IS_FASHION, POLICY_LINKS } from "@/lib/constants";
 import { IconBag, IconChevron, IconHeart, IconSpark, IconUser } from "@/components/Icons";
 
 export default function AccountPage() {
@@ -16,7 +16,9 @@ export default function AccountPage() {
   const links = [
     { href: "/orders", label: "Your orders", sub: hydrated ? `${orders} on this device` : "", Icon: IconBag },
     { href: "/wishlist", label: "Wishlist & lists", sub: hydrated ? `${saved} saved` : "", Icon: IconHeart },
-    { href: "/vibe", label: "Vibe Finder", sub: "Find styles by vibe and budget", Icon: IconSpark },
+    IS_FASHION
+      ? { href: "/vibe", label: "Vibe Finder", sub: "Find styles by vibe and budget", Icon: IconSpark }
+      : { href: "/swipe", label: "Style Swipe", sub: "Swipe right to shortlist things you like", Icon: IconSpark },
   ];
 
   return (
@@ -42,7 +44,7 @@ export default function AccountPage() {
         ))}
       </ul>
 
-      <section aria-labelledby="lab-h" className="lab-hero relative mt-4 overflow-hidden rounded-2xl p-4 text-white">
+      {IS_FASHION && <section aria-labelledby="lab-h" className="lab-hero relative mt-4 overflow-hidden rounded-2xl p-4 text-white">
         <span className="aurora-blob a1" aria-hidden />
         <span className="aurora-blob a3" aria-hidden />
         <h2 id="lab-h" className="relative text-sm font-semibold text-sun">Your Krip Lab</h2>
@@ -55,7 +57,7 @@ export default function AccountPage() {
             </li>
           ))}
         </ul>
-      </section>
+      </section>}
 
       <section className="mt-4 rounded-2xl bg-white p-4 ring-1 ring-line">
         <PincodeForm compact />

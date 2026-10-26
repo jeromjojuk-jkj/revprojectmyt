@@ -43,6 +43,19 @@ Copy `.env.example` to `.env.local`.
 
 Data is created from the sample catalogue on first run. **Admin → Dashboard → Reset demo data** restores it (staff, roles and the audit log are kept).
 
+### Store mode (what Krip sells)
+
+`STORE_MODE` in `src/lib/constants.ts` switches the whole storefront:
+
+- `"home"` (current): home gadgets and useful little things. Categories are Kitchen, Cleaning, Storage, Baby & Child Safety, Bathroom, Lights & Electricals and Smart Gadgets. The home sample catalogue and home offer tiles are loaded. Fashion-only tools (Krip Lab, Build a Fit, Colour Match, Vibe Finder, Complete the Look, Shop by colour) are hidden, and their URLs redirect to the homepage.
+- `"fashion"`: the original fashion range, with all of those tools back on.
+
+After switching, use **Admin → Dashboard → Reset demo data** so the datastore reloads the matching sample catalogue.
+
+### Product reels
+
+A product can have an optional vertical video (Admin → product → "Product reel"). It plays muted and looped as the first gallery slide, and never autoplays for people who prefer reduced motion. Files under `public/reels/` ship as MP4 with a WebM copy for browsers without H.264. `public/reels/daluci-socket-covers.mp4` is an 18-second reel made from the supplier images.
+
 ## Connected vs demo
 
 | Feature | Status |

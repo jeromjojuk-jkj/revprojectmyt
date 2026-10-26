@@ -5,7 +5,7 @@ import { computeQuote, estimateContribution } from "../../src/lib/pricing.ts";
 import type { Settings } from "../../src/lib/types.ts";
 import { normalizeCoupon } from "../../src/lib/coupons.ts";
 
-const products = buildSeedProducts().map(({ private: _p, ...pub }) => pub);
+const products = buildSeedProducts("fashion").map(({ private: _p, ...pub }) => pub);
 const settings: Settings = {
   deliveryFee: 49, freeDeliveryAbove: null, codFee: 20, codMaxOrderValue: 3000, returnAllowancePct: 8,
   channelFees: [{ channel: "Krip", marketplaceFeePct: 0, paymentFeePct: 2, fixedFee: 0 }],

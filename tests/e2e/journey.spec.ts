@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { IS_FASHION } from "../../src/lib/constants.ts";
 
 async function noHorizontalOverflow(page: Page) {
   const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
@@ -22,45 +23,41 @@ test("browse → filter → product → variant → bag → COD checkout", async
 
   // Search with suggestions
   const search = page.getByRole("combobox", { name: "Search Krip" });
-  await search.fill("oversized");
+  await search.fill("lock");
   await expect(page.getByRole("option").first()).toBeVisible();
   await search.press("Enter");
-  await expect(page).toHaveURL(/\/search\?q=oversized/);
-  await expect(page.getByRole("heading", { name: /Results for “oversized”/ })).toBeVisible();
+  await expect(page).toHaveURL(/\/search\?q=lock/);
+  await expect(page.getByRole("heading", { name: /Results for “lock”/ })).toBeVisible();
 
-  // Filter sheet: pick a size, apply, see chip
+  // Filter sheet: pick a colour, apply, see chip
   await page.getByRole("button", { name: /^Filter/ }).click();
   const sheet = page.getByRole("dialog", { name: "Filters" });
   await expect(sheet).toBeVisible();
-  await sheet.getByRole("button", { name: /^M \(/ }).click();
+  await sheet.getByRole("button", { name: /^Grey \(/ }).click();
   await sheet.getByRole("button", { name: /Show \d+ results?/ }).click();
-  await expect(page).toHaveURL(/size=M/);
-  await expect(page.getByRole("button", { name: "Remove filter M" })).toBeVisible();
+  await expect(page).toHaveURL(/color=Grey/);
+  await expect(page.getByRole("button", { name: "Remove filter Grey" })).toBeVisible();
   await noHorizontalOverflow(page);
 
   // Product page
-  await page.getByRole("link", { name: "Constellation Oversized Tee" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Constellation Oversized Tee" })).toBeVisible();
+  await page.getByRole("link", { name: "Child Safety Cabinet Locks, Pack of 6" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Child Safety Cabinet Locks, Pack of 6" })).toBeVisible();
   await noHorizontalOverflow(page);
-
-  // Variant required
   const actionbar = page.locator("div.fixed").filter({ has: page.getByRole("button", { name: "Buy Now" }) });
-  await actionbar.getByRole("button", { name: "Add to Bag" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: "Please select a size" })).toBeVisible();
 
-  // Out-of-stock size can't be added
-  await page.getByRole("radio", { name: "L, out of stock" }).click({ force: true });
+  // Out-of-stock colour can't be added
+  await page.getByRole("radio", { name: "White (out of stock)" }).click();
   await actionbar.getByRole("button", { name: "Add to Bag" }).click();
   await expect(page.getByRole("alert").filter({ hasText: /out of stock/i })).toBeVisible();
 
-  await page.getByRole("radio", { name: "M", exact: true }).click();
+  await page.getByRole("radio", { name: "Grey", exact: true }).click();
   await actionbar.getByRole("button", { name: "Add to Bag" }).click();
   await expect(page.getByRole("status").getByText(/Added to bag/)).toBeVisible();
   await expect(page.getByRole("link", { name: /Bag, 1 item/ })).toBeVisible();
 
   // Back to results keeps filters
   await page.goBack();
-  await expect(page).toHaveURL(/size=M/);
+  await expect(page).toHaveURL(/color=Grey/);
 
   // Cart
   await page.goto("/cart");
@@ -93,8 +90,8 @@ test("browse → filter → product → variant → bag → COD checkout", async
 });
 
 test("online payment: failure is never shown as success, retry then succeeds", async ({ page }) => {
-  await page.goto("/product/halo-hoop-earrings");
-  // One-size product: no size needed
+  await page.goto("/product/motion-sensor-night-light");
+  // Single-option product: nothing to choose
   await page.locator("div.fixed").getByRole("button", { name: "Add to Bag" }).click();
   await page.goto("/checkout");
   await fillAddress(page);
@@ -114,22 +111,22 @@ test("online payment: failure is never shown as success, retry then succeeds", a
 });
 
 test("unavailable product cannot be bought", async ({ page }) => {
-  await page.goto("/product/chelsea-ankle-boots");
+  await page.goto("/product/microfibre-cloths-pack-6");
   await expect(page.getByText("Out of stock").first()).toBeVisible();
   await expect(page.locator("div.fixed").getByRole("button", { name: "Out of stock" })).toBeDisabled();
 });
 
 test("empty search state offers reset", async ({ page }) => {
-  await page.goto("/search?q=tee&max=100");
+  await page.goto("/search?q=peeler&max=50");
   await expect(page.getByText("Nothing matches… yet")).toBeVisible();
   await page.getByRole("button", { name: "Reset filters" }).click();
-  await expect(page).toHaveURL(/\/search\?q=tee$/);
-  await expect(page.getByRole("link", { name: "Basic Crew Tee" })).toBeVisible();
+  await expect(page).toHaveURL(/\/search\?q=peeler$/);
+  await expect(page.getByRole("link", { name: "Stainless Steel Y-Peeler" })).toBeVisible();
 });
 
 test("quick view bottom sheet adds a valid variant", async ({ page }) => {
-  await page.goto("/search?cat=beauty");
-  await page.getByRole("button", { name: "Quick view: Velvet Matte Lipstick" }).click();
+  await page.goto("/search?cat=kitchen");
+  await page.getByRole("button", { name: "Quick view: Glass Water Bottle with Sleeve, 1 L" }).click();
   const dlg = page.getByRole("dialog", { name: "Quick View" });
   await expect(dlg).toBeVisible();
   await dlg.getByRole("button", { name: "Add to Bag" }).click();
@@ -139,7 +136,7 @@ test("quick view bottom sheet adds a valid variant", async ({ page }) => {
 
 test("key pages have no horizontal overflow at 360px", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 760 });
-  for (const path of ["/", "/categories", "/drops", "/wishlist", "/account", "/vibe", "/looks", "/look/campus-uniform", "/product/aura-slip-midi-dress", "/product/velvet-matte-lipstick", "/help/returns", "/cart"]) {
+  for (const path of ["/", "/categories", "/drops", "/wishlist", "/account", "/swipe", "/product/vegetable-chopper-pull-cord", "/product/glass-water-bottle-1l", "/search?cat=baby-safety", "/help/returns", "/cart"]) {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
     await noHorizontalOverflow(page);
@@ -167,7 +164,7 @@ test("Style Swipe saves to the wishlist", async ({ page }) => {
 });
 
 test("a shared bag link can be added to your own bag", async ({ page }) => {
-  await page.goto("/cart?share=P008-BLAC-M*2,NOPE*1");
+  await page.goto("/cart?share=H602-WHIT*2,NOPE*1");
   await expect(page.getByText("A friend shared a bag with you")).toBeVisible();
   await expect(page.getByText(/no longer available/)).toBeVisible();
   await page.getByRole("button", { name: "Add to my bag" }).click();
@@ -202,8 +199,8 @@ test("location outside India is refused", async ({ request }) => {
 test("back button returns to the previous page", async ({ page }) => {
   await page.goto("/");
   await expect(page.getByRole("button", { name: "Back", exact: true })).toHaveCount(0);
-  await page.getByRole("link", { name: "Women", exact: true }).first().click();
-  await expect(page).toHaveURL(/cat=women/);
+  await page.getByRole("link", { name: "Kitchen", exact: true }).first().click();
+  await expect(page).toHaveURL(/cat=kitchen/);
   await page.getByRole("button", { name: "Back", exact: true }).click();
   await expect(page).toHaveURL(/\/$/);
 });
@@ -216,6 +213,7 @@ test("sliding product rows can be paused", async ({ page }) => {
 });
 
 test("Krip Lab: Build a Fit totals, Colour Match reads a sample, Size Finder suggests a size", async ({ page }) => {
+  test.skip(!IS_FASHION, "Fashion-only tools are hidden while Krip sells home gadgets.");
   await page.goto("/fit");
   await expect(page.getByRole("heading", { name: /Swipe each row/ })).toBeVisible();
   await expect(page.getByText(/pieces · individual prices added up/)).toBeVisible();

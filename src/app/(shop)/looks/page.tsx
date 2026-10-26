@@ -1,3 +1,5 @@
+import { redirect } from "next/navigation";
+import { IS_FASHION } from "@/lib/constants";
 import { getPublicProducts } from "@/lib/server/catalog";
 import { LOOKS } from "@/data/catalog";
 import { LookCard } from "@/components/LookCard";
@@ -6,6 +8,8 @@ export const dynamic = "force-dynamic";
 export const metadata = { title: "Complete the Look" };
 
 export default async function LooksPage() {
+  // Fashion-only tool; hidden while Krip sells home gadgets.
+  if (!IS_FASHION) redirect("/");
   const products = await getPublicProducts();
   return (
     <div className="px-4 pt-4">

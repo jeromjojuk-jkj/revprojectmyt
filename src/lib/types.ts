@@ -1,14 +1,9 @@
 // Shared domain types. Anything in `ProductPrivate` must never reach the browser
 // except through authenticated admin routes — see toPublicProduct() in catalog.ts.
 
-export type CategoryId =
-  | "men"
-  | "women"
-  | "beauty"
-  | "footwear"
-  | "bags"
-  | "jewellery"
-  | "accessories";
+export type FashionCategoryId = "men" | "women" | "beauty" | "footwear" | "bags" | "jewellery" | "accessories";
+export type HomeCategoryId = "kitchen" | "cleaning" | "storage" | "baby-safety" | "bathroom" | "electricals" | "gadgets";
+export type CategoryId = FashionCategoryId | HomeCategoryId;
 
 export type VibeId = "campus" | "streetwear" | "everyday" | "date-night" | "festive";
 
@@ -20,7 +15,10 @@ export type ArtKind =
   | "tote" | "sling" | "backpack"
   | "earrings" | "necklace" | "bracelet"
   | "lipstick" | "serum" | "palette" | "kajal" | "cream"
-  | "cap" | "sunglasses" | "watch" | "belt" | "scrunchie";
+  | "cap" | "sunglasses" | "watch" | "belt" | "scrunchie"
+  // Home & gadgets
+  | "chopper" | "peeler" | "bottle" | "cloth" | "brush" | "organizer" | "hook" | "lock" | "corner"
+  | "holder" | "nightlight" | "clip" | "stand" | "timer";
 
 export interface Variant {
   sku: string;
@@ -84,6 +82,8 @@ export interface ProductPublic {
   /** Only shown when supplied. */
   mrp: number | null;
   images: string[];
+  /** Optional vertical product reel (MP4/WebM), shown first in the gallery. */
+  video?: string | null;
   variants: Variant[];
   sizeGuide: SizeGuide | null;
   fit: string | null;

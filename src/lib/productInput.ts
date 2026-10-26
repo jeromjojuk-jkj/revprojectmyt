@@ -15,6 +15,17 @@ export function slugify(s: string) {
   return s.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 80);
 }
 
+/** Product reels: https:// MP4/WebM links, or files Krip serves from /reels/. */
+export function isAllowedVideoUrl(u: string) {
+  if (/^\/reels\/[a-z0-9-]+\.(mp4|webm)$/i.test(u)) return true;
+  try {
+    const url = new URL(u);
+    return url.protocol === "https:" && /\.(mp4|webm)$/i.test(url.pathname);
+  } catch {
+    return false;
+  }
+}
+
 export function isAllowedImageUrl(u: string) {
   if (/^\/art\/[a-z]+-[0-9a-f]{6}-[12]\.svg$/i.test(u)) return true;
   // Images uploaded to the hosted demo's asset store.
@@ -49,6 +60,7 @@ export interface RawProductInput {
   mrp?: string | number;
   status?: string;
   images?: string; // newline separated
+  video?: string;
   variants?: string; // lines: SKU | Colour | #hex | Size | Stock
   fit?: string;
   material?: string;
@@ -110,6 +122,8 @@ export function validateProductInput(
   const images = lines(raw.images);
   if (!images.length) e.images = "Add at least one image URL.";
   else if (images.some((u) => !isAllowedImageUrl(u))) e.images = "Image URLs must be https:// links (or generated /art/ samples).";
+  const video = str(raw.video, 300);
+  if (video && !isAllowedVideoUrl(video)) e.video = "Use an https:// link ending in .mp4 or .webm, or a /reels/… file.";
 
   const variants: Variant[] = [];
   const seen = new Set<string>();
@@ -224,6 +238,7 @@ export function validateProductInput(
       price: price!,
       mrp: mrp ?? null,
       images,
+      video: video || null,
       variants,
       sizeGuide,
       fit: str(raw.fit, 40) || null,
@@ -260,6 +275,7 @@ export function toRawInput(p: ProductRecord): RawProductInput {
     id: p.id, slug: p.slug, title: p.title, brand: p.brand, category: p.category, subcategory: p.subcategory,
     description: p.description, price: String(p.price), mrp: p.mrp ? String(p.mrp) : "", status: p.status,
     images: p.images.join("\n"),
+    video: p.video ?? "",
     variants: p.variants.map((v) => [v.sku, v.color, "#" + v.colorHex, v.size ?? "", v.stock].join(" | ")).join("\n"),
     fit: p.fit ?? "", material: p.material ?? "", care: p.care.join("\n"), packageContents: p.packageContents ?? "",
     origin: p.origin ?? "", seller: p.seller ?? "", styleTags: p.styleTags.join(", "), vibes: p.vibes.join(", "),

@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import type { ProductPublic } from "@/lib/types";
 import type { Look } from "@/data/catalog";
 import { imageForColor } from "@/lib/art";
-import { CATEGORY_NAME } from "@/lib/constants";
+import { CATEGORY_NAME, IS_FASHION } from "@/lib/constants";
 import { formatPrice } from "@/lib/format";
 import { estimateDelivery } from "@/lib/pincode";
 import { toast, useHydrated, useStore } from "@/lib/store";
@@ -158,7 +158,7 @@ export function ProductDetail({
 
       <div className="md:grid md:grid-cols-2 md:gap-8 md:px-4 md:pt-4">
         <div className="relative">
-          <Gallery images={images} alt={`${product.title} in ${sel.color}`} />
+          <Gallery images={images} video={product.video ?? null} alt={`${product.title} in ${sel.color}`} />
           <div className="absolute bottom-12 right-3 z-10 flex flex-col items-end gap-2">
             <button type="button" onClick={() => setSpotOpen(true)} aria-haspopup="dialog" className="glass-chip flex h-10 items-center gap-1.5 rounded-full px-3 text-xs font-semibold">✨ Spotlight 3D</button>
             {fitQuestion(product.sizeGuide) && available && (
@@ -361,7 +361,7 @@ export function ProductDetail({
       ))}
 
       {related.length > 0 && (
-        <Section id="related" title="You may also like" kicker="Similar styles">
+        <Section id="related" title="You may also like" kicker={IS_FASHION ? "Similar styles" : "Similar items"}>
           <ProductRail products={related} />
         </Section>
       )}

@@ -1,5 +1,6 @@
 "use client";
 
+import { IS_FASHION } from "@/lib/constants";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import type { OfferView } from "@/lib/offers";
@@ -14,7 +15,7 @@ export function OfferCard({ view, priority = false, onTerms }: { view: OfferView
   const bg = OFFER_THEMES[offer.theme].bg;
   const facts = [
     view.fromPrice !== null ? `From ${formatPrice(view.fromPrice)}` : null,
-    plural(view.count, "style"),
+    plural(view.count, IS_FASHION ? "style" : "item"),
     view.maxDiscount ? `up to ${view.maxDiscount}% off MRP` : null,
   ].filter(Boolean).join(" · ");
   return (

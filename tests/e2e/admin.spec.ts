@@ -28,7 +28,7 @@ test("admin shell: dashboard, grouped sidebar, search, breadcrumbs", async ({ pa
   for (const g of ["Overview", "Commerce", "Customers", "Growth & marketing", "Storefront", "Finance", "System"]) await expect(nav.getByRole("button", { name: g })).toBeVisible();
   await expect(page.getByText("Net sales").first()).toBeVisible();
   await page.getByRole("link", { name: "30d" }).click();
-  await page.getByRole("searchbox", { name: /Search orders/ }).or(page.getByLabel(/Search orders, products/)).fill("P008");
+  await page.getByRole("searchbox", { name: /Search orders/ }).or(page.getByLabel(/Search orders, products/)).fill("H602");
   await page.keyboard.press("Enter");
   await expect(page.getByRole("heading", { name: /Results for/ })).toBeVisible();
   await expect(page.getByRole("navigation", { name: "Breadcrumb" }).getByText("Search")).toBeVisible();
@@ -81,7 +81,7 @@ test("store settings drive the storefront footer, announcement and maintenance m
   await expect(page.getByText("Saved. The storefront footer")).toBeVisible();
   await shopper.goto("/");
   await expect(shopper.getByRole("heading", { name: "We’ll be right back" })).toBeVisible();
-  const blocked = await shopper.request.post("/api/orders", { data: { idempotencyKey: key(), items: [{ sku: "P008-BLAC-M", qty: 1 }], address, paymentMethod: "cod", expectedTotal: 318 } });
+  const blocked = await shopper.request.post("/api/orders", { data: { idempotencyKey: key(), items: [{ sku: "H602-WHIT", qty: 1 }], address, paymentMethod: "cod", expectedTotal: 318 } });
   expect(blocked.status()).toBe(503);
   await page.goto("/");
   await expect(page.getByText("Maintenance mode is on")).toBeVisible();
@@ -110,7 +110,7 @@ test("coupon rules are enforced at checkout, and an order runs through fulfilmen
   await expect(page.getByRole("cell", { name: /ONCE10/ })).toBeVisible();
 
   // Place an order with the coupon, then try to reuse it with the same phone number.
-  const items = [{ sku: "P008-BLAC-M", qty: 2 }];
+  const items = [{ sku: "H602-WHIT", qty: 2 }];
   const quote = await (await request.post("/api/cart/quote", { data: { items, pincode: "411001", paymentMethod: "cod", couponCode: "ONCE10" } })).json();
   expect(quote.quote.discount).toBe(49); // 10% of 498, floored
   const placed = await request.post("/api/orders", { data: { idempotencyKey: key(), items, address, paymentMethod: "cod", couponCode: "ONCE10", expectedTotal: quote.quote.total } });
@@ -269,4 +269,28 @@ test("two-step sign-in can be set up and is required afterwards", async ({ page 
   await page.getByLabel("Password to turn off").fill(OWNER.password);
   await page.getByRole("button", { name: "Turn off" }).click();
   await expect(page.getByText("Two-step sign-in is off.")).toBeVisible();
+});
+
+test("a product reel added in admin plays first in the product gallery", async ({ page, request }) => {
+  expect((await request.get("/reels/daluci-socket-covers.mp4")).headers()["content-type"]).toContain("video/mp4");
+  await signIn(page, OWNER.email, OWNER.password);
+  await page.goto("/admin/products/h001");
+  await page.getByLabel("Product reel (optional)").fill("http://example.com/clip.mp4");
+  await page.getByRole("button", { name: "Save product" }).click();
+  await expect(page.getByText(/https:\/\/ link ending in \.mp4/)).toBeVisible();
+  await page.getByLabel("Product reel (optional)").fill("/reels/daluci-socket-covers.mp4");
+  await page.getByRole("button", { name: "Save product" }).click();
+  await expect(page.getByText("Saved.")).toBeVisible();
+  await page.goto("/product/vegetable-chopper-pull-cord");
+  const reel = page.locator("video[aria-label$='product reel']");
+  await expect(reel.locator("source").first()).toHaveAttribute("src", "/reels/daluci-socket-covers.mp4");
+  // Chromium builds without H.264 fall back to the WebM copy.
+  await expect.poll(() => reel.evaluate((v: HTMLVideoElement) => !v.paused && v.currentTime > 0), { timeout: 10_000 }).toBe(true);
+  await page.getByRole("button", { name: "Pause reel" }).click();
+  await expect(page.getByRole("button", { name: "Play reel" })).toBeVisible();
+  // Put the sample product back the way it was.
+  await page.goto("/admin/products/h001");
+  await page.getByLabel("Product reel (optional)").fill("");
+  await page.getByRole("button", { name: "Save product" }).click();
+  await expect(page.getByText("Saved.")).toBeVisible();
 });

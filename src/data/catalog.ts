@@ -7,6 +7,7 @@ import type {
   ArtKind, BeautyInfo, CategoryId, ProductRecord, ReturnPolicy, SizeGuide, Variant, VibeId,
 } from "../lib/types.ts";
 import * as G from "./size-guides.ts";
+import { STORE_MODE } from "../lib/constants.ts";
 
 const RET_7: ReturnPolicy = {
   type: "returnable",
@@ -509,19 +510,150 @@ const DEFS: Def[] = [
   },
 ];
 
+const RET_HOME: ReturnPolicy = {
+  type: "returnable",
+  days: 7,
+  note: "Return within 7 days of delivery if unused and in the original packaging. Damaged or wrong items reported within 48 hours with photos are replaced.",
+};
+const W = "Sample Supplier — Delhi Home Goods";
+
+// Launch range: home gadgets & small useful things (all SAMPLES — replace in admin).
+const HOME_DEFS: Def[] = [
+  {
+    id: "h001", slug: "vegetable-chopper-pull-cord", title: "Pull-Cord Vegetable Chopper", category: "kitchen", subcategory: "Choppers & Cutters",
+    kind: "chopper", price: 299, mrp: 499, colors: [["Green", "16a34a"], ["Red", "dc2626"]], sizes: null,
+    material: "Food-grade plastic, stainless steel blades", care: ["Wash blades carefully by hand", "Dry before storing"],
+    packageContents: "1 chopper with 3 blades and lid", origin: "India", tags: ["chopper", "onion", "kitchen tool", "cutter"], vibes: [], collections: ["trending"],
+    description: "Pull the cord a few times to chop onions, tomatoes and herbs without tears. Capacity and blade details are on the box.",
+    createdAt: "2026-10-20", supplier: W, costPct: 0.45,
+  },
+  {
+    id: "h002", slug: "y-peeler-stainless", title: "Stainless Steel Y-Peeler", category: "kitchen", subcategory: "Kitchen Tools",
+    kind: "peeler", price: 99, colors: [["Black", "27272a"], ["Teal", "0f766e"]], sizes: null,
+    material: "Stainless steel blade, ABS handle", care: ["Rinse after use", "Keep the blade dry"], packageContents: "1 peeler", origin: "India",
+    tags: ["peeler", "potato", "kitchen tool"], vibes: [], collections: [],
+    description: "Wide Y-peeler with a swivel blade for potatoes, carrots and cucumbers. Hanging hole on the handle.",
+    createdAt: "2026-10-12", supplier: W, costPct: 0.4,
+  },
+  {
+    id: "h003", slug: "glass-water-bottle-1l", title: "Glass Water Bottle with Sleeve, 1 L", category: "kitchen", subcategory: "Bottles",
+    kind: "bottle", price: 349, mrp: 599, colors: [["Sage", "7c9c84"], ["Blush", "e8a5b5"], ["Grey", "6b7280"]], sizes: null,
+    material: "Borosilicate glass, silicone sleeve", care: ["Hand wash", "Not for hot liquids above 60 °C"], packageContents: "1 bottle with sleeve and cap", origin: "China",
+    tags: ["water bottle", "glass", "fridge"], vibes: [], collections: ["trending"],
+    description: "1 litre glass bottle with a protective silicone sleeve. Fits most fridge door shelves.",
+    createdAt: "2026-10-18", supplier: W, costPct: 0.42,
+  },
+  {
+    id: "h101", slug: "microfibre-cloths-pack-6", title: "Microfibre Cleaning Cloths, Pack of 6", category: "cleaning", subcategory: "Cloths & Wipes",
+    kind: "cloth", price: 199, colors: [["Assorted", "0ea5e9"]], sizes: null,
+    material: "Microfibre", care: ["Machine wash without fabric softener"], packageContents: "6 cloths, 30 × 30 cm", origin: "India",
+    tags: ["microfibre", "duster", "car", "kitchen"], vibes: [], collections: ["trending"],
+    description: "Soft, lint-free cloths for kitchen counters, glass, screens and car interiors.",
+    createdAt: "2026-10-15", supplier: W, costPct: 0.38,
+  },
+  {
+    id: "h102", slug: "gap-cleaning-brush-set", title: "Gap Cleaning Brush Set", category: "cleaning", subcategory: "Brushes",
+    kind: "brush", price: 179, colors: [["Grey", "9ca3af"], ["Blue", "3b82f6"]], sizes: null,
+    material: "PP bristles", care: ["Rinse and air dry"], packageContents: "3 brushes", origin: "China",
+    tags: ["brush", "window track", "tile", "gap"], vibes: [], collections: [],
+    description: "Slim stiff-bristle brushes for window tracks, tile grout and the gaps around taps.",
+    createdAt: "2026-10-05", supplier: W, costPct: 0.4,
+  },
+  {
+    id: "h201", slug: "drawer-organiser-set-4", title: "Stackable Drawer Organiser, Set of 4", category: "storage", subcategory: "Organisers",
+    kind: "organizer", price: 399, mrp: 699, colors: [["Beige", "d6b98c"], ["White", "f4f4f2"]], sizes: null,
+    material: "PP plastic", care: ["Wipe with a damp cloth"], packageContents: "4 organisers in 2 sizes", origin: "India",
+    tags: ["organiser", "drawer", "desk", "storage box"], vibes: [], collections: ["trending"],
+    description: "Interlocking trays to keep drawers tidy — cutlery, stationery, make-up or cables. Sizes are listed on the pack.",
+    createdAt: "2026-10-19", supplier: W, costPct: 0.43,
+  },
+  {
+    id: "h202", slug: "adhesive-wall-hooks-10", title: "Adhesive Wall Hooks, Pack of 10", category: "storage", subcategory: "Hooks",
+    kind: "hook", price: 149, colors: [["Transparent", "e5e7eb"], ["White", "fafafa"]], sizes: null,
+    material: "Plastic with adhesive pad", care: ["Stick on clean, dry, smooth surfaces", "Wait 24 hours before hanging"], packageContents: "10 hooks", origin: "China",
+    tags: ["hooks", "no drill", "wall", "kitchen"], vibes: [], collections: [],
+    description: "No-drill hooks for towels, keys and kitchen tools. Weight limit is printed on the pack.",
+    createdAt: "2026-09-28", supplier: W, costPct: 0.35,
+  },
+  {
+    id: "h301", slug: "cabinet-safety-locks-6", title: "Child Safety Cabinet Locks, Pack of 6", category: "baby-safety", subcategory: "Locks & Latches",
+    kind: "lock", price: 249, colors: [["White", "f4f4f2"], ["Grey", "9ca3af"]], sizes: null,
+    material: "ABS plastic", care: ["Wipe clean"], packageContents: "6 U-shaped locks", origin: "China",
+    tags: ["baby proofing", "cabinet lock", "child safety"], vibes: [], collections: ["trending"],
+    description: "U-shaped locks for side-by-side cabinet knobs and handles. Check the handle gap on the pack before ordering. Locks don’t replace supervision.",
+    createdAt: "2026-10-17", supplier: W, costPct: 0.4,
+  },
+  {
+    id: "h302", slug: "soft-corner-guards-4", title: "Soft Corner Guards, Pack of 4", category: "baby-safety", subcategory: "Corner & Edge Guards",
+    kind: "corner", price: 129, colors: [["Grey", "9ca3af"], ["Brown", "8b5a2b"]], sizes: null,
+    material: "Foam with adhesive", care: ["Stick on clean, dry surfaces"], packageContents: "4 corner guards", origin: "China",
+    tags: ["baby proofing", "table corner", "child safety"], vibes: [], collections: [],
+    description: "Soft foam guards for sharp table and shelf corners.",
+    createdAt: "2026-10-08", supplier: W, costPct: 0.35,
+  },
+  {
+    id: "h401", slug: "wall-toothbrush-holder", title: "Wall-Mounted Toothbrush Holder", category: "bathroom", subcategory: "Bathroom Organisers",
+    kind: "holder", price: 229, colors: [["White", "fafafa"], ["Grey", "9ca3af"]], sizes: null,
+    material: "ABS plastic", care: ["Wipe weekly"], packageContents: "1 holder, adhesive strip", origin: "China",
+    tags: ["toothbrush holder", "bathroom", "no drill"], vibes: [], collections: [],
+    description: "Holds 4 toothbrushes and a tube of toothpaste off the counter. Sticks on tiles with the included strip.",
+    createdAt: "2026-10-03", supplier: W, costPct: 0.42,
+  },
+  {
+    id: "h501", slug: "motion-sensor-night-light", title: "Motion-Sensor LED Night Light", category: "electricals", subcategory: "Lights",
+    kind: "nightlight", price: 279, mrp: 449, colors: [["Warm White", "fbbf24"]], sizes: null,
+    material: "ABS, LED", care: ["Keep away from water"], packageContents: "1 light, mounting strip", origin: "China",
+    tags: ["night light", "sensor", "stairs", "wardrobe"], vibes: [], collections: ["trending"],
+    description: "Turns on when it senses movement in the dark. Battery or charging details are listed on the pack.",
+    createdAt: "2026-10-16", supplier: W, costPct: 0.45,
+  },
+  {
+    id: "h502", slug: "cable-organiser-clips", title: "Cable Organiser Clips, Pack of 6", category: "electricals", subcategory: "Cable Management",
+    kind: "clip", price: 99, colors: [["Black", "27272a"], ["White", "fafafa"]], sizes: null,
+    material: "Silicone", care: ["Stick on clean, dry surfaces"], packageContents: "6 clips", origin: "China",
+    tags: ["cable clips", "desk", "charger"], vibes: [], collections: [],
+    description: "Keep charging cables on the desk edge instead of on the floor.",
+    createdAt: "2026-09-30", supplier: W, costPct: 0.35,
+  },
+  {
+    id: "h601", slug: "foldable-phone-stand", title: "Foldable Phone Stand", category: "gadgets", subcategory: "Mobile Accessories",
+    kind: "stand", price: 199, colors: [["Black", "27272a"], ["Silver", "a1a1aa"]], sizes: null,
+    material: "Aluminium alloy", care: ["Wipe with a dry cloth"], packageContents: "1 stand", origin: "China",
+    tags: ["phone stand", "desk", "video call"], vibes: [], collections: ["trending"],
+    description: "Adjustable stand for video calls, recipes and reels. Folds flat for travel.",
+    createdAt: "2026-10-14", supplier: W, costPct: 0.42,
+  },
+  {
+    id: "h602", slug: "digital-kitchen-timer", title: "Digital Kitchen Timer", category: "gadgets", subcategory: "Timers",
+    kind: "timer", price: 249, colors: [["White", "f4f4f2"], ["Yellow", "facc15"]], sizes: null,
+    material: "ABS plastic", care: ["Keep away from water"], packageContents: "1 timer (battery details on pack)", origin: "China",
+    tags: ["timer", "kitchen", "study", "countdown"], vibes: [], collections: [],
+    description: "Magnetic countdown timer for cooking, study sessions and workouts.",
+    createdAt: "2026-10-01", supplier: W, costPct: 0.4,
+  },
+  {
+    id: "h603", slug: "mini-handheld-fan-draft", title: "Mini Handheld Fan (draft)", category: "gadgets", subcategory: "Portable Fans",
+    kind: "timer", price: 299, colors: [["White", "fafafa"]], sizes: null, tags: ["fan"], vibes: [],
+    description: "Draft listing — not visible to shoppers until marked active in admin.",
+    createdAt: "2026-10-21", status: "draft", supplier: W, costPct: 0.45,
+  },
+];
+
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;
 }
 
-export function buildSeedProducts(): ProductRecord[] {
-  return DEFS.map((d, idx) => {
+/** Sample catalogue for the current store mode (or the one asked for). */
+export function buildSeedProducts(mode: "home" | "fashion" = STORE_MODE): ProductRecord[] {
+  const defs = mode === "fashion" ? DEFS : HOME_DEFS;
+  return defs.map((d, idx) => {
     const code = d.id.toUpperCase();
     const vs = variants(code, d.colors, d.sizes, idx * 3, d.allOut);
     return {
       id: d.id,
       slug: d.slug,
       title: d.title,
-      brand: d.brand ?? (d.category === "beauty" ? "Krip Glow" : "Krip Studio"),
+      brand: d.brand ?? (d.category === "beauty" ? "Krip Glow" : mode === "home" ? "Krip Home" : "Krip Studio"),
       category: d.category,
       subcategory: d.subcategory,
       description: d.description,
@@ -539,7 +671,7 @@ export function buildSeedProducts(): ProductRecord[] {
       styleTags: d.tags,
       vibes: d.vibes,
       collections: d.collections ?? [],
-      returnPolicy: d.returns ?? (d.category === "footwear" || d.category === "men" || d.category === "women" ? RET_7 : d.category === "accessories" && d.kind === "cap" ? RET_EXCHANGE : RET_7),
+      returnPolicy: d.returns ?? (mode === "home" ? RET_HOME : d.category === "footwear" || d.category === "men" || d.category === "women" ? RET_7 : d.category === "accessories" && d.kind === "cap" ? RET_EXCHANGE : RET_7),
       beauty: d.beauty ?? null,
       reviews: [],
       channelListings: [],
@@ -567,7 +699,7 @@ export interface Look {
   items: { productId: string; color?: string }[];
 }
 
-export const LOOKS: Look[] = [
+const FASHION_LOOKS: Look[] = [
   {
     id: "campus-uniform", name: "The Campus Uniform", vibe: "campus", line: "Oversized tee, cargos, chunky kicks.",
     items: [{ productId: "p001", color: "Washed Black" }, { productId: "p004", color: "Olive" }, { productId: "p201", color: "White" }, { productId: "p401", color: "Natural" }],
@@ -589,3 +721,6 @@ export const LOOKS: Look[] = [
     items: [{ productId: "p008", color: "White" }, { productId: "p005", color: "Indigo" }, { productId: "p202", color: "Black" }, { productId: "p603" }],
   },
 ];
+
+// Looks are a fashion feature; the home range has none.
+export const LOOKS: Look[] = (STORE_MODE as string) === "fashion" ? FASHION_LOOKS : [];

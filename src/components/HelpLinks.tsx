@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Logo } from "./Logo";
 import type { StoreProfile } from "@/lib/types";
 import { whatsappLink } from "@/lib/storeProfile";
+import { IS_FASHION } from "@/lib/constants";
 
 type FooterLink = { href?: string; label: string; note?: string; external?: boolean };
 
@@ -86,16 +87,18 @@ export function Footer({ store }: { store: StoreProfile }) {
     <footer className="mt-10">
       {/* Personal picks prompt (sign-in isn't connected, so picks come from this device) */}
       <section aria-labelledby="picks-title" className="border-t border-line bg-white px-4 py-8 text-center">
-        <h2 id="picks-title" className="text-xl font-bold md:text-2xl">See picks for your vibe</h2>
-        <p className="mx-auto mt-1 max-w-md text-sm text-ink-soft">Swipe through styles to train your wishlist, or answer four quick questions.</p>
+        <h2 id="picks-title" className="text-xl font-bold md:text-2xl">{IS_FASHION ? "See picks for your vibe" : "Shortlist things you’ll love"}</h2>
+        <p className="mx-auto mt-1 max-w-md text-sm text-ink-soft">{IS_FASHION ? "Swipe through styles to train your wishlist, or answer four quick questions." : "Swipe right on anything useful — it goes straight to your wishlist."}</p>
         <div className="mx-auto mt-4 flex max-w-sm flex-col gap-2 sm:flex-row sm:justify-center">
           <Link href="/swipe" className="flex h-11 flex-1 items-center justify-center rounded-full bg-sun px-6 text-sm font-semibold text-ink">
             Start Style Swipe
           </Link>
         </div>
-        <p className="mt-2 text-xs text-ink-soft">
-          New here? <Link href="/vibe" className="font-medium text-leaf underline">Take the Vibe Finder.</Link>
-        </p>
+        {IS_FASHION && (
+          <p className="mt-2 text-xs text-ink-soft">
+            New here? <Link href="/vibe" className="font-medium text-leaf underline">Take the Vibe Finder.</Link>
+          </p>
+        )}
       </section>
 
       <div className="bg-[#1c1c1c] text-white">

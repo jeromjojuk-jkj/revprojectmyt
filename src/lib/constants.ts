@@ -5,7 +5,27 @@ export const BRAND = {
   tagline: "Trending looks. Your kind of price.",
 } as const;
 
-export const CATEGORIES: { id: CategoryId; name: string; short: string; art: string; hex: string }[] = [
+/**
+ * What Krip sells right now. "home" = home gadgets & small useful things (launch range);
+ * "fashion" = the original fashion range, kept so it can be switched back on later.
+ * Switching changes the categories, the sample catalogue and which shopping tools are shown.
+ */
+export const STORE_MODE: "home" | "fashion" = "home";
+export const IS_FASHION = (STORE_MODE as string) === "fashion";
+
+type Category = { id: CategoryId; name: string; short: string; art: string; hex: string; emoji?: string };
+
+export const HOME_CATEGORIES: Category[] = [
+  { id: "kitchen", name: "Kitchen Gadgets", short: "Kitchen", art: "chopper", hex: "166534", emoji: "🍳" },
+  { id: "cleaning", name: "Cleaning & Laundry", short: "Cleaning", art: "cloth", hex: "0ea5e9", emoji: "🧽" },
+  { id: "storage", name: "Storage & Organisers", short: "Storage", art: "organizer", hex: "d6b98c", emoji: "📦" },
+  { id: "baby-safety", name: "Baby & Child Safety", short: "Baby safety", art: "lock", hex: "f472b6", emoji: "🧸" },
+  { id: "bathroom", name: "Bathroom Essentials", short: "Bathroom", art: "holder", hex: "e7f3f6", emoji: "🛁" },
+  { id: "electricals", name: "Lights & Electricals", short: "Lights", art: "nightlight", hex: "f5f5f4", emoji: "💡" },
+  { id: "gadgets", name: "Smart Gadgets", short: "Gadgets", art: "stand", hex: "334155", emoji: "📱" },
+];
+
+export const FASHION_CATEGORIES: Category[] = [
   { id: "women", name: "Women’s Clothing", short: "Women", art: "dress", hex: "c2410c" },
   { id: "men", name: "Men’s Clothing", short: "Men", art: "shirt", hex: "1e3a8a" },
   { id: "footwear", name: "Footwear", short: "Footwear", art: "sneaker", hex: "f5f5f4" },
@@ -15,11 +35,17 @@ export const CATEGORIES: { id: CategoryId; name: string; short: string; art: str
   { id: "accessories", name: "Accessories", short: "Accessories", art: "sunglasses", hex: "171717" },
 ];
 
+export const CATEGORIES: Category[] = IS_FASHION ? FASHION_CATEGORIES : HOME_CATEGORIES;
+
+// Names for every category id, so older records still display correctly.
 export const CATEGORY_NAME: Record<CategoryId, string> = Object.fromEntries(
-  CATEGORIES.map((c) => [c.id, c.name]),
+  [...FASHION_CATEGORIES, ...HOME_CATEGORIES].map((c) => [c.id, c.name]),
 ) as Record<CategoryId, string>;
 
+/** A category Krip currently sells in (used for new products and imports). */
 export const isCategoryId = (v: string): v is CategoryId => CATEGORIES.some((c) => c.id === v);
+/** Any category Krip has ever used, so old links and records still resolve. */
+export const isKnownCategoryId = (v: string): v is CategoryId => Object.hasOwn(CATEGORY_NAME, v);
 
 export const VIBES: { id: VibeId; name: string; line: string }[] = [
   { id: "campus", name: "Campus", line: "Easy layers for long days" },

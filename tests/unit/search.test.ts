@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { buildSeedProducts } from "../../src/data/catalog.ts";
 import { emptyState, parseSearch, runSearch, serializeSearch, scoreProduct, suggest, colorFamily } from "../../src/lib/search.ts";
 
-const products = buildSeedProducts().map(({ private: _p, ...pub }) => pub);
+const products = buildSeedProducts("fashion").map(({ private: _p, ...pub }) => pub);
 
 test("query matches title, synonyms and colours", () => {
   const s = { ...emptyState(), q: "tshirt" };

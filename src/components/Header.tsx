@@ -8,24 +8,16 @@ import { SearchBox } from "./SearchBox";
 import { PincodeSheet } from "./PincodeSheet";
 import { IconBag, IconChevron, IconMenu, IconPin } from "./Icons";
 import { Sheet } from "./Sheet";
-import { CATEGORIES, VIBES } from "@/lib/constants";
+import { CATEGORIES, IS_FASHION, VIBES } from "@/lib/constants";
 import { cartCount, useHydrated, useStore } from "@/lib/store";
 
 const STRIP: { href: string; label: string; wide?: boolean }[] = [
-  { href: "/fit", label: "Build a Fit" },
-  { href: "/colour-match", label: "Colour Match" },
-  { href: "/search?cat=women", label: "Women" },
-  { href: "/search?cat=men", label: "Men" },
-  { href: "/search?cat=footwear", label: "Footwear" },
-  { href: "/search?cat=beauty", label: "Beauty" },
-  { href: "/search?cat=bags", label: "Bags" },
-  { href: "/search?cat=jewellery", label: "Jewellery" },
-  { href: "/search?cat=accessories", label: "Accessories" },
+  ...(IS_FASHION ? [{ href: "/fit", label: "Build a Fit" }, { href: "/colour-match", label: "Colour Match" }] : []),
+  ...CATEGORIES.map((c) => ({ href: `/search?cat=${c.id}`, label: c.short })),
   { href: "/drops", label: "New Drops" },
-  { href: "/search?max=499&sort=price-asc", label: "Under ₹499", wide: true },
+  IS_FASHION ? { href: "/search?max=499&sort=price-asc", label: "Under ₹499", wide: true } : { href: "/search?max=199&sort=price-asc", label: "Under ₹199", wide: true },
   { href: "/swipe", label: "Style Swipe", wide: true },
-  { href: "/looks", label: "Complete the Look", wide: true },
-  { href: "/vibe", label: "Vibe Finder", wide: true },
+  ...(IS_FASHION ? [{ href: "/looks", label: "Complete the Look", wide: true }, { href: "/vibe", label: "Vibe Finder", wide: true }] : []),
 ];
 
 // Thin outline on hover/focus, like a marketplace top bar.
@@ -56,9 +48,9 @@ export function CartButton() {
 
 function AllMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const groups: { title: string; links: { href: string; label: string }[] }[] = [
-    { title: "Trending", links: [{ href: "/search?collection=trending", label: "Trending Now" }, { href: "/drops", label: "New Drops" }, { href: "/#offers", label: "Seasonal offers" }, { href: "/fit", label: "Build a Fit" }, { href: "/colour-match", label: "Colour Match" }, { href: "/swipe", label: "Style Swipe" }, { href: "/looks", label: "Complete the Look" }, { href: "/vibe", label: "Vibe Finder" }] },
+    { title: "Trending", links: [{ href: "/search?collection=trending", label: "Trending Now" }, { href: "/drops", label: "New Drops" }, { href: "/#offers", label: "Seasonal offers" }, ...(IS_FASHION ? [{ href: "/fit", label: "Build a Fit" }, { href: "/colour-match", label: "Colour Match" }, { href: "/swipe", label: "Style Swipe" }, { href: "/looks", label: "Complete the Look" }, { href: "/vibe", label: "Vibe Finder" }] : [{ href: "/swipe", label: "Style Swipe" }])] },
     { title: "Shop by category", links: CATEGORIES.map((c) => ({ href: `/search?cat=${c.id}`, label: c.name })) },
-    { title: "Shop by vibe", links: VIBES.map((v) => ({ href: `/search?vibe=${v.id}`, label: v.name })) },
+    ...(IS_FASHION ? [{ title: "Shop by vibe", links: VIBES.map((v) => ({ href: `/search?vibe=${v.id}`, label: v.name })) }] : []),
     { title: "Help & settings", links: [{ href: "/account", label: "Your account" }, { href: "/orders", label: "Your orders" }, { href: "/wishlist", label: "Wishlist & lists" }, { href: "/help", label: "Help & contact" }, { href: "/help/returns", label: "Returns & exchanges" }] },
   ];
   return (

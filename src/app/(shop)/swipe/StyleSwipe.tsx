@@ -85,7 +85,7 @@ export function StyleSwipe({ products }: { products: ProductPublic[] }) {
         {!current ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-3xl bg-white p-6 text-center ring-1 ring-line">
             <p className="text-lg font-semibold">That’s the whole deck</p>
-            <p className="text-sm text-ink-soft">You saved {saved.length} {saved.length === 1 ? "style" : "styles"} this round.</p>
+            <p className="text-sm text-ink-soft">You saved {saved.length} {saved.length === 1 ? "item" : "items"} this round.</p>
             <div className="flex gap-2">
               <Link href="/wishlist" className="flex h-12 items-center rounded-xl bg-leaf px-5 font-semibold text-white">Open wishlist</Link>
               <button type="button" onClick={() => { setIndex(0); setSaved([]); }} className="h-12 rounded-xl px-5 font-semibold text-leaf ring-2 ring-leaf">Swipe again</button>

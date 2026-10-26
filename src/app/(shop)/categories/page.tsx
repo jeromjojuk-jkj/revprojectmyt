@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { getPublicProducts } from "@/lib/server/catalog";
-import { CATEGORIES, COLLECTIONS, VIBES } from "@/lib/constants";
+import { CATEGORIES, COLLECTIONS, IS_FASHION, VIBES } from "@/lib/constants";
 import { ProductImage } from "@/components/ProductImage";
 import { IconChevron } from "@/components/Icons";
 
@@ -24,7 +24,7 @@ export default async function CategoriesPage() {
                 </span>
                 <span className="flex-1">
                   <span className="block font-semibold">{c.name}</span>
-                  <span className="text-xs text-ink-soft">{items.length} styles</span>
+                  <span className="text-xs text-ink-soft">{items.length} {IS_FASHION ? "styles" : items.length === 1 ? "item" : "items"}</span>
                 </span>
                 <IconChevron size={18} />
               </Link>
@@ -43,7 +43,7 @@ export default async function CategoriesPage() {
       </ul>
       <h2 className="mt-7 text-lg font-semibold">Collections</h2>
       <ul className="mt-2 grid grid-cols-2 gap-2.5 md:grid-cols-3">
-        {Object.entries(COLLECTIONS).map(([id, c]) => (
+        {Object.entries(COLLECTIONS).filter(([id]) => products.some((p) => p.collections.includes(id))).map(([id, c]) => (
           <li key={id}>
             <Link href={`/search?collection=${id}`} className="constellation-bg flex h-full flex-col rounded-2xl bg-leaf p-4 text-white">
               <span className="font-semibold">{c.name}</span>
@@ -52,12 +52,16 @@ export default async function CategoriesPage() {
           </li>
         ))}
       </ul>
-      <h2 className="mt-7 text-lg font-semibold">Vibes</h2>
-      <div className="mt-2 flex flex-wrap gap-2">
-        {VIBES.map((v) => (
-          <Link key={v.id} href={`/search?vibe=${v.id}`} className="flex min-h-11 items-center rounded-full bg-white px-4 text-sm font-medium ring-1 ring-line">{v.name}</Link>
-        ))}
-      </div>
+      {IS_FASHION && (
+        <>
+          <h2 className="mt-7 text-lg font-semibold">Vibes</h2>
+          <div className="mt-2 flex flex-wrap gap-2">
+            {VIBES.map((v) => (
+              <Link key={v.id} href={`/search?vibe=${v.id}`} className="flex min-h-11 items-center rounded-full bg-white px-4 text-sm font-medium ring-1 ring-line">{v.name}</Link>
+            ))}
+          </div>
+        </>
+      )}
     </div>
   );
 }

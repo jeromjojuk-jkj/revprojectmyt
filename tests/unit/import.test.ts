@@ -18,8 +18,8 @@ test("CSV parser handles quotes and commas", () => {
 test("rows sharing a slug become one product with variants", () => {
   const csv = [
     header,
-    'linen-shirt,Linen Shirt,men,Shirts,A breezy linen shirt.,799,https://cdn.example.com/a.jpg,LS-WHT-M,White,#fafafa,M,4,Return in 7 days,Supplier A,350,draft,',
-    'linen-shirt,Linen Shirt,men,Shirts,A breezy linen shirt.,799,https://cdn.example.com/a.jpg,LS-WHT-L,White,#fafafa,L,2,Return in 7 days,Supplier A,350,draft,',
+    'linen-shirt,Linen Shirt,kitchen,Shirts,A breezy linen shirt.,799,https://cdn.example.com/a.jpg,LS-WHT-M,White,#fafafa,M,4,Return in 7 days,Supplier A,350,draft,',
+    'linen-shirt,Linen Shirt,kitchen,Shirts,A breezy linen shirt.,799,https://cdn.example.com/a.jpg,LS-WHT-L,White,#fafafa,L,2,Return in 7 days,Supplier A,350,draft,',
   ].join("\n");
   const r = importCsv(csv, ctx());
   assert.deepEqual(r.errors, []);

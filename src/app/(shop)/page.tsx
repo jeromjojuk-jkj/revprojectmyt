@@ -2,7 +2,7 @@ import Link from "next/link";
 import { getLiveOffers, getPublicProducts } from "@/lib/server/catalog";
 import { OfferRail } from "@/components/OfferRail";
 import { AutoMarquee } from "@/components/AutoMarquee";
-import { CATEGORIES, BUDGETS, VIBES } from "@/lib/constants";
+import { CATEGORIES, BUDGETS, VIBES, IS_FASHION } from "@/lib/constants";
 import { LOOKS } from "@/data/catalog";
 import { ProductGrid, ProductRail } from "@/components/ProductCard";
 import { ProductImage } from "@/components/ProductImage";
@@ -36,6 +36,8 @@ export default async function HomePage() {
   const colourCounts: Record<string, number> = {};
   for (const p of products.filter(inStock)) for (const f of new Set(p.variants.filter((v) => v.stock > 0).map((v) => colorFamily(v.color)))) colourCounts[f] = (colourCounts[f] ?? 0) + 1;
   const beautyAcc = products.filter((p) => ["beauty", "jewellery", "accessories"].includes(p.category) && inStock(p)).slice(0, 10);
+  // Home range: a row per category that has something in stock.
+  const categoryRows = CATEGORIES.map((c) => ({ c, items: products.filter((p) => p.category === c.id && inStock(p)) })).filter((r) => r.items.length > 0);
 
   return (
     <div className="pb-4">
@@ -63,20 +65,20 @@ export default async function HomePage() {
       ) : (
       <div className="px-4 pt-4">
         <Link
-          href="/search?collection=aura-edit"
+          href={IS_FASHION ? "/search?collection=aura-edit" : "/drops"}
           className="pressable constellation-bg relative flex min-h-[148px] items-center overflow-hidden rounded-2xl bg-leaf p-4 text-white md:min-h-[180px] md:p-8"
         >
           <span aria-hidden className="absolute -right-10 -top-10 h-56 w-56 rounded-full border border-sun/50" />
           <span aria-hidden className="absolute -right-2 top-4 h-40 w-40 rounded-full bg-sun/15" />
           <div className="relative z-10 max-w-[62%] space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sun">The Aura Edit</p>
-            <p className="text-xl font-semibold leading-tight md:text-3xl">Soft-glow fits for every day</p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sun">{IS_FASHION ? "The Aura Edit" : "Just landed"}</p>
+            <p className="text-xl font-semibold leading-tight md:text-3xl">{IS_FASHION ? "Soft-glow fits for every day" : "Clever little things for every room"}</p>
             <span className="inline-flex h-11 items-center gap-1 rounded-xl bg-sun px-4 text-sm font-semibold text-ink">
-              Shop the edit <IconChevron size={16} />
+              {IS_FASHION ? "Shop the edit" : "See what’s new"} <IconChevron size={16} />
             </span>
           </div>
           <div className="absolute bottom-0 right-2 h-[140px] w-[112px] md:right-10 md:h-[170px] md:w-[136px]" aria-hidden>
-            <ProductImage src="/art/dress-e6cfa4-1.svg" alt="" sizes="140px" priority className="rounded-t-[60px]" />
+            <ProductImage src={IS_FASHION ? "/art/dress-e6cfa4-1.svg" : "/art/organizer-d6b98c-1.svg"} alt="" sizes="140px" priority className="rounded-t-[60px]" />
           </div>
         </Link>
       </div>
@@ -89,33 +91,6 @@ export default async function HomePage() {
       <Section id="trending" title="Trending Now" kicker="Curated by the Krip team" href="/search?collection=trending">
         <ProductGrid products={trending} priorityCount={4} />
       </Section>
-
-      {/* Krip Lab — futuristic shopping tools */}
-      <section aria-labelledby="lab-title" className="px-4 pt-7">
-        <div className="lab-hero relative overflow-hidden rounded-3xl p-4 text-white">
-          <span className="aurora-blob a1" aria-hidden />
-          <span className="aurora-blob a2" aria-hidden />
-          <span className="aurora-blob a3" aria-hidden />
-          <p className="relative text-[11px] font-semibold uppercase tracking-[0.16em] text-sun">New · Krip Lab</p>
-          <h2 id="lab-title" className="relative text-xl font-bold">Shop like it’s 2030</h2>
-          <ul className="relative mt-3 grid grid-cols-2 gap-2.5 md:grid-cols-4">
-            {[
-              ["/fit", "🎲", "Build a Fit", "Swipe rows into a full look"],
-              ["/colour-match", "🎨", "Colour Match", "Shop the colours in any photo"],
-              ["/swipe", "💘", "Style Swipe", "Right for love, left for nope"],
-              ["/product/constellation-oversized-tee", "📏", "Size Finder", "One measurement, your size"],
-            ].map(([href, e, t, d]) => (
-              <li key={t}>
-                <Link href={href} className="glass-tile pressable flex h-full flex-col gap-1 rounded-2xl p-3">
-                  <span className="text-2xl" aria-hidden>{e}</span>
-                  <span className="font-semibold">{t}</span>
-                  <span className="text-[11px] text-white/75">{d}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
 
       {/* 5. Budget edits */}
       <Section id="budget" title="Budget edits" kicker="Your kind of price">
@@ -130,7 +105,7 @@ export default async function HomePage() {
                 >
                   <span className="text-[11px] font-medium text-ink/80">Everything</span>
                   <span className="text-lg font-bold leading-none md:text-2xl">{b.label}</span>
-                  <span className="text-[11px] font-medium text-ink/80">{count} styles</span>
+                  <span className="text-[11px] font-medium text-ink/80">{count} {IS_FASHION ? "styles" : "items"}</span>
                 </Link>
               </li>
             );
@@ -144,6 +119,30 @@ export default async function HomePage() {
         <AutoMarquee products={newest} label="New Drops, sliding" />
       </Section>
 
+      {!IS_FASHION && (
+        <>
+          {categoryRows.map(({ c, items }) => (
+            <Section key={c.id} id={`cat-${c.id}`} title={c.name} kicker={`${items.length} ${items.length === 1 ? "item" : "items"} in stock`} href={`/search?cat=${c.id}`}>
+              <ProductRail products={items.slice(0, 10)} />
+            </Section>
+          ))}
+          <Section id="swipe" title="Can’t decide?" kicker="Swipe to shortlist">
+            <Link href="/swipe" className="constellation-bg flex min-h-16 items-center justify-between gap-3 overflow-hidden rounded-2xl bg-ink px-4 py-3 text-white">
+              <span>
+                <span className="block font-semibold">Swipe right on things you like</span>
+                <span className="block text-xs text-white/75">They go straight to your wishlist</span>
+              </span>
+              <span className="swipe-cards relative h-14 w-16 shrink-0" aria-hidden>
+                <span className="absolute inset-0 rotate-[-10deg] rounded-lg bg-sun" />
+                <span className="absolute inset-0 rotate-[6deg] rounded-lg bg-leaf ring-2 ring-white/70" />
+              </span>
+            </Link>
+          </Section>
+        </>
+      )}
+
+      {IS_FASHION && (
+        <>
       {/* Shop by colour */}
       <Section id="colour" title="Shop by colour" kicker="Pick a shade">
         <ul className="no-scrollbar -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 md:justify-center">
@@ -212,6 +211,8 @@ export default async function HomePage() {
         <AutoMarquee products={beautyAcc} label="Beauty and accessories, sliding" secondsPerItem={3.6} />
       </Section>
 
+        </>
+      )}
     </div>
   );
 }

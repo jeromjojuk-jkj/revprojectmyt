@@ -80,6 +80,7 @@ export function ProductForm({ initial, id }: { initial: RawProductInput; id: str
 
       <Box title="Images & variants">
         <F name="images" label="Image URLs (one per line)" area required hint="https:// links to photos Krip is authorised to use. First image is the main photo." />
+        <F name="video" label="Product reel (optional)" hint="Vertical MP4/WebM, e.g. /reels/daluci-socket-covers.mp4 or an https:// link. Plays muted first in the gallery; use only footage Krip is authorised to use." />
         <F name="variants" label="Variants (one per line: SKU | Colour/Shade | #hex | Size | Stock)" area rows={5} required hint="Leave Size empty for one-size products, e.g. P101-BLK-M | Black | #171717 | M | 12" />
         <label className="flex items-start gap-2 text-sm">
           <input type="checkbox" name="rightsConfirmed" defaultChecked={v.rightsConfirmed === "on"} className="mt-1 h-5 w-5 accent-[#166534]" />

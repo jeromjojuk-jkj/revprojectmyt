@@ -1,5 +1,5 @@
 import type { CategoryId, ProductPublic, VibeId } from "./types.ts";
-import { CATEGORY_NAME, COLLECTIONS, VIBES, isCategoryId, isVibeId } from "./constants.ts";
+import { CATEGORY_NAME, COLLECTIONS, IS_FASHION, VIBES, isKnownCategoryId, isVibeId } from "./constants.ts";
 
 export type SortId = "relevance" | "newest" | "price-asc" | "price-desc";
 
@@ -45,7 +45,7 @@ const list = (v: string | null) => (v ? v.split(",").map((s) => s.trim()).filter
 export function parseSearch(sp: URLSearchParams): SearchState {
   const s = emptyState();
   s.q = (sp.get("q") ?? "").slice(0, 80);
-  s.cats = list(sp.get("cat")).filter(isCategoryId);
+  s.cats = list(sp.get("cat")).filter(isKnownCategoryId);
   s.types = list(sp.get("type"));
   s.sizes = list(sp.get("size"));
   s.fits = list(sp.get("fit"));
@@ -327,7 +327,7 @@ export function suggest(products: ProductPublic[], q: string, limit = 8): Sugges
   for (const [id, name] of Object.entries(CATEGORY_NAME)) {
     if (normalize(name).includes(n) || id.startsWith(n)) push({ kind: "category", label: name, href: `/search?cat=${id}` });
   }
-  for (const v of VIBES) if (normalize(v.name).startsWith(n)) push({ kind: "style", label: `${v.name} vibe`, href: `/search?vibe=${v.id}` });
+  if (IS_FASHION) for (const v of VIBES) if (normalize(v.name).startsWith(n)) push({ kind: "style", label: `${v.name} vibe`, href: `/search?vibe=${v.id}` });
   const families = new Set(products.flatMap((p) => p.variants.map((v) => colorFamily(v.color))));
   for (const f of families) if (normalize(f).startsWith(n)) push({ kind: "color", label: `${f} colour`, href: `/search?color=${f}` });
   const matches = products

@@ -1,3 +1,4 @@
+import { IS_FASHION } from "@/lib/constants";
 import type { Metadata, Viewport } from "next";
 import "@fontsource/poppins/400.css";
 import "@fontsource/poppins/500.css";
@@ -9,7 +10,7 @@ import { BRAND } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: { default: `krip — ${BRAND.tagline}`, template: "%s · krip" },
-  description: "Trending, affordable fashion, beauty and accessories. Trending looks. Your kind of price.",
+  description: IS_FASHION ? "Trending, affordable fashion, beauty and accessories. Trending looks. Your kind of price." : "Clever home gadgets and useful little things for every room, at your kind of price.",
   applicationName: "krip",
 };
 

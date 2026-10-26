@@ -6,7 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { useHydrated, useStore } from "@/lib/store";
 import type { Suggestion } from "@/lib/search";
 import { IconBack, IconClock, IconMic, IconSearch, IconX } from "./Icons";
-import { CATEGORIES } from "@/lib/constants";
+import { CATEGORIES, IS_FASHION } from "@/lib/constants";
 
 export function SearchBox() {
   const router = useRouter();
@@ -154,7 +154,7 @@ export function SearchBox() {
               setOpen(false);
             }
           }}
-          placeholder="Search tees, kajal, sneakers, olive…"
+          placeholder={IS_FASHION ? "Search tees, kajal, sneakers, olive…" : "Search choppers, organisers, night lights…"}
           aria-label="Search Krip"
           role="combobox"
           aria-expanded={open}
