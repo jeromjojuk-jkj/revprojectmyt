@@ -136,7 +136,7 @@ export function ProductDetail({
   const rp = product.returnPolicy;
   const highlights: [string, string][] = (
     [
-      ["Fabric / material", product.material],
+      [IS_FASHION ? "Fabric / material" : "Material", product.material],
       ["Fit", product.fit],
       ["Net quantity", product.beauty?.quantity ?? null],
       ["Type", product.subcategory],
@@ -192,6 +192,17 @@ export function ProductDetail({
             {product.reviews.length === 0 && <p className="text-xs text-ink-soft">No ratings yet</p>}
           </div>
 
+          {(product.features?.length ?? 0) > 0 && (
+            <section aria-labelledby="feat-title" className="rounded-2xl bg-leaf-soft/60 p-4 ring-1 ring-leaf/15">
+              <h2 id="feat-title" className="mb-2 text-sm font-semibold">Key features</h2>
+              <ul className="space-y-1.5 text-sm">
+                {product.features!.map((f) => (
+                  <li key={f} className="flex gap-2"><span aria-hidden className="mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-leaf text-[11px] font-bold text-white">✓</span>{f}</li>
+                ))}
+              </ul>
+            </section>
+          )}
+
           {/* Product highlights — only fields the supplier gave us */}
           {highlights.length > 0 && (
             <section aria-labelledby="hl-title" className="rounded-2xl bg-white p-4 ring-1 ring-line">
@@ -228,6 +239,12 @@ export function ProductDetail({
               Buy Now
             </button>
           </div>
+
+          <ul aria-label="Buying from Krip" className="grid grid-cols-3 gap-2 text-center text-[11px] leading-tight">
+            <li className="rounded-xl bg-white px-2 py-2.5 ring-1 ring-line"><span className="block text-lg" aria-hidden>💵</span>Cash on Delivery on eligible pincodes</li>
+            <li className="rounded-xl bg-white px-2 py-2.5 ring-1 ring-line"><span className="block text-lg" aria-hidden>↩️</span>{rp.type === "returnable" ? `${rp.days}-day returns if unused` : rp.type === "exchange-only" ? `${rp.days}-day exchange` : "Replacement if it arrives damaged"}</li>
+            <li className="rounded-xl bg-white px-2 py-2.5 ring-1 ring-line"><span className="block text-lg" aria-hidden>🧾</span>Price includes GST; delivery shown before you pay</li>
+          </ul>
 
           <div className="flex flex-wrap gap-2">
             <a
@@ -271,9 +288,11 @@ export function ProductDetail({
               <p className="truncate font-semibold">{product.seller ?? "Krip"}</p>
               <p className="text-xs text-ink-soft">Brand: {product.brand}{product.origin ? ` · Made in ${product.origin}` : ""}</p>
             </div>
-            <Link href={`/search?q=${encodeURIComponent(product.brand)}`} className="flex h-10 shrink-0 items-center rounded-lg px-3 text-sm font-semibold text-leaf ring-1 ring-leaf">
-              View brand
-            </Link>
+            {product.brand !== "Generic" && (
+              <Link href={`/search?q=${encodeURIComponent(product.brand)}`} className="flex h-10 shrink-0 items-center rounded-lg px-3 text-sm font-semibold text-leaf ring-1 ring-leaf">
+                View brand
+              </Link>
+            )}
           </section>
 
           {/* Details */}
@@ -282,7 +301,7 @@ export function ProductDetail({
               <p className="mb-2">{product.description}</p>
               <dl>
                 {product.fit && <Row k="Fit" v={product.fit} />}
-                {product.material && <Row k={isBeauty ? "Format" : "Fabric / material"} v={product.material} />}
+                {product.material && <Row k={isBeauty ? "Format" : IS_FASHION ? "Fabric / material" : "Material"} v={product.material} />}
                 {product.packageContents && <Row k="In the box" v={product.packageContents} />}
                 <Row k="Category" v={`${CATEGORY_NAME[product.category]} · ${product.subcategory}`} />
               </dl>
@@ -292,8 +311,13 @@ export function ProductDetail({
                 <SizeGuideTable product={product} />
               </Detail>
             )}
+            {(product.howToUse?.length ?? 0) > 0 && (
+              <Detail title="How to use" open>
+                <ol className="list-decimal space-y-1 pl-5">{product.howToUse!.map((h) => <li key={h}>{h}</li>)}</ol>
+              </Detail>
+            )}
             {product.care.length > 0 && (
-              <Detail title="Care instructions">
+              <Detail title={IS_FASHION ? "Care instructions" : "Care & safety"}>
                 <ul className="list-disc pl-5">{product.care.map((c) => <li key={c}>{c}</li>)}</ul>
               </Detail>
             )}

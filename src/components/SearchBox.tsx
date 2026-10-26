@@ -154,7 +154,7 @@ export function SearchBox() {
               setOpen(false);
             }
           }}
-          placeholder={IS_FASHION ? "Search tees, kajal, sneakers, olive…" : "Search choppers, organisers, night lights…"}
+          placeholder={IS_FASHION ? "Search tees, kajal, sneakers, olive…" : "Search socket covers, oil sprayer, drain cleaner…"}
           aria-label="Search Krip"
           role="combobox"
           aria-expanded={open}

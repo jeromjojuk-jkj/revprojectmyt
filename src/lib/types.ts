@@ -2,7 +2,7 @@
 // except through authenticated admin routes — see toPublicProduct() in catalog.ts.
 
 export type FashionCategoryId = "men" | "women" | "beauty" | "footwear" | "bags" | "jewellery" | "accessories";
-export type HomeCategoryId = "kitchen" | "cleaning" | "storage" | "baby-safety" | "bathroom" | "electricals" | "gadgets";
+export type HomeCategoryId = "kitchen" | "cleaning" | "baby-safety" | "personal-care";
 export type CategoryId = FashionCategoryId | HomeCategoryId;
 
 export type VibeId = "campus" | "streetwear" | "everyday" | "date-night" | "festive";
@@ -84,6 +84,10 @@ export interface ProductPublic {
   images: string[];
   /** Optional vertical product reel (MP4/WebM), shown first in the gallery. */
   video?: string | null;
+  /** Short "why you'll like it" points, taken from the supplier's product information. */
+  features?: string[];
+  /** Step-by-step usage instructions. */
+  howToUse?: string[];
   variants: Variant[];
   sizeGuide: SizeGuide | null;
   fit: string | null;

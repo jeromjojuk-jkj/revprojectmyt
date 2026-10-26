@@ -20,7 +20,7 @@ export default async function CategoriesPage() {
             <li key={c.id} className="overflow-hidden rounded-2xl bg-white ring-1 ring-line">
               <Link href={`/search?cat=${c.id}`} className="flex items-center gap-3 p-3">
                 <span className="relative h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-paper">
-                  <ProductImage src={`/art/${c.art}-${c.hex}-2.svg`} alt="" sizes="64px" />
+                  <ProductImage src={c.image ?? `/art/${c.art}-${c.hex}-2.svg`} alt="" sizes="64px" />
                 </span>
                 <span className="flex-1">
                   <span className="block font-semibold">{c.name}</span>

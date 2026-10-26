@@ -48,7 +48,7 @@ export default async function HomePage() {
             <li key={c.id} className="shrink-0">
               <Link href={`/search?cat=${c.id}`} className="pressable flex w-[68px] flex-col items-center gap-1.5 text-center">
                 <span className="relative h-[64px] w-[64px] overflow-hidden rounded-2xl bg-white ring-1 ring-line">
-                  <ProductImage src={`/art/${c.art}-${c.hex}-2.svg`} alt="" sizes="64px" priority />
+                  <ProductImage src={c.image ?? `/art/${c.art}-${c.hex}-2.svg`} alt="" sizes="64px" priority />
                 </span>
                 <span className="text-[12px] font-medium leading-tight">{c.short}</span>
               </Link>

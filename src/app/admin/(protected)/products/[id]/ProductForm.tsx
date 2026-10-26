@@ -80,6 +80,8 @@ export function ProductForm({ initial, id }: { initial: RawProductInput; id: str
 
       <Box title="Images & variants">
         <F name="images" label="Image URLs (one per line)" area required hint="https:// links to photos Krip is authorised to use. First image is the main photo." />
+        <F name="features" label="Key features (one per line, optional)" area rows={4} hint="Short points shown under the price, e.g. “Pack of 15 covers”. Only facts from the supplier or the pack." />
+        <F name="howToUse" label="How to use (one step per line, optional)" area rows={4} />
         <F name="video" label="Product reel (optional)" hint="Vertical MP4/WebM, e.g. /reels/daluci-socket-covers.mp4 or an https:// link. Plays muted first in the gallery; use only footage Krip is authorised to use." />
         <F name="variants" label="Variants (one per line: SKU | Colour/Shade | #hex | Size | Stock)" area rows={5} required hint="Leave Size empty for one-size products, e.g. P101-BLK-M | Black | #171717 | M | 12" />
         <label className="flex items-start gap-2 text-sm">

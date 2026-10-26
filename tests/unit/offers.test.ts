@@ -25,7 +25,7 @@ test("offers hide outside their dates and when switched off", () => {
 });
 
 test("validation blocks headlines the link doesn't enforce and empty links", () => {
-  const base = { headline: "Under ₹299", subhead: "Kitchen", badge: "Launch edit", theme: "red", productIds: "h001", active: "on" };
+  const base = { headline: "Under ₹299", subhead: "Kitchen", badge: "Launch edit", theme: "red", productIds: "k009", active: "on" };
   const bad = validateOffer({ ...base, query: "cat=kitchen" }, products);
   assert.equal(bad.ok, false);
   if (!bad.ok) assert.match(bad.errors.query, /max=299/);

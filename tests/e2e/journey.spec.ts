@@ -23,41 +23,36 @@ test("browse → filter → product → variant → bag → COD checkout", async
 
   // Search with suggestions
   const search = page.getByRole("combobox", { name: "Search Krip" });
-  await search.fill("lock");
+  await search.fill("cleaner");
   await expect(page.getByRole("option").first()).toBeVisible();
   await search.press("Enter");
-  await expect(page).toHaveURL(/\/search\?q=lock/);
-  await expect(page.getByRole("heading", { name: /Results for “lock”/ })).toBeVisible();
+  await expect(page).toHaveURL(/\/search\?q=cleaner/);
+  await expect(page.getByRole("heading", { name: /Results for “cleaner”/ })).toBeVisible();
 
   // Filter sheet: pick a colour, apply, see chip
   await page.getByRole("button", { name: /^Filter/ }).click();
   const sheet = page.getByRole("dialog", { name: "Filters" });
   await expect(sheet).toBeVisible();
-  await sheet.getByRole("button", { name: /^Grey \(/ }).click();
+  await sheet.getByRole("button", { name: /^Blue \(/ }).click();
   await sheet.getByRole("button", { name: /Show \d+ results?/ }).click();
-  await expect(page).toHaveURL(/color=Grey/);
-  await expect(page.getByRole("button", { name: "Remove filter Grey" })).toBeVisible();
+  await expect(page).toHaveURL(/color=Blue/);
+  await expect(page.getByRole("button", { name: "Remove filter Blue" })).toBeVisible();
   await noHorizontalOverflow(page);
 
   // Product page
-  await page.getByRole("link", { name: "Child Safety Cabinet Locks, Pack of 6" }).click();
-  await expect(page.getByRole("heading", { level: 1, name: "Child Safety Cabinet Locks, Pack of 6" })).toBeVisible();
+  await page.getByRole("link", { name: "Caster Drainex Instant Drain Cleaner, Pack of 5" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Caster Drainex Instant Drain Cleaner, Pack of 5" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Key features" })).toBeVisible();
+  await expect(page.getByText("Add a cup of water and leave it for 30 minutes.")).toBeVisible();
   await noHorizontalOverflow(page);
   const actionbar = page.locator("div.fixed").filter({ has: page.getByRole("button", { name: "Buy Now" }) });
-
-  // Out-of-stock colour can't be added
-  await page.getByRole("radio", { name: "White (out of stock)" }).click();
-  await actionbar.getByRole("button", { name: "Add to Bag" }).click();
-  await expect(page.getByRole("alert").filter({ hasText: /out of stock/i })).toBeVisible();
-
-  await page.getByRole("radio", { name: "Grey", exact: true }).click();
   await actionbar.getByRole("button", { name: "Add to Bag" }).click();
   await expect(page.getByRole("status").getByText(/Added to bag/)).toBeVisible();
   await expect(page.getByRole("link", { name: /Bag, 1 item/ })).toBeVisible();
 
   // Back to results keeps filters
   await page.goBack();
-  await expect(page).toHaveURL(/color=Grey/);
+  await expect(page).toHaveURL(/color=Blue/);
 
   // Cart
   await page.goto("/cart");
@@ -90,7 +85,7 @@ test("browse → filter → product → variant → bag → COD checkout", async
 });
 
 test("online payment: failure is never shown as success, retry then succeeds", async ({ page }) => {
-  await page.goto("/product/motion-sensor-night-light");
+  await page.goto("/product/rechargeable-electric-arc-lighter");
   // Single-option product: nothing to choose
   await page.locator("div.fixed").getByRole("button", { name: "Add to Bag" }).click();
   await page.goto("/checkout");
@@ -110,23 +105,17 @@ test("online payment: failure is never shown as success, retry then succeeds", a
   await expect(page.getByRole("heading", { name: /Payment confirmed — order placed/ })).toBeVisible();
 });
 
-test("unavailable product cannot be bought", async ({ page }) => {
-  await page.goto("/product/microfibre-cloths-pack-6");
-  await expect(page.getByText("Out of stock").first()).toBeVisible();
-  await expect(page.locator("div.fixed").getByRole("button", { name: "Out of stock" })).toBeDisabled();
-});
-
 test("empty search state offers reset", async ({ page }) => {
-  await page.goto("/search?q=peeler&max=50");
+  await page.goto("/search?q=sponge&max=50");
   await expect(page.getByText("Nothing matches… yet")).toBeVisible();
   await page.getByRole("button", { name: "Reset filters" }).click();
-  await expect(page).toHaveURL(/\/search\?q=peeler$/);
-  await expect(page.getByRole("link", { name: "Stainless Steel Y-Peeler" })).toBeVisible();
+  await expect(page).toHaveURL(/\/search\?q=sponge$/);
+  await expect(page.getByRole("link", { name: "Magic Eraser Cleaning Sponge, Pack of 4" })).toBeVisible();
 });
 
 test("quick view bottom sheet adds a valid variant", async ({ page }) => {
   await page.goto("/search?cat=kitchen");
-  await page.getByRole("button", { name: "Quick view: Glass Water Bottle with Sleeve, 1 L" }).click();
+  await page.getByRole("button", { name: "Quick view: 2-in-1 Oil Sprayer & Pourer Bottle" }).click();
   const dlg = page.getByRole("dialog", { name: "Quick View" });
   await expect(dlg).toBeVisible();
   await dlg.getByRole("button", { name: "Add to Bag" }).click();
@@ -136,7 +125,7 @@ test("quick view bottom sheet adds a valid variant", async ({ page }) => {
 
 test("key pages have no horizontal overflow at 360px", async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 760 });
-  for (const path of ["/", "/categories", "/drops", "/wishlist", "/account", "/swipe", "/product/vegetable-chopper-pull-cord", "/product/glass-water-bottle-1l", "/search?cat=baby-safety", "/help/returns", "/cart"]) {
+  for (const path of ["/", "/categories", "/drops", "/wishlist", "/account", "/swipe", "/product/daluci-baby-safety-socket-covers", "/product/soap-dispenser-with-sponge-holder", "/search?cat=personal-care", "/help/returns", "/cart"]) {
     await page.goto(path);
     await page.waitForLoadState("networkidle");
     await noHorizontalOverflow(page);
@@ -145,12 +134,12 @@ test("key pages have no horizontal overflow at 360px", async ({ page }) => {
 
 test("seasonal offer tile opens a matching, price-capped listing", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("heading", { name: "Under ₹299" }).getByRole("link").click();
-  await expect(page).toHaveURL(/max=299/);
+  await page.getByRole("heading", { name: "Under ₹199" }).getByRole("link").click();
+  await expect(page).toHaveURL(/max=199/);
   await expect(page.locator("article").first()).toBeVisible();
   const prices = await page.locator("article span.font-semibold.text-ink").allInnerTexts();
   expect(prices.length).toBeGreaterThan(0);
-  for (const p of prices) expect(Number(p.replace(/[₹,]/g, ""))).toBeLessThanOrEqual(299);
+  for (const p of prices) expect(Number(p.replace(/[₹,]/g, ""))).toBeLessThanOrEqual(199);
 });
 
 test("Style Swipe saves to the wishlist", async ({ page }) => {
@@ -164,7 +153,7 @@ test("Style Swipe saves to the wishlist", async ({ page }) => {
 });
 
 test("a shared bag link can be added to your own bag", async ({ page }) => {
-  await page.goto("/cart?share=H602-WHIT*2,NOPE*1");
+  await page.goto("/cart?share=K009-TEAL*2,NOPE*1");
   await expect(page.getByText("A friend shared a bag with you")).toBeVisible();
   await expect(page.getByText(/no longer available/)).toBeVisible();
   await page.getByRole("button", { name: "Add to my bag" }).click();

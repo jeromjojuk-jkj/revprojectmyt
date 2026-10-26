@@ -30,6 +30,8 @@ export function isAllowedImageUrl(u: string) {
   if (/^\/art\/[a-z]+-[0-9a-f]{6}-[12]\.svg$/i.test(u)) return true;
   // Images uploaded to the hosted demo's asset store.
   if (/^\/_blob\/[0-9a-f]{32}$/.test(u)) return true;
+  // Product photos served by the site from public/products/.
+  if (/^\/products\/[a-z0-9-]+\/[a-z0-9-]+\.(jpe?g|png|webp)$/i.test(u)) return true;
   try {
     const url = new URL(u);
     return url.protocol === "https:";
@@ -61,6 +63,8 @@ export interface RawProductInput {
   status?: string;
   images?: string; // newline separated
   video?: string;
+  features?: string; // newline separated
+  howToUse?: string; // newline separated
   variants?: string; // lines: SKU | Colour | #hex | Size | Stock
   fit?: string;
   material?: string;
@@ -121,7 +125,7 @@ export function validateProductInput(
 
   const images = lines(raw.images);
   if (!images.length) e.images = "Add at least one image URL.";
-  else if (images.some((u) => !isAllowedImageUrl(u))) e.images = "Image URLs must be https:// links (or generated /art/ samples).";
+  else if (images.some((u) => !isAllowedImageUrl(u))) e.images = "Image URLs must be https:// links, /products/… photos, or generated /art/ samples.";
   const video = str(raw.video, 300);
   if (video && !isAllowedVideoUrl(video)) e.video = "Use an https:// link ending in .mp4 or .webm, or a /reels/… file.";
 
@@ -239,6 +243,8 @@ export function validateProductInput(
       mrp: mrp ?? null,
       images,
       video: video || null,
+      features: lines(raw.features).slice(0, 8),
+      howToUse: lines(raw.howToUse).slice(0, 10),
       variants,
       sizeGuide,
       fit: str(raw.fit, 40) || null,
@@ -276,6 +282,8 @@ export function toRawInput(p: ProductRecord): RawProductInput {
     description: p.description, price: String(p.price), mrp: p.mrp ? String(p.mrp) : "", status: p.status,
     images: p.images.join("\n"),
     video: p.video ?? "",
+    features: (p.features ?? []).join("\n"),
+    howToUse: (p.howToUse ?? []).join("\n"),
     variants: p.variants.map((v) => [v.sku, v.color, "#" + v.colorHex, v.size ?? "", v.stock].join(" | ")).join("\n"),
     fit: p.fit ?? "", material: p.material ?? "", care: p.care.join("\n"), packageContents: p.packageContents ?? "",
     origin: p.origin ?? "", seller: p.seller ?? "", styleTags: p.styleTags.join(", "), vibes: p.vibes.join(", "),

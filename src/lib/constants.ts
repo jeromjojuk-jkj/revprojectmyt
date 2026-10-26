@@ -13,16 +13,13 @@ export const BRAND = {
 export const STORE_MODE: "home" | "fashion" = "home";
 export const IS_FASHION = (STORE_MODE as string) === "fashion";
 
-type Category = { id: CategoryId; name: string; short: string; art: string; hex: string; emoji?: string };
+type Category = { id: CategoryId; name: string; short: string; art: string; hex: string; emoji?: string; image?: string };
 
 export const HOME_CATEGORIES: Category[] = [
-  { id: "kitchen", name: "Kitchen Gadgets", short: "Kitchen", art: "chopper", hex: "166534", emoji: "🍳" },
-  { id: "cleaning", name: "Cleaning & Laundry", short: "Cleaning", art: "cloth", hex: "0ea5e9", emoji: "🧽" },
-  { id: "storage", name: "Storage & Organisers", short: "Storage", art: "organizer", hex: "d6b98c", emoji: "📦" },
-  { id: "baby-safety", name: "Baby & Child Safety", short: "Baby safety", art: "lock", hex: "f472b6", emoji: "🧸" },
-  { id: "bathroom", name: "Bathroom Essentials", short: "Bathroom", art: "holder", hex: "e7f3f6", emoji: "🛁" },
-  { id: "electricals", name: "Lights & Electricals", short: "Lights", art: "nightlight", hex: "f5f5f4", emoji: "💡" },
-  { id: "gadgets", name: "Smart Gadgets", short: "Gadgets", art: "stand", hex: "334155", emoji: "📱" },
+  { id: "kitchen", name: "Kitchen Helpers", short: "Kitchen", art: "chopper", hex: "166534", image: "/products/oil-sprayer-dispenser-2-in-1/1.jpg" },
+  { id: "cleaning", name: "Cleaning & Laundry", short: "Cleaning", art: "cloth", hex: "0ea5e9", image: "/products/magic-eraser-cleaning-sponge-pack-of-4/1.jpg" },
+  { id: "baby-safety", name: "Baby Safety", short: "Baby safety", art: "lock", hex: "f472b6", image: "/products/daluci-baby-safety-socket-covers/1.jpg" },
+  { id: "personal-care", name: "Personal Care", short: "Self-care", art: "holder", hex: "e7f3f6", image: "/products/silicone-ice-face-roller-pack-of-3/1.jpg" },
 ];
 
 export const FASHION_CATEGORIES: Category[] = [

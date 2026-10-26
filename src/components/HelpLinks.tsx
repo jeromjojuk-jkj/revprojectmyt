@@ -170,7 +170,7 @@ export function Footer({ store }: { store: StoreProfile }) {
               </li>
             </ul>
           </div>
-          <p className="pb-4 text-center text-[11px] text-white/40">Prototype: sample products, demo payments.</p>
+          <p className="pb-4 text-center text-[11px] text-white/40">Online payments on this site are in demo mode — no money is charged yet.</p>
         </div>
       </div>
     </footer>

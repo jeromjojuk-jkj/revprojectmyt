@@ -6,12 +6,12 @@ const key = () => `e2e-${Date.now()}-${Math.random().toString(36).slice(2, 12)}`
 test("public catalogue never exposes supplier or cost data", async ({ request }) => {
   const body = await (await request.get("/api/products")).text();
   expect(body).not.toMatch(/purchaseCost|supplierName|sourceRef|channelPrices|Sample Supplier/);
-  expect(body).not.toContain("mini-handheld-fan-draft");
+  expect(body).not.toContain("compressed-face-towel-tablets");
 });
 
 test("server rejects a tampered total and recalculates", async ({ request }) => {
   const res = await request.post("/api/orders", {
-    data: { idempotencyKey: key(), items: [{ sku: "H602-WHIT", qty: 1 }], address, paymentMethod: "cod", expectedTotal: 1 },
+    data: { idempotencyKey: key(), items: [{ sku: "K009-TEAL", qty: 1 }], address, paymentMethod: "cod", expectedTotal: 1 },
   });
   expect(res.status()).toBe(409);
   const d = await res.json();
@@ -21,7 +21,7 @@ test("server rejects a tampered total and recalculates", async ({ request }) => 
 
 test("duplicate submits create one order", async ({ request }) => {
   const k = key();
-  const payload = { idempotencyKey: k, items: [{ sku: "H602-YELL", qty: 1 }], address, paymentMethod: "cod", expectedTotal: 249 + 49 + 20 };
+  const payload = { idempotencyKey: k, items: [{ sku: "K006-ML", qty: 1 }], address, paymentMethod: "cod", expectedTotal: 249 + 49 + 20 };
   const [a, b] = await Promise.all([request.post("/api/orders", { data: payload }), request.post("/api/orders", { data: payload })]);
   expect(a.status()).toBe(200);
   expect(b.status()).toBe(200);
@@ -30,20 +30,27 @@ test("duplicate submits create one order", async ({ request }) => {
 
 test("cannot oversell a variant", async ({ request }) => {
   const { products } = await (await request.get("/api/products")).json();
+  // The variant with the least stock; orders are capped at 5 per line, so drain it in steps.
   const pick = products
     .filter((p: { status: string }) => p.status === "active")
     .flatMap((p: { variants: { sku: string; stock: number }[] }) => p.variants)
-    .find((v: { stock: number }) => v.stock >= 2 && v.stock <= 4) as { sku: string; stock: number };
+    .filter((v: { stock: number }) => v.stock >= 2)
+    .sort((a: { stock: number }, b: { stock: number }) => a.stock - b.stock)[0] as { sku: string; stock: number };
   const order = async (qty: number) => {
     const q = await (await request.post("/api/cart/quote", { data: { items: [{ sku: pick.sku, qty }], pincode: "411001", paymentMethod: "cod" } })).json();
     return request.post("/api/orders", {
       data: { idempotencyKey: key(), items: [{ sku: pick.sku, qty }], address, paymentMethod: "cod", expectedTotal: q.quote.total },
     });
   };
-  const tooMany = await order(pick.stock + 1);
+  let left = pick.stock;
+  while (left > 4) {
+    expect((await order(4)).status()).toBe(200);
+    left -= 4;
+  }
+  const tooMany = await order(left + 1);
   expect(tooMany.status()).toBe(409);
   expect((await tooMany.json()).code).toBe("items_unavailable");
-  expect((await order(pick.stock)).status()).toBe(200);
+  expect((await order(left)).status()).toBe(200);
   const soldOut = await order(1);
   expect(soldOut.status()).toBe(409);
 });
@@ -71,7 +78,7 @@ test("admin requires sign-in and shows private costs only after login", async ({
   await page.goto("/admin/products");
   await expect(page.getByText("Cost · est. margin")).toBeVisible();
   const csv = await page.request.get("/admin/export");
-  expect(await csv.text()).toContain("Sample Supplier — Delhi Home Goods");
+  expect(await csv.text()).toContain("Supplier (confirm in admin)");
 
   // CSV import validates before committing
   await page.goto("/admin/import");
