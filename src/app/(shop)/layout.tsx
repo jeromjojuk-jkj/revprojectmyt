@@ -5,14 +5,15 @@ import { Footer } from "@/components/HelpLinks";
 import { BackBar } from "@/components/BackBar";
 import { ScrollAssist } from "@/components/ScrollAssist";
 import { Logo } from "@/components/Logo";
-import { getLiveOffers, getStore } from "@/lib/server/catalog";
+import { getLiveOffers, getSettings, getStore } from "@/lib/server/catalog";
+import { DeliveryRulesProvider } from "@/components/DeliveryRules";
 import { isAdmin } from "@/lib/server/auth";
 
 // Reads live offers and store settings, so render per request.
 export const dynamic = "force-dynamic";
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
-  const [offers, store] = await Promise.all([getLiveOffers(), getStore()]);
+  const [offers, store, settings] = await Promise.all([getLiveOffers(), getStore(), getSettings()]);
   const staff = store.maintenance.active ? await isAdmin() : false;
 
   if (store.maintenance.active && !staff) {
@@ -31,7 +32,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   const promo = offers.length ? { label: offers[0].offer.badge, href: "/#offers" } : null;
   const ann = store.announcement;
   return (
-    <>
+    <DeliveryRulesProvider rules={settings.delivery}>
       {staff && (
         <p className="bg-danger px-4 py-1.5 text-center text-xs font-semibold text-white">
           Maintenance mode is on — shoppers see a maintenance page. <Link href="/admin/settings/store" className="underline">Turn it off</Link>
@@ -53,6 +54,6 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       <div className="pb-nav bg-[#141414] md:hidden" aria-hidden />
       <BottomNav />
       <ScrollAssist />
-    </>
+    </DeliveryRulesProvider>
   );
 }

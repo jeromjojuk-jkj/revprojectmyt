@@ -5,6 +5,7 @@ import { Sheet } from "./Sheet";
 import { useStore } from "@/lib/store";
 import { estimateDelivery, isValidPincode } from "@/lib/pincode";
 import { LocateButton } from "./LocateButton";
+import { useDeliveryRules } from "./DeliveryRules";
 
 export function PincodeForm({ onSaved, compact = false }: { onSaved?: () => void; compact?: boolean }) {
   const saved = useStore((s) => s.pincode);
@@ -12,7 +13,8 @@ export function PincodeForm({ onSaved, compact = false }: { onSaved?: () => void
   const [value, setValue] = useState(saved ?? "");
   const [error, setError] = useState<string | null>(null);
   useEffect(() => setValue(saved ?? ""), [saved]);
-  const est = saved ? estimateDelivery(saved) : null;
+  const rules = useDeliveryRules();
+  const est = saved ? estimateDelivery(saved, rules) : null;
 
   return (
     <form
@@ -60,7 +62,7 @@ export function PincodeForm({ onSaved, compact = false }: { onSaved?: () => void
         <div className="rounded-xl bg-leaf-soft px-3 py-2 text-sm" aria-live="polite">
           <p className="font-semibold text-leaf">{est.message}</p>
           <p className="text-xs text-ink-soft">
-            Estimate for {saved} under sample delivery rules · {est.codEligible ? "Cash on Delivery may be available" : "Cash on Delivery not available"}
+            Estimate for {saved} · {est.codEligible ? "Cash on Delivery may be available" : "Cash on Delivery not available"}
           </p>
         </div>
       )}

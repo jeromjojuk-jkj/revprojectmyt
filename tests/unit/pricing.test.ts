@@ -4,12 +4,14 @@ import { buildSeedProducts } from "../../src/data/catalog.ts";
 import { computeQuote, estimateContribution } from "../../src/lib/pricing.ts";
 import type { Settings } from "../../src/lib/types.ts";
 import { normalizeCoupon } from "../../src/lib/coupons.ts";
+import { DEFAULT_DELIVERY } from "../../src/lib/pincode.ts";
 
 const products = buildSeedProducts("fashion").map(({ private: _p, ...pub }) => pub);
 const settings: Settings = {
   deliveryFee: 49, freeDeliveryAbove: null, codFee: 20, codMaxOrderValue: 3000, returnAllowancePct: 8,
   channelFees: [{ channel: "Krip", marketplaceFeePct: 0, paymentFeePct: 2, fixedFee: 0 }],
   coupons: [normalizeCoupon({ code: "AURA50", description: "x", amountOff: 50, minSubtotal: 699, active: true })],
+  delivery: DEFAULT_DELIVERY,
 };
 
 test("totals: subtotal + delivery + COD fee", () => {

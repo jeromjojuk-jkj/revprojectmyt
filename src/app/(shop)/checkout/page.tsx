@@ -8,6 +8,7 @@ import { useHydrated, useStore } from "@/lib/store";
 import { useQuote } from "@/lib/useQuote";
 import { formatPrice } from "@/lib/format";
 import { estimateDelivery, isValidPincode } from "@/lib/pincode";
+import { useDeliveryRules } from "@/components/DeliveryRules";
 import { INDIAN_STATES } from "@/lib/constants";
 import { PriceSummary } from "@/components/Summary";
 import { CheckoutSteps } from "@/components/CheckoutSteps";
@@ -60,6 +61,7 @@ export default function CheckoutPage() {
   const saveOrder = useStore((s) => s.saveOrder);
   const clearCart = useStore((s) => s.clearCart);
 
+  const delivery = useDeliveryRules();
   const [config, setConfig] = useState<Config | null>(null);
   const [addr, setAddr] = useState<Address>({ name: "", phone: "", email: "", line1: "", line2: "", landmark: "", city: "", state: "", pincode: "" });
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -105,7 +107,7 @@ export default function CheckoutPage() {
     if (errors[k]) setErrors((er) => ({ ...er, [k]: "" }));
   };
   const aria = (k: string) => ({ "aria-invalid": !!errors[k] || undefined, "aria-describedby": errors[k] ? `${k}-err` : undefined });
-  const est = pinForQuote ? estimateDelivery(pinForQuote) : null;
+  const est = pinForQuote ? estimateDelivery(pinForQuote, delivery) : null;
 
   const placeOrder = async () => {
     setFormError(null);
@@ -202,6 +204,9 @@ export default function CheckoutPage() {
             </Field>
             {est && (
               <p className="flex items-center gap-2 rounded-xl bg-leaf-soft px-3 py-2 text-sm text-leaf"><IconTruck size={18} /> {est.message} (estimate)</p>
+            )}
+            {est && delivery.note && (
+              <p className="whitespace-pre-line text-xs text-ink-soft">{delivery.note}</p>
             )}
             <Field id="line1" label="House / flat no., building, street" error={errors.line1}>
               <input id="line1" autoComplete="address-line1" value={addr.line1} onChange={set("line1")} className={inputCls(errors.line1)} {...aria("line1")} />
