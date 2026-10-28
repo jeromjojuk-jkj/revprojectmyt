@@ -1,5 +1,18 @@
-// Sample delivery rules for the prototype. Replace with your courier partner's
-// serviceability API before launch — these are estimates, never promises.
+// Delivery estimates from the day ranges set in Admin → Delivery & charges.
+// These are estimates, never promises; swap in a courier serviceability API later.
+
+import type { DeliveryRules } from "./types.ts";
+
+export const DEFAULT_DELIVERY: DeliveryRules = {
+  metroMin: 3,
+  metroMax: 5,
+  standardMin: 4,
+  standardMax: 7,
+  remoteMin: 7,
+  remoteMax: 12,
+  codRemote: false,
+  note: "Orders are packed and handed to the courier within 1–2 working days. You’ll get the tracking details once it ships.",
+};
 
 export const isValidPincode = (p: string) => /^[1-9][0-9]{5}$/.test(p);
 
@@ -27,14 +40,14 @@ function addBusinessDays(from: Date, days: number) {
   return d;
 }
 
-export function estimateDelivery(pincode: string, now = new Date()): DeliveryEstimate | null {
+export function estimateDelivery(pincode: string, rules: DeliveryRules = DEFAULT_DELIVERY, now = new Date()): DeliveryEstimate | null {
   if (!isValidPincode(pincode)) return null;
   const zone = REMOTE_PREFIXES.some((p) => pincode.startsWith(p))
     ? "remote"
     : METRO_PREFIXES.some((p) => pincode.startsWith(p))
       ? "metro"
       : "standard";
-  const [minDays, maxDays] = zone === "metro" ? [3, 5] : zone === "standard" ? [4, 7] : [7, 12];
+  const [minDays, maxDays] = zone === "metro" ? [rules.metroMin, rules.metroMax] : zone === "standard" ? [rules.standardMin, rules.standardMax] : [rules.remoteMin, rules.remoteMax];
   const fmt = (d: Date) => d.toLocaleDateString("en-IN", { weekday: "short", day: "numeric", month: "short", timeZone: "Asia/Kolkata" });
   const fromDate = fmt(addBusinessDays(now, minDays));
   const toDate = fmt(addBusinessDays(now, maxDays));
@@ -42,7 +55,7 @@ export function estimateDelivery(pincode: string, now = new Date()): DeliveryEst
     serviceable: true,
     minDays,
     maxDays,
-    codEligible: zone !== "remote",
+    codEligible: zone !== "remote" || rules.codRemote,
     zone,
     fromDate,
     toDate,

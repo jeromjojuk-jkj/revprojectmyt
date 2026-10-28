@@ -8,8 +8,8 @@ export default async function SettingsPage() {
   const s = (await readDb()).settings;
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold">Fees & charges</h1>
-      <p className="text-sm text-ink-soft">Shopper charges and the cost assumptions behind contribution estimates. Coupons now live in <Link href="/admin/coupons" className="text-leaf underline">Coupons & discounts</Link>.</p>
+      <h1 className="text-xl font-semibold">Delivery & charges</h1>
+      <p className="text-sm text-ink-soft">Delivery times, delivery instructions, shopper charges and the cost assumptions behind contribution estimates. Coupons now live in <Link href="/admin/coupons" className="text-leaf underline">Coupons & discounts</Link>.</p>
       <SettingsForm
         initial={{
           deliveryFee: String(s.deliveryFee),
@@ -17,6 +17,14 @@ export default async function SettingsPage() {
           codFee: String(s.codFee),
           codMaxOrderValue: String(s.codMaxOrderValue),
           returnAllowancePct: String(s.returnAllowancePct),
+          metroMin: String(s.delivery.metroMin),
+          metroMax: String(s.delivery.metroMax),
+          standardMin: String(s.delivery.standardMin),
+          standardMax: String(s.delivery.standardMax),
+          remoteMin: String(s.delivery.remoteMin),
+          remoteMax: String(s.delivery.remoteMax),
+          codRemote: s.delivery.codRemote ? "on" : "",
+          deliveryNote: s.delivery.note,
           channelFees: s.channelFees.map((c) => `${c.channel} | ${c.marketplaceFeePct} | ${c.paymentFeePct} | ${c.fixedFee}`).join("\n"),
         }}
       />

@@ -9,6 +9,7 @@ import { imageForColor } from "@/lib/art";
 import { CATEGORY_NAME, IS_FASHION } from "@/lib/constants";
 import { formatPrice } from "@/lib/format";
 import { estimateDelivery } from "@/lib/pincode";
+import { useDeliveryRules } from "@/components/DeliveryRules";
 import { toast, useHydrated, useStore } from "@/lib/store";
 import { Gallery } from "@/components/Gallery";
 import { Price } from "@/components/Price";
@@ -117,7 +118,8 @@ export function ProductDetail({
   const hydrated = useHydrated();
   const available = isPurchasable(product);
   const isBeauty = product.category === "beauty";
-  const est = hydrated && pincode ? estimateDelivery(pincode) : null;
+  const delivery = useDeliveryRules();
+  const est = hydrated && pincode ? estimateDelivery(pincode, delivery) : null;
   const images = product.images.map((src) => imageForColor(src, sel.hex));
 
   useEffect(() => viewed(product.id), [product.id, viewed]);
@@ -267,6 +269,7 @@ export function ProductDetail({
             <h2 id="delivery-title" className="flex items-center gap-2 font-semibold"><IconTruck size={20} /> Delivery & returns</h2>
             <PincodeForm compact />
             {!est && <p className="text-xs text-ink-soft">Enter your pincode to see an estimated delivery date.</p>}
+            {delivery.note && <p className="whitespace-pre-line text-sm text-ink-soft">{delivery.note}</p>}
             <div className="flex gap-2 rounded-xl bg-paper p-3 text-sm">
               <IconReturn size={18} className="mt-0.5 shrink-0" />
               <div>

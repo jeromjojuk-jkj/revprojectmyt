@@ -773,7 +773,122 @@ const HOME_DEFS: Def[] = [
     description: "Coin-size compressed towels that expand into a soft wipe when you add water. Draft until the pack size is confirmed.",
     createdAt: "2026-10-20", status: "draft", supplier: SUPPLIER, costPct: 0,
   },
+  {
+    id: "k013", slug: "square-kitchen-storage-containers-black-lid", title: "Square Kitchen Storage Containers with Black Lids (pack size to confirm)", brand: "Generic",
+    category: "kitchen", subcategory: "Storage Containers", kind: "bottle", images: photos("square-kitchen-storage-containers-black-lid", 4),
+    price: 299, colors: [["Clear with black lid", "171717"]], sizes: null, stock: [0], material: "Clear plastic body, black plastic lid",
+    packageContents: "Square containers with lids — confirm the number per pack before listing",
+    tags: ["storage container", "kitchen container", "dal box", "spice jar", "pantry organiser", "stackable"], vibes: [], collections: [],
+    features: [
+      "Each container is about 10 cm wide and 8 cm tall",
+      "Clear body so you can see what’s inside at a glance",
+      "Square shape and flat lids stack neatly on a shelf",
+      "Handy for dals, rice, pulses, dry fruits, pasta and spices",
+    ],
+    howToUse: [
+      "Wash and dry the containers before first use.",
+      "Fill with dry groceries and press the lid down all round.",
+      "Stack them to save shelf space.",
+    ],
+    care: ["Hand wash with mild soap", "Dry fully before refilling", "For dry foods; don’t microwave"],
+    description: "Clear square containers with black lids for keeping dals, pulses, dry fruits and snacks tidy in the kitchen. About 10 × 8 cm each. Draft until the number of containers in a pack is confirmed.",
+    createdAt: "2026-10-28", status: "draft", supplier: SUPPLIER, costPct: 0,
+  },
+  {
+    id: "k014", slug: "floral-stainless-steel-knife-set-of-3", title: "Floral Print Stainless Steel Kitchen Knife Set of 3", brand: "Generic",
+    category: "kitchen", subcategory: "Knives", kind: "lock", images: photos("floral-stainless-steel-knife-set-of-3", 4),
+    price: 349, colors: [["Teal floral", "2dd4bf"]], sizes: null, stock: [20], material: "Stainless steel blades with printed coating, plastic handles",
+    packageContents: "3 knives: fruit knife, chef knife, cleaver-style kitchen knife",
+    tags: ["knife set", "kitchen knife", "chef knife", "fruit knife", "vegetable knife", "cleaver"], vibes: [], collections: ["trending"],
+    features: [
+      "Fruit knife — 19.5 cm long, 2.5 cm blade, about 30 g",
+      "Chef knife — 26 cm long, 3.5 cm blade, about 65 g",
+      "Kitchen (cleaver-style) knife — 26 cm long, 5.5 cm blade, about 105 g",
+      "Stainless steel blades with a bright orange-and-flower print",
+      "Textured handles for a steady grip",
+    ],
+    howToUse: [
+      "Use the fruit knife for peeling and small cuts.",
+      "Use the chef knife for slicing vegetables, fruit and herbs.",
+      "Use the wide kitchen knife for chopping and for scooping chopped food off the board.",
+      "Always cut on a chopping board.",
+    ],
+    care: ["Hand wash and dry straight away", "Store safely, away from children", "Don’t use on glass, stone or metal surfaces"],
+    description: "A colourful set of three stainless steel knives — fruit knife, chef knife and a wide kitchen knife — for everyday cutting, slicing and chopping. Sizes and weights as listed by the supplier.",
+    createdAt: "2026-10-28", supplier: SUPPLIER, costPct: 0,
+  },
+  {
+    id: "k015", slug: "stainless-steel-sink-strainer-11cm", title: "Stainless Steel Kitchen Sink Strainer, 11 cm (Size No. 3)", brand: "Generic",
+    category: "kitchen", subcategory: "Sink Accessories", kind: "lock", images: photos("stainless-steel-sink-strainer-11cm", 4),
+    price: 99, colors: [["Steel", "a3a3a3"]], sizes: null, stock: [30], material: "Stainless steel mesh (supplier lists 18-10 grade)",
+    packageContents: "1 sink strainer",
+    tags: ["sink strainer", "sink jali", "drain mesh", "kitchen sink", "basin strainer"], vibes: [], collections: ["trending"],
+    features: [
+      "Outer ring 11 cm, inner mesh 8 cm, depth 3.5 cm (Size No. 3)",
+      "Fine mesh catches food scraps before they block the drain",
+      "Wide rim rests on the drain opening — just drop it in",
+      "Lift out, empty and rinse",
+    ],
+    howToUse: [
+      "Measure your sink drain — this fits openings up to about 11 cm across.",
+      "Place the strainer in the drain hole.",
+      "Empty the scraps into the bin and rinse the mesh after use.",
+    ],
+    care: ["Rinse after each use", "Scrub the mesh with a brush now and then"],
+    description: "A stainless steel mesh strainer that sits in your kitchen sink drain and catches food bits so the drain stays clear. 11 cm outer ring, 8 cm mesh, 3.5 cm deep. Pack of 1.",
+    createdAt: "2026-10-28", supplier: SUPPLIER, costPct: 0,
+  },
+  {
+    id: "k016", slug: "black-garbage-bags-medium-60-bags", title: "Black Garbage Bags, Medium 19 × 21 in, 60 Bags (2 Rolls)", brand: "Generic",
+    category: "cleaning", subcategory: "Garbage Bags", kind: "cloth", images: photos("black-garbage-bags-medium-60-bags", 3),
+    price: 149, colors: [["Black", "111111"]], sizes: null, stock: [40], material: "Plastic",
+    packageContents: "2 rolls, 60 bags in total", returns: RET_HYGIENE_HOME,
+    tags: ["garbage bag", "dustbin bag", "trash bag", "bin liner", "kachra bag"], vibes: [], collections: [],
+    features: [
+      "Medium size: 19 × 21 inches",
+      "60 bags on 2 tear-off rolls",
+      "Black, so the contents aren’t on show",
+      "Fits small and medium home dustbins",
+    ],
+    howToUse: [
+      "Tear one bag off the roll along the perforation.",
+      "Open it and fold the top over the rim of the dustbin.",
+      "When full, gather the top and tie a knot.",
+    ],
+    care: ["Don’t overfill or put sharp objects in loose", "Store away from children"],
+    description: "Medium black garbage bags for home dustbins — 19 × 21 inches, 60 bags on 2 rolls.",
+    createdAt: "2026-10-28", supplier: SUPPLIER, costPct: 0,
+  },
+  {
+    id: "k017", slug: "derma-roller-540-titanium-needles", title: "Derma Roller, 540 Needles (needle length to confirm)", brand: "Generic",
+    category: "personal-care", subcategory: "Skin & Hair Tools", kind: "lock", images: photos("derma-roller-540-titanium-needles", 4),
+    price: 299, colors: [["Black & pink", "be185d"]], sizes: null, stock: [0], material: "Titanium alloy needles, plastic handle",
+    packageContents: "1 derma roller in box", returns: RET_HYGIENE_HOME,
+    tags: ["derma roller", "microneedle roller", "face roller", "scalp roller", "skin care tool"], vibes: [], collections: [],
+    features: [
+      "540 titanium-alloy needles on the roller (as labelled on the box)",
+      "Curved, non-slip handle",
+      "For home use, on the face or scalp",
+    ],
+    howToUse: [
+      "Clean your skin first.",
+      "Sterilise the roller head with 70% isopropyl alcohol and let it dry.",
+      "Roll gently over the area 4–5 times in each direction — don’t press hard.",
+      "Rinse and sterilise the roller again after use, then store it in its case.",
+    ],
+    care: [
+      "Never share your roller",
+      "Don’t use on cuts, active acne, rashes, sunburn or infected skin",
+      "Do a patch test first; stop if irritation lasts. Check with a dermatologist if you have a skin condition",
+      "Replace the roller when the needles look bent or blunt",
+    ],
+    description: "A 540-needle derma roller for home skincare and scalp-care routines. Draft until the needle length (e.g. 0.25 mm, 0.5 mm, 1.0 mm) is confirmed from the box.",
+    createdAt: "2026-10-28", status: "draft", supplier: SUPPLIER, costPct: 0,
+  },
 ];
+
+/** Bump when products are added to HOME_DEFS so existing stores pick them up. */
+export const CATALOG_VERSION = 2;
 
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;

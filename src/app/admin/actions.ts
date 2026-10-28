@@ -159,6 +159,23 @@ export async function settingsAction(_: unknown, fd: FormData) {
   if (!(codFee >= 0)) errors.push("COD fee must be ≥ 0.");
   if (!(codMax > 0)) errors.push("COD max order value must be > 0.");
   if (!(ret >= 0 && ret <= 100)) errors.push("Return allowance must be 0–100%.");
+  const zones = [["metro", "Metro cities"], ["standard", "Rest of India"], ["remote", "Remote areas"]] as const;
+  const days: Record<string, number> = {};
+  for (const [z, label] of zones) {
+    const lo = n(`${z}Min`), hi = n(`${z}Max`);
+    if (!(Number.isInteger(lo) && Number.isInteger(hi) && lo >= 1 && hi >= lo && hi <= 60)) errors.push(`${label}: enter whole days, 1–60, with “from” no more than “to”.`);
+    days[`${z}Min`] = lo;
+    days[`${z}Max`] = hi;
+  }
+  const note = String(fd.get("deliveryNote") ?? "").trim();
+  if (note.length > 400) errors.push("Delivery instructions can be up to 400 characters.");
+  const delivery: Settings["delivery"] = {
+    metroMin: days.metroMin, metroMax: days.metroMax,
+    standardMin: days.standardMin, standardMax: days.standardMax,
+    remoteMin: days.remoteMin, remoteMax: days.remoteMax,
+    codRemote: fd.get("codRemote") === "on",
+    note,
+  };
 
   const channelFees: Settings["channelFees"] = [];
   for (const line of String(fd.get("channelFees") ?? "").split(/\r?\n/).map((l) => l.trim()).filter(Boolean)) {
@@ -173,7 +190,7 @@ export async function settingsAction(_: unknown, fd: FormData) {
   if (errors.length) return { errors, ok: false };
   await withDb((db) => {
     const before = { ...db.settings, coupons: undefined };
-    db.settings = { ...db.settings, deliveryFee, freeDeliveryAbove: free, codFee, codMaxOrderValue: codMax, returnAllowancePct: ret, channelFees };
+    db.settings = { ...db.settings, deliveryFee, freeDeliveryAbove: free, codFee, codMaxOrderValue: codMax, returnAllowancePct: ret, channelFees, delivery };
     audit(db, actor, "settings.fees", "settings", "fees", { before, after: { ...db.settings, coupons: undefined } });
   });
   revalidatePath("/", "layout");

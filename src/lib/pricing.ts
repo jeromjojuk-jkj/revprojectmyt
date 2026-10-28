@@ -98,7 +98,7 @@ export function computeQuote(
         ? 0
         : settings.deliveryFee;
 
-  const est = input.pincode ? estimateDelivery(input.pincode) : null;
+  const est = input.pincode ? estimateDelivery(input.pincode, settings.delivery) : null;
   let codAvailable = true;
   let codReason: string | null = null;
   if (!est) {

@@ -5,7 +5,8 @@ import crypto from "node:crypto";
 import os from "node:os";
 import type { AdminSession, AuditEntry, CustomerMeta, CustomRole, InventoryMovement, LoginEvent, Offer, Order, ProductRecord, Settings, StaffUser, StoreProfile } from "../types";
 import { normalizeCoupon } from "../coupons";
-import { buildSeedProducts } from "@/data/catalog";
+import { buildSeedProducts, CATALOG_VERSION } from "@/data/catalog";
+import { DEFAULT_DELIVERY } from "@/lib/pincode";
 import { SEED_OFFERS } from "@/data/offers";
 
 // Prototype datastore: a single JSON file with an in-process write lock.
@@ -15,6 +16,8 @@ import { SEED_OFFERS } from "@/data/offers";
 
 export interface DB {
   version: 1;
+  /** Bumped when new catalogue products should be added to existing stores. */
+  catalogVersion?: number;
   products: ProductRecord[];
   orders: Order[];
   settings: Settings;
@@ -61,6 +64,7 @@ export const DEFAULT_SETTINGS: Settings = {
   coupons: [
     normalizeCoupon({ code: "AURA50", description: "Sample code: ₹50 off orders of ₹699 or more", amountOff: 50, minSubtotal: 699, active: true }),
   ],
+  delivery: { ...DEFAULT_DELIVERY },
 };
 
 // Serverless hosts (e.g. Vercel) only allow writes under the OS temp dir, and
@@ -78,6 +82,7 @@ const g = globalThis as unknown as G;
 function seed(): DB {
   return {
     version: 1,
+    catalogVersion: CATALOG_VERSION,
     products: buildSeedProducts(),
     orders: [],
     settings: structuredClone(DEFAULT_SETTINGS),
@@ -107,6 +112,13 @@ function migrate(db: DB) {
   for (const k of Object.keys(fresh) as (keyof typeof fresh)[]) (db as unknown as Record<string, unknown>)[k] ??= fresh[k];
   db.store = { ...structuredClone(DEFAULT_STORE), ...db.store, social: { ...DEFAULT_STORE.social, ...db.store.social } };
   db.settings.coupons = db.settings.coupons.map(normalizeCoupon);
+  db.settings.delivery = { ...DEFAULT_DELIVERY, ...db.settings.delivery };
+  // Catalogue additions reach existing stores once; products removed or edited in admin aren't touched.
+  if ((db.catalogVersion ?? 1) < CATALOG_VERSION) {
+    const have = new Set(db.products.map((p) => p.id));
+    db.products.push(...buildSeedProducts().filter((p) => !have.has(p.id)));
+    db.catalogVersion = CATALOG_VERSION;
+  }
 }
 
 async function load(): Promise<DB> {

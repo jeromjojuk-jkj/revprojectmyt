@@ -171,6 +171,20 @@ export interface CouponUsage {
   customerHasOrders: boolean;
 }
 
+/** Delivery times (in working days, Sundays excluded) and the note shoppers see. */
+export interface DeliveryRules {
+  metroMin: number;
+  metroMax: number;
+  standardMin: number;
+  standardMax: number;
+  remoteMin: number;
+  remoteMax: number;
+  /** Allow Cash on Delivery to remote pincodes (north-east, J&K, islands). */
+  codRemote: boolean;
+  /** Shown on product pages and at checkout, e.g. dispatch time and courier info. */
+  note: string;
+}
+
 export interface Settings {
   deliveryFee: number;
   /** null = no free-delivery threshold configured. */
@@ -181,6 +195,7 @@ export interface Settings {
   returnAllowancePct: number;
   channelFees: ChannelFee[];
   coupons: Coupon[];
+  delivery: DeliveryRules;
 }
 
 export type PaymentMethod = "online" | "cod";
