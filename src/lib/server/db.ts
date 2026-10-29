@@ -67,18 +67,6 @@ export const DEFAULT_SETTINGS: Settings = {
   delivery: { ...DEFAULT_DELIVERY },
 };
 
-// Serverless hosts (e.g. Vercel) only allow writes under the OS temp dir, and
-// that storage is per-instance and temporary — fine for a demo, not for real orders.
-const DATA_DIR = process.env.KRIP_DATA_DIR
-  ? path.resolve(/*turbopackIgnore: true*/ process.cwd(), process.env.KRIP_DATA_DIR)
-  : process.env.VERCEL
-    ? path.join(os.tmpdir(), "krip-data")
-    : path.resolve(/*turbopackIgnore: true*/ process.cwd(), ".data");
-const DB_FILE = path.join(DATA_DIR, "db.json");
-
-type G = { __kripDb?: DB; __kripLock?: Promise<unknown> };
-const g = globalThis as unknown as G;
-
 function seed(): DB {
   return {
     version: 1,
@@ -121,7 +109,75 @@ function migrate(db: DB) {
   }
 }
 
-async function load(): Promise<DB> {
+// Two storage backends:
+// - Redis (Upstash REST) when KV_REST_API_URL / UPSTASH_REDIS_REST_URL is set. Shared by
+//   every server instance, so it survives Vercel's short-lived instances.
+// - A local JSON file otherwise. On serverless hosts that file sits in the OS temp dir,
+//   is per-instance and resets — fine for a demo, not for real orders or admin sign-in.
+const DATA_DIR = process.env.KRIP_DATA_DIR
+  ? path.resolve(/*turbopackIgnore: true*/ process.cwd(), process.env.KRIP_DATA_DIR)
+  : process.env.VERCEL
+    ? path.join(os.tmpdir(), "krip-data")
+    : path.resolve(/*turbopackIgnore: true*/ process.cwd(), ".data");
+const DB_FILE = path.join(DATA_DIR, "db.json");
+
+const REDIS_URL = (process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL || "").replace(/\/$/, "");
+const REDIS_TOKEN = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN || "";
+const DB_KEY = "krip:db";
+const REV_KEY = "krip:rev";
+/** How long one instance may reuse its copy for reads before asking Redis again. */
+const READ_CACHE_MS = 1000;
+
+export function storageBackend(): "redis" | "file" {
+  return REDIS_URL && REDIS_TOKEN ? "redis" : "file";
+}
+
+type G = { __kripDb?: DB; __kripRev?: string; __kripReadAt?: number; __kripLock?: Promise<unknown> };
+const g = globalThis as unknown as G;
+
+async function redis<T>(command: (string | number)[]): Promise<T> {
+  const res = await fetch(REDIS_URL, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${REDIS_TOKEN}`, "Content-Type": "application/json" },
+    body: JSON.stringify(command),
+    cache: "no-store",
+  });
+  const body = (await res.json().catch(() => ({}))) as { result?: T; error?: string };
+  if (!res.ok || body.error) throw new Error(`Datastore (Redis) error: ${body.error ?? res.status}`);
+  return body.result as T;
+}
+
+// Write only if nobody else wrote since we read; returns the new revision, or -1 on conflict.
+const CAS_SCRIPT = "if (redis.call('GET', KEYS[2]) or '0') == ARGV[1] then redis.call('SET', KEYS[1], ARGV[2]); return redis.call('INCR', KEYS[2]) else return -1 end";
+
+class WriteConflict extends Error {}
+
+/** Fetches the latest copy from storage (Redis) or the in-process copy (file). */
+async function load(fresh = false): Promise<DB> {
+  if (storageBackend() === "redis") {
+    if (!fresh && g.__kripDb && Date.now() - (g.__kripReadAt ?? 0) < READ_CACHE_MS) return g.__kripDb;
+    const [raw, rev] = await redis<[string | null, string | null]>(["MGET", DB_KEY, REV_KEY]);
+    let db: DB;
+    if (raw) {
+      db = JSON.parse(raw) as DB;
+      migrate(db);
+      g.__kripRev = rev ?? "0";
+    } else {
+      // Empty Redis: seed it. If another instance seeded first, read theirs.
+      db = seed();
+      g.__kripRev = rev ?? "0";
+      try {
+        await persist(db);
+        return db;
+      } catch (e) {
+        if (e instanceof WriteConflict) return load(true);
+        throw e;
+      }
+    }
+    g.__kripDb = db;
+    g.__kripReadAt = Date.now();
+    return db;
+  }
   if (g.__kripDb) return g.__kripDb;
   try {
     const raw = await fs.readFile(DB_FILE, "utf8");
@@ -136,6 +192,14 @@ async function load(): Promise<DB> {
 }
 
 async function persist(db: DB) {
+  if (storageBackend() === "redis") {
+    const rev = await redis<number>(["EVAL", CAS_SCRIPT, 2, DB_KEY, REV_KEY, g.__kripRev ?? "0", JSON.stringify(db)]);
+    if (rev === -1) throw new WriteConflict("Another server instance wrote first.");
+    g.__kripRev = String(rev);
+    g.__kripDb = db;
+    g.__kripReadAt = Date.now();
+    return;
+  }
   await fs.mkdir(DATA_DIR, { recursive: true });
   const tmp = `${DB_FILE}.${process.pid}.${crypto.randomUUID()}.tmp`;
   await fs.writeFile(tmp, JSON.stringify(db, null, 1));
@@ -150,7 +214,8 @@ export async function readDb(): Promise<DB> {
 
 /**
  * Serialised read-modify-write. All stock and order mutations go through here,
- * so two checkouts can never sell the same last unit.
+ * so two checkouts can never sell the same last unit. With Redis, a write that
+ * loses a race with another instance is re-run on the latest data.
  */
 export async function withDb<T>(fn: (db: DB) => T | Promise<T>): Promise<T> {
   const prev = g.__kripLock ?? Promise.resolve();
@@ -159,16 +224,23 @@ export async function withDb<T>(fn: (db: DB) => T | Promise<T>): Promise<T> {
   g.__kripLock = prev.then(() => next);
   await prev.catch(() => {});
   try {
-    const db = await load();
-    const snapshot = JSON.stringify(db);
-    try {
-      const result = await fn(db);
-      await persist(db);
-      return result;
-    } catch (e) {
-      // Roll back in-memory changes made before the failure.
-      g.__kripDb = JSON.parse(snapshot) as DB;
-      throw e;
+    for (let attempt = 0; ; attempt++) {
+      const db = await load(true);
+      const snapshot = JSON.stringify(db);
+      try {
+        const result = await fn(db);
+        await persist(db);
+        return result;
+      } catch (e) {
+        // Roll back in-memory changes made before the failure.
+        g.__kripDb = JSON.parse(snapshot) as DB;
+        if (e instanceof WriteConflict && attempt < 20) {
+          // Brief random back-off so racing instances don't collide again.
+          await new Promise((r) => setTimeout(r, Math.random() * 20 * (attempt + 1)));
+          continue;
+        }
+        throw e;
+      }
     }
   } finally {
     release();
