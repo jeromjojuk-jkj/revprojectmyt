@@ -930,10 +930,32 @@ const HOME_DEFS: Def[] = [
     description: "Clear, soft PVC guards that stick onto sharp table and furniture corners to soften bumps for crawling babies and toddlers. Pack of 4.",
     createdAt: "2026-10-29", supplier: SUPPLIER, costPct: 0,
   },
+  {
+    id: "k020", slug: "manual-hand-juicer-2-in-1-with-jug", title: "2-in-1 Manual Hand Juicer with Jug", brand: "Generic",
+    category: "kitchen", subcategory: "Juicers", kind: "bottle", images: photos("manual-hand-juicer-2-in-1-with-jug", 4),
+    price: 199, colors: [["Assorted colours", "f97316"]], sizes: null, stock: [25], material: "Plastic",
+    packageContents: "1 jug with lid, 1 juicer top with strainer, 1 press (colour as available)",
+    tags: ["hand juicer", "manual juicer", "citrus squeezer", "lemon squeezer", "orange juicer", "pomegranate juicer"], vibes: [], collections: ["trending"],
+    features: [
+      "Two ways to juice: twist halved oranges, mosambi and lemons on the cone",
+      "Or put pomegranate seeds or watermelon pieces in the cup and press down with the lid",
+      "Strainer holds back seeds and pulp",
+      "Juice collects in a clear jug with a handle, spout and measuring marks",
+      "No electricity needed",
+    ],
+    howToUse: [
+      "Citrus: cut the fruit in half, press it onto the cone and twist.",
+      "Pomegranate or watermelon: put the seeds or pieces in the strainer cup, fit the press on top and push down firmly.",
+      "Lift off the top and pour the juice from the jug.",
+    ],
+    care: ["Hand wash all parts straight after use", "Dry fully before storing"],
+    description: "A manual juicer that sits on its own jug — twist citrus fruits on the cone, or press pomegranate seeds and watermelon through the strainer for fresh juice without a mixer. Colour as available.",
+    createdAt: "2026-10-29", supplier: SUPPLIER, costPct: 0,
+  },
 ];
 
 /** Bump when products are added to HOME_DEFS so existing stores pick them up. */
-export const CATALOG_VERSION = 3;
+export const CATALOG_VERSION = 4;
 
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;
