@@ -1,7 +1,7 @@
 import { promises as fs } from "node:fs";
 import { CheckCircle2, AlertTriangle, XCircle } from "lucide-react";
 import { requirePerm, adminPasswordStatus } from "@/lib/server/auth";
-import { readDb } from "@/lib/server/db";
+import { readDb, storageBackend } from "@/lib/server/db";
 import { paymentConfig } from "@/lib/server/payments";
 import { verifyAuditChain } from "@/lib/server/audit";
 import { Card, PageHeader } from "@/app/admin/_components/ui";
@@ -30,7 +30,9 @@ export default async function SystemHealth() {
   }
 
   const checks: { area: string; status: Status; text: string }[] = [
-    { area: "Datastore", status: process.env.VERCEL ? "fail" : "warn", text: `Local JSON file (${(size / 1024).toFixed(0)} KB, read in ${readMs} ms). Safe for one server process only${process.env.VERCEL ? "; on Vercel it is temporary and resets — do not take real orders" : ""}. Move to PostgreSQL before scaling out.` },
+    storageBackend() === "redis"
+      ? { area: "Datastore", status: "ok", text: `Redis (Upstash), shared by all server instances (${(size / 1024).toFixed(0)} KB, read in ${readMs} ms).` }
+      : { area: "Datastore", status: process.env.VERCEL ? "fail" : "warn", text: `Local JSON file (${(size / 1024).toFixed(0)} KB, read in ${readMs} ms). Safe for one server process only${process.env.VERCEL ? "; on Vercel it is temporary and resets, and admin sign-ins drop — connect Upstash Redis (Vercel → Storage) before taking real orders" : ""}.` },
     { area: "Data directory", status: writable || process.env.VERCEL ? "ok" : "warn", text: writable ? "Present and readable." : "Not created yet (created on first write)." },
     { area: "Session secret", status: (process.env.SESSION_SECRET?.length ?? 0) >= 16 ? "ok" : prod ? "fail" : "warn", text: (process.env.SESSION_SECRET?.length ?? 0) >= 16 ? "Set from the environment." : "Not set — using a development fallback." },
     { area: "Owner sign-in", status: auth.usingDevDefault ? (prod ? "fail" : "warn") : "ok", text: auth.usingDevDefault ? "Development owner password is active." : "Bootstrap owner comes from ADMIN_EMAIL / ADMIN_PASSWORD." },
