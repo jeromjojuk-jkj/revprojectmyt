@@ -885,10 +885,55 @@ const HOME_DEFS: Def[] = [
     description: "A 540-needle derma roller for home skincare and scalp-care routines. Draft until the needle length (e.g. 0.25 mm, 0.5 mm, 1.0 mm) is confirmed from the box.",
     createdAt: "2026-10-28", status: "draft", supplier: SUPPLIER, costPct: 0,
   },
+  {
+    id: "k018", slug: "clazkit-ice-pop-mould-6-slots", title: "Clazkit Ice Pop & Kulfi Mould, 6 Slots", brand: "Clazkit",
+    category: "kitchen", subcategory: "Ice & Kulfi Moulds", kind: "bottle", images: photos("clazkit-ice-pop-mould-6-slots", 2),
+    price: 199, colors: [["Blue & red", "38bdf8"]], sizes: null, stock: [25], material: "Plastic",
+    packageContents: "1 stand with 6 moulds and 6 stick lids",
+    tags: ["ice pop mould", "kulfi mould", "popsicle maker", "ice cream mould", "summer", "kids"], vibes: [], collections: ["trending"],
+    features: [
+      "Makes 6 ice pops or kulfis at a time",
+      "Each mould has its own lid with a built-in stick",
+      "Stand keeps the moulds upright in the freezer",
+      "About 10 × 10 cm, weighs about 100 g",
+    ],
+    howToUse: [
+      "Wash the moulds and lids before first use.",
+      "Fill each mould with juice, milkshake, kulfi mix or fruit purée, leaving a little space at the top.",
+      "Press the stick lids on and stand the set in the freezer until frozen solid.",
+      "To release, hold the mould under running water for a few seconds and pull the stick.",
+    ],
+    care: ["Hand wash with warm, soapy water", "Don’t use in the microwave or dishwasher"],
+    description: "A 6-slot ice pop mould with a stand and stick lids — make homemade kulfi, juice pops and fruit ice lollies for the family.",
+    createdAt: "2026-10-29", supplier: SUPPLIER, costPct: 0,
+  },
+  {
+    id: "k019", slug: "clear-corner-guards-pack-of-4", title: "Clear Table Corner Guards for Baby Safety, Pack of 4", brand: "Generic",
+    category: "baby-safety", subcategory: "Corner Guards", kind: "lock", images: photos("clear-corner-guards-pack-of-4", 4),
+    price: 149, colors: [["Transparent", "e5e7eb"]], sizes: null, stock: [30], material: "Soft PVC with adhesive stickers",
+    packageContents: "4 corner guards with adhesive stickers",
+    tags: ["corner guard", "corner protector", "baby proofing", "child safety", "table edge"], vibes: [], collections: ["trending"],
+    features: [
+      "Soft, flexible PVC cushions sharp table and furniture corners",
+      "Clear, so it doesn’t hide your furniture",
+      "Sticks on with adhesive — no screws or tools",
+      "Fits corners on wood, glass, marble and plastic tables",
+      "Pack of 4 — enough for one table",
+    ],
+    howToUse: [
+      "Clean and dry the corner.",
+      "Peel and apply the 2 adhesive stickers inside the guard.",
+      "Place it on the corner and adjust the fit.",
+      "Press and hold for 30 seconds. Let it set for a few hours before little ones play nearby.",
+    ],
+    care: ["Wipe with a damp cloth", "Check now and then that the guards are still firmly stuck", "Corner guards reduce knocks but don’t replace supervision"],
+    description: "Clear, soft PVC guards that stick onto sharp table and furniture corners to soften bumps for crawling babies and toddlers. Pack of 4.",
+    createdAt: "2026-10-29", supplier: SUPPLIER, costPct: 0,
+  },
 ];
 
 /** Bump when products are added to HOME_DEFS so existing stores pick them up. */
-export const CATALOG_VERSION = 2;
+export const CATALOG_VERSION = 3;
 
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;
