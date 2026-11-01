@@ -110,6 +110,26 @@ export async function bulkProductsAction(_: ActionState, fd: FormData): Promise<
   return { ok: true, message };
 }
 
+/** Sets one product's selling price from the product list's quick editor. */
+export async function setProductPriceAction(id: string, price: number): Promise<{ ok: true; price: number } | { ok: false; error: string }> {
+  const { actor } = await requirePerm("products.edit");
+  if (!Number.isInteger(price) || price < 1 || price > 1_000_000) return { ok: false, error: "Enter a whole rupee amount of ₹1 or more." };
+  try {
+    await withDb((db) => {
+      const p = db.products.find((x) => x.id === id);
+      if (!p) throw new Error("Product not found.");
+      if (p.mrp !== null && price > p.mrp) throw new Error(`Price can’t be above the MRP (₹${p.mrp}). Change the MRP on the product page first.`);
+      if (p.price === price) return;
+      audit(db, actor, "product.price", "product", id, { before: { price: p.price }, after: { price } });
+      p.price = price;
+    });
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+  revalidatePath("/", "layout");
+  return { ok: true, price };
+}
+
 export async function duplicateProductAction(fd: FormData) {
   const { actor } = await requirePerm("products.create");
   const id = String(fd.get("id"));
