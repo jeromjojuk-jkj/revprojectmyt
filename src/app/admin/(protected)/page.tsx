@@ -193,7 +193,7 @@ export default async function Dashboard({ searchParams }: { searchParams: Promis
         </Card>
       </div>
 
-      {ctx.can("system.manage") && (
+      {ctx.can("system.manage") && paymentConfig().demo && (
         <form action={resetDemoAction} className="pt-2">
           <button className={btn.danger}>Reset demo data (deletes all orders and product edits)</button>
         </form>

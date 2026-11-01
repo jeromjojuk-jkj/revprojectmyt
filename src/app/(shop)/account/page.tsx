@@ -30,7 +30,6 @@ export default function AccountPage() {
           <p className="text-sm text-white/85">You’re shopping as a guest. Your bag, wishlist and orders are saved on this device.</p>
         </div>
       </div>
-      <p className="mt-2 text-xs text-ink-soft">Account sign-in isn’t connected in this prototype.</p>
 
       <ul className="mt-4 space-y-2">
         {links.map(({ href, label, sub, Icon }) => (

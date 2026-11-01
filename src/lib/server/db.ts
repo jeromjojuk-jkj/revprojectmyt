@@ -61,9 +61,7 @@ export const DEFAULT_SETTINGS: Settings = {
   channelFees: [
     { channel: "Krip", marketplaceFeePct: 0, paymentFeePct: 2, fixedFee: 0 },
   ],
-  coupons: [
-    normalizeCoupon({ code: "AURA50", description: "Sample code: ₹50 off orders of ₹699 or more", amountOff: 50, minSubtotal: 699, active: true }),
-  ],
+  coupons: [],
   delivery: { ...DEFAULT_DELIVERY },
 };
 
@@ -100,6 +98,8 @@ function migrate(db: DB) {
   for (const k of Object.keys(fresh) as (keyof typeof fresh)[]) (db as unknown as Record<string, unknown>)[k] ??= fresh[k];
   db.store = { ...structuredClone(DEFAULT_STORE), ...db.store, social: { ...DEFAULT_STORE.social, ...db.store.social } };
   db.settings.coupons = db.settings.coupons.map(normalizeCoupon);
+  // The demo seeded a sample code; switch it off so it can't discount real orders.
+  for (const c of db.settings.coupons) if (c.code === "AURA50" && c.description.startsWith("Sample code")) c.active = false;
   db.settings.delivery = { ...DEFAULT_DELIVERY, ...db.settings.delivery };
   // Catalogue additions reach existing stores once; products removed or edited in admin aren't touched.
   if ((db.catalogVersion ?? 1) < CATALOG_VERSION) {

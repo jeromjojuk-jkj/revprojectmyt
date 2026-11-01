@@ -24,13 +24,13 @@ export function ContactDetails({ store }: { store: StoreProfile }) {
           ))}
         </dl>
       ) : (
-        <p>Email, phone and WhatsApp support details will be published here before launch. This prototype doesn’t have a staffed support channel yet.</p>
+        <p>Support contact details will be listed here shortly.</p>
       )}
       <h2>Grievance officer</h2>
       {store.grievanceName && store.grievanceEmail ? (
         <p>{store.grievanceName} — <a href={`mailto:${store.grievanceEmail}`}>{store.grievanceEmail}</a></p>
       ) : (
-        <p>The grievance officer’s name and contact details (required under the Consumer Protection (E-Commerce) Rules, 2020) will be published here before launch.</p>
+        <p>The grievance officer’s name and contact details will be listed here shortly.</p>
       )}
     </>
   );
