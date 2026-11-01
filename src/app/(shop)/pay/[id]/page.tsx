@@ -3,6 +3,7 @@ import { getOrderForCustomer } from "@/lib/server/orders";
 import { paymentConfig } from "@/lib/server/payments";
 import { formatPrice } from "@/lib/format";
 import { DemoGateway } from "./DemoGateway";
+import { CashfreeCheckout } from "./CashfreeCheckout";
 import { CheckoutSteps } from "@/components/CheckoutSteps";
 
 export const dynamic = "force-dynamic";
@@ -21,16 +22,25 @@ export default async function PayPage({ params, searchParams }: { params: Promis
     <CheckoutSteps current={2} />
     <div className="mx-auto max-w-md px-4 pt-6 pb-10">
       <div className="overflow-hidden rounded-2xl bg-white ring-1 ring-line">
-        <div className="bg-ink px-4 py-3 text-white">
-          <p className="text-xs font-semibold uppercase tracking-wider text-sun">Krip demo payment gateway · test mode</p>
-          <p className="text-sm text-white/80">No real money moves. Nothing is charged to any account.</p>
-        </div>
+        {cfg.demo ? (
+          <div className="bg-ink px-4 py-3 text-white">
+            <p className="text-xs font-semibold uppercase tracking-wider text-sun">{cfg.provider === "cashfree" ? "Cashfree test mode" : "Krip demo payment gateway · test mode"}</p>
+            <p className="text-sm text-white/80">No real money moves. Nothing is charged to any account.</p>
+          </div>
+        ) : (
+          <div className="bg-ink px-4 py-3 text-white">
+            <p className="text-sm font-semibold">Secure payment</p>
+            <p className="text-sm text-white/80">You’ll complete payment on Cashfree’s secure page.</p>
+          </div>
+        )}
         <div className="space-y-4 p-4">
           <div className="flex items-baseline justify-between">
             <span className="text-sm text-ink-soft">Order {order.id}</span>
             <span className="text-2xl font-semibold">{formatPrice(order.total)}</span>
           </div>
-          {cfg.demo ? (
+          {cfg.provider === "cashfree" && cfg.onlineEnabled ? (
+            <CashfreeCheckout orderId={order.id} token={t} total={order.total} />
+          ) : cfg.provider === "demo" ? (
             <DemoGateway orderId={order.id} token={t} />
           ) : (
             <p className="rounded-xl bg-danger-soft p-3 text-sm text-danger">
@@ -38,8 +48,8 @@ export default async function PayPage({ params, searchParams }: { params: Promis
             </p>
           )}
           <p className="text-xs text-ink-soft">
-            Your items are held for 15 minutes while payment is pending. In production, this page is replaced by the payment
-            provider’s checkout, and the order is confirmed only when the provider’s signed webhook reaches Krip’s server.
+            Your items are held for 15 minutes while payment is pending. Your order is confirmed only after the payment
+            provider confirms the payment to Krip’s server.
           </p>
         </div>
       </div>

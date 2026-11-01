@@ -250,9 +250,9 @@ export default function CheckoutPage() {
                 <label className={`flex min-h-14 gap-3 rounded-xl p-3 ring-2 ${quote?.codAvailable ? "cursor-pointer" : "opacity-60"} ${method === "cod" ? "bg-leaf-soft ring-leaf" : "ring-line"}`}>
                   <input type="radio" name="pay" disabled={!quote?.codAvailable} checked={method === "cod"} onChange={() => setMethod("cod")} className="mt-1 h-5 w-5 accent-[#166534]" />
                   <span>
-                    <span className="block font-medium">Cash on Delivery <span className="ml-1 rounded bg-sun px-1.5 py-0.5 text-[11px] font-bold">DEMO</span></span>
+                    <span className="block font-medium">Cash on Delivery {config.payment.demo && <span className="ml-1 rounded bg-sun px-1.5 py-0.5 text-[11px] font-bold">DEMO</span>}</span>
                     <span className="block text-xs text-ink-soft">
-                      {quote?.codAvailable ? `${formatPrice(config.codFee)} COD fee applies. Order is recorded for the demo only — nothing ships.` : quote?.codReason ?? "Enter your pincode to check availability."}
+                      {quote?.codAvailable ? `${formatPrice(config.codFee)} COD fee applies.${config.payment.demo ? " Order is recorded for the demo only — nothing ships." : " Pay in cash when your order arrives."}` : quote?.codReason ?? "Enter your pincode to check availability."}
                     </span>
                   </span>
                 </label>

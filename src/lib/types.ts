@@ -292,6 +292,10 @@ export interface Order {
   reservationExpiresAt: string | null;
   stockHeld: boolean;
   demo: boolean;
+  /** Current payment session with an online gateway (Cashfree). Server only. */
+  gateway?: { orderId: string; sessionId: string; createdAt: string } | null;
+  /** Every gateway order id ever created for this order, so late payments are still matched. */
+  gatewayOrderIds?: string[];
   /** Admin-only fields below. Never sent to shoppers. */
   onHold?: boolean;
   notes?: OrderNote[];

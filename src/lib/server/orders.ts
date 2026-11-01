@@ -10,6 +10,7 @@ import { INDIAN_STATES } from "../constants";
 import { readDb, withDb, type DB } from "./db";
 import { toPublicProduct } from "./catalog";
 import { paymentConfig, verifySignature, type GatewayEvent } from "./payments";
+import { cashfreeEnv, createCashfreeOrder, fetchCashfreeResult } from "./cashfree";
 
 const RESERVATION_MINUTES = 15;
 
@@ -169,7 +170,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
       paymentEvents: [],
       reservationExpiresAt: input.paymentMethod === "online" ? new Date(now.getTime() + RESERVATION_MINUTES * 60_000).toISOString() : null,
       stockHeld: true,
-      demo: pay.demo || input.paymentMethod === "cod",
+      demo: pay.demo,
     };
     setStatus(order, order.status, input.paymentMethod === "cod" ? "Cash on Delivery order recorded." : "Awaiting payment confirmation.");
     db.orders.push(order);
@@ -199,6 +200,11 @@ export async function handlePaymentWebhook(raw: string, signature: string | null
   } catch {
     throw new OrderError("Malformed event", "bad_event", 400);
   }
+  return applyPaymentEvent(ev);
+}
+
+/** Records a payment result that has already been verified with the provider. */
+async function applyPaymentEvent(ev: GatewayEvent) {
   return withDb((db) => {
     if (db.processedPaymentEvents.includes(ev.id)) return { duplicate: true };
     const order = db.orders.find((o) => o.id === ev.orderId);
@@ -227,6 +233,78 @@ export async function handlePaymentWebhook(raw: string, signature: string | null
   });
 }
 
+// ---------- Cashfree ----------
+
+const SESSION_REUSE_MINUTES = 20;
+
+/**
+ * Returns a Cashfree payment session for a pending order, creating a gateway
+ * order the first time (and again after a retry or when the old one is stale).
+ */
+export async function getCashfreeSession(id: string, token: string, origin: string): Promise<{ sessionId: string; mode: "sandbox" | "production" }> {
+  const order = await getOrderForCustomer(id, token);
+  if (!order) throw new OrderError("Order not found", "not_found", 404);
+  if (order.status !== "payment_pending") throw new OrderError("This payment is no longer pending.", "bad_state", 409);
+  const env = cashfreeEnv();
+  if (order.gateway && Date.now() - Date.parse(order.gateway.createdAt) < SESSION_REUSE_MINUTES * 60_000) {
+    return { sessionId: order.gateway.sessionId, mode: env.mode };
+  }
+  const attempt = (order.gatewayOrderIds?.length ?? 0) + 1;
+  const gatewayOrderId = `${order.id}-${attempt}`;
+  const t = encodeURIComponent(token);
+  const { sessionId } = await createCashfreeOrder({
+    gatewayOrderId,
+    amount: order.total,
+    customerId: customerKey(order.address.phone),
+    name: order.address.name,
+    phone: order.address.phone,
+    email: order.address.email,
+    returnUrl: `${origin}/order/${order.id}?t=${t}`,
+    notifyUrl: `${origin}/api/payments/cashfree/webhook`,
+    note: `Krip order ${order.id}`,
+  });
+  await withDb((db) => {
+    const o = db.orders.find((x) => x.id === id);
+    if (!o) return;
+    o.gatewayOrderIds = [...(o.gatewayOrderIds ?? []), gatewayOrderId];
+    o.gateway = { orderId: gatewayOrderId, sessionId, createdAt: new Date().toISOString() };
+  });
+  return { sessionId, mode: env.mode };
+}
+
+/**
+ * Asks Cashfree for the latest state of an order's payments and records it.
+ * Used by the webhook and when the shopper returns from Cashfree's checkout.
+ */
+export async function syncCashfreePayment(gatewayOrderId: string) {
+  const ourId = gatewayOrderId.replace(/-\d+$/, "");
+  const db = await readDb();
+  const order = db.orders.find((o) => o.id === ourId && o.gatewayOrderIds?.includes(gatewayOrderId));
+  if (!order) throw new OrderError("Unknown order", "unknown_order", 404);
+  const r = await fetchCashfreeResult(gatewayOrderId);
+  if (r.state === "pending") return { pending: true };
+  // A newer attempt exists: a failure on an older one changes nothing.
+  if (r.state !== "paid" && order.gateway && order.gateway.orderId !== gatewayOrderId) return { stale: true };
+  const ev: GatewayEvent =
+    r.state === "paid"
+      ? { id: `cf_${r.paymentId}`, provider: "cashfree", type: "payment.succeeded", orderId: order.id, amount: Math.round(r.amount * 100) / 100, reference: `Cashfree ${r.paymentId}`, createdAt: r.at }
+      : r.state === "failed"
+        ? { id: `cf_${r.paymentId}`, provider: "cashfree", type: "payment.failed", orderId: order.id, amount: r.amount, reference: r.reason, createdAt: r.at }
+        : { id: `cf_closed_${gatewayOrderId}`, provider: "cashfree", type: "payment.failed", orderId: order.id, amount: 0, reference: r.reason, createdAt: new Date().toISOString() };
+  return applyPaymentEvent(ev);
+}
+
+/** Called when the shopper lands back on the order page: settle a pending Cashfree payment if we can. */
+export async function refreshCashfreeOrder(order: Order) {
+  if (order.status !== "payment_pending" || order.paymentProvider !== "cashfree" || !order.gateway) return;
+  try {
+    await syncCashfreePayment(order.gateway.orderId);
+  } catch (e) {
+    // The webhook will still settle it; the page shows "awaiting confirmation" meanwhile.
+    console.error("Cashfree status check failed", e);
+  }
+}
+
 /** Re-attempt payment on a failed order: re-reserves stock if still available. */
 export async function retryPayment(id: string, token: string) {
   const o = await getOrderForCustomer(id, token);
@@ -246,6 +324,8 @@ export async function retryPayment(id: string, token: string) {
     for (const it of order.items) moveStock(db, it.sku, -it.qty, "order_reserved", order.id, "checkout");
     order.stockHeld = true;
     order.reservationExpiresAt = new Date(Date.now() + RESERVATION_MINUTES * 60_000).toISOString();
+    // A retry gets a fresh gateway order; the old one stays in gatewayOrderIds.
+    order.gateway = null;
     setStatus(order, "payment_pending", "Retrying payment.");
     return order;
   });
@@ -378,7 +458,7 @@ export async function adminOrderAction(id: string, input: OrderActionInput, acto
 /** Public, minimal view of an order (no access token / idempotency key). */
 export function toCustomerOrder(o: Order) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { accessToken, idempotencyKey, notes, assignee, refunds, shipments, ...rest } = o;
+  const { accessToken, idempotencyKey, notes, assignee, refunds, shipments, gateway, gatewayOrderIds, ...rest } = o;
   return {
     ...rest,
     shipments: (shipments ?? []).map((s) => ({ carrier: s.carrier, awb: s.awb, trackingUrl: s.trackingUrl, events: s.events })),

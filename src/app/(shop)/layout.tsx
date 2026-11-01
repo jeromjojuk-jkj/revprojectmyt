@@ -7,6 +7,7 @@ import { ScrollAssist } from "@/components/ScrollAssist";
 import { Logo } from "@/components/Logo";
 import { getLiveOffers, getSettings, getStore } from "@/lib/server/catalog";
 import { DeliveryRulesProvider } from "@/components/DeliveryRules";
+import { paymentConfig } from "@/lib/server/payments";
 import { isAdmin } from "@/lib/server/auth";
 
 // Reads live offers and store settings, so render per request.
@@ -50,7 +51,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       <main id="main" className="mx-auto w-full max-w-7xl">
         {children}
       </main>
-      <Footer store={store} />
+      <Footer store={store} paymentsDemo={paymentConfig().demo} />
       <div className="pb-nav bg-[#141414] md:hidden" aria-hidden />
       <BottomNav />
       <ScrollAssist />

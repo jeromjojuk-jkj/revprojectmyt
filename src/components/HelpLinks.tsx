@@ -74,7 +74,7 @@ function columns(store: StoreProfile): { title: string; links: FooterLink[] }[] 
 
 const linkCls = "flex min-h-10 items-center text-sm text-white/80 hover:text-white hover:underline";
 
-export function Footer({ store }: { store: StoreProfile }) {
+export function Footer({ store, paymentsDemo = true }: { store: StoreProfile; paymentsDemo?: boolean }) {
   const toTop = () => window.scrollTo({ top: 0, behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth" });
   const contact = [
     store.supportEmail && { label: "Email", value: store.supportEmail, href: `mailto:${store.supportEmail}` },
@@ -170,7 +170,7 @@ export function Footer({ store }: { store: StoreProfile }) {
               </li>
             </ul>
           </div>
-          <p className="pb-4 text-center text-[11px] text-white/40">Online payments on this site are in demo mode — no money is charged yet.</p>
+          {paymentsDemo && <p className="pb-4 text-center text-[11px] text-white/40">Online payments on this site are in demo mode — no money is charged yet.</p>}
         </div>
       </div>
     </footer>

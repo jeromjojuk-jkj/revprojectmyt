@@ -85,12 +85,12 @@ export function OrderView({ order, token }: { order: CustomerOrder; token: strin
     s === "payment_failed"
       ? { tone: "bg-danger-soft text-danger", icon: <IconX />, title: "Payment failed", text: "No payment was confirmed for this order, so nothing has been charged and your items were released." }
       : s === "payment_pending"
-        ? { tone: "bg-sun-soft text-ink", icon: <IconInfo />, title: "Waiting for payment confirmation", text: "We’ll confirm your order only when the payment provider confirms the payment to our server." }
+        ? { tone: "bg-sun-soft text-ink", icon: <IconInfo />, title: "Waiting for payment confirmation", text: "We’ll confirm your order only when the payment provider confirms the payment to our server. Just paid? Refresh this page in a minute." }
         : s === "cancelled"
-          ? { tone: "bg-neutral-100 text-ink", icon: <IconX />, title: "Order cancelled", text: order.paymentMethod === "online" && order.paymentEvents.some((e) => e.type === "payment.succeeded") ? "Any refund is issued through the original payment provider. In this demo, no money was taken." : "This order was cancelled." }
+          ? { tone: "bg-neutral-100 text-ink", icon: <IconX />, title: "Order cancelled", text: order.paymentMethod === "online" && order.paymentEvents.some((e) => e.type === "payment.succeeded") ? `Any refund is issued through the original payment provider.${order.demo ? " In this demo, no money was taken." : ""}` : "This order was cancelled." }
           : order.paymentMethod === "cod"
-            ? { tone: "bg-leaf-soft text-leaf", icon: <IconCheck />, title: "Order placed — Cash on Delivery", text: "Demo order: recorded in Krip’s system for testing. It will not be shipped." }
-            : { tone: "bg-leaf-soft text-leaf", icon: <IconCheck />, title: "Payment confirmed — order placed", text: order.demo ? "Confirmed by the demo gateway’s signed callback. Demo order: no real money moved and nothing will ship." : "Payment confirmed by the payment provider." };
+            ? { tone: "bg-leaf-soft text-leaf", icon: <IconCheck />, title: "Order placed — Cash on Delivery", text: order.demo ? "Demo order: recorded in Krip’s system for testing. It will not be shipped." : "Pay in cash when your order is delivered. We’ll share tracking details once it ships." }
+            : { tone: "bg-leaf-soft text-leaf", icon: <IconCheck />, title: "Payment confirmed — order placed", text: order.demo ? (order.paymentProvider === "cashfree" ? "Confirmed by Cashfree in test mode. Test order: no real money moved and nothing will ship." : "Confirmed by the demo gateway’s signed callback. Demo order: no real money moved and nothing will ship.") : "Payment confirmed by the payment provider." };
 
   return (
     <div className="mx-auto max-w-2xl space-y-4 px-4 pt-4">
@@ -168,7 +168,7 @@ export function OrderView({ order, token }: { order: CustomerOrder; token: strin
           <div className="flex justify-between"><dt>Delivery</dt><dd>{formatPrice(order.delivery)}</dd></div>
           {order.codFee > 0 && <div className="flex justify-between"><dt>COD fee</dt><dd>{formatPrice(order.codFee)}</dd></div>}
           <div className="flex justify-between font-semibold"><dt>Total</dt><dd>{formatPrice(order.total)}</dd></div>
-          <div className="flex justify-between text-ink-soft"><dt>Payment</dt><dd>{order.paymentMethod === "cod" ? "Cash on Delivery (demo)" : `Online (${order.paymentProvider}${order.demo ? " · demo" : ""})`}</dd></div>
+          <div className="flex justify-between text-ink-soft"><dt>Payment</dt><dd>{order.paymentMethod === "cod" ? `Cash on Delivery${order.demo ? " (demo)" : ""}` : `Online (${order.paymentProvider}${order.demo ? " · demo" : ""})`}</dd></div>
         </dl>
       </section>
 
