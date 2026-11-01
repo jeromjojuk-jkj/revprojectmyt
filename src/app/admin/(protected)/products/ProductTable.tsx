@@ -8,6 +8,7 @@ import { CATEGORIES, CATEGORY_NAME } from "@/lib/constants";
 import type { CategoryId, ProductStatus } from "@/lib/types";
 import { bulkProductsAction, duplicateProductAction } from "@/app/admin/opsActions";
 import { Badge, Empty, SortLink, btn, field, td, th, type Tone } from "@/app/admin/_components/ui";
+import { QuickPrice } from "./QuickPrice";
 
 export interface ProductRow {
   id: string; slug: string; title: string; brand: string; category: CategoryId; image: string; price: number; mrp: number | null;
@@ -116,7 +117,10 @@ export function ProductTable({ rows, params, canEdit, canArchive, canCreate, sho
                 </td>
                 {show("brand") && <td className={`${td} text-xs`}>{p.brand}</td>}
                 {show("category") && <td className={`${td} text-xs`}>{CATEGORY_NAME[p.category]}</td>}
-                <td className={`${td} text-right tabular-nums`}>{formatPrice(p.price)}{p.mrp && <span className="block text-xs text-ink-soft line-through">{formatPrice(p.mrp)}</span>}</td>
+                <td className={`${td} text-right tabular-nums`}>
+                  {canEdit ? <QuickPrice id={p.id} title={p.title} price={p.price} mrp={p.mrp} /> : formatPrice(p.price)}
+                  {p.mrp && <span className="block text-xs text-ink-soft line-through">{formatPrice(p.mrp)}</span>}
+                </td>
                 <td className={`${td} text-right tabular-nums ${p.stock === 0 ? "font-semibold text-danger" : p.low ? "font-semibold text-amber-700" : ""}`}>{p.stock}</td>
                 {show("sold") && <td className={`${td} text-right tabular-nums`}>{p.sold}</td>}
                 {show("finance") && <td className={`${td} text-right text-xs tabular-nums`}>{p.cost !== null ? formatPrice(p.cost) : "—"}{p.contribution !== null && <span className={`block ${p.contribution < 0 ? "font-semibold text-danger" : "text-ink-soft"}`}>{formatPrice(p.contribution)} ({p.margin}%)</span>}</td>}
