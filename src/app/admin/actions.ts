@@ -6,6 +6,7 @@ import type { Settings } from "@/lib/types";
 import { login, logout, requirePerm } from "@/lib/server/auth";
 import { readDb, resetDb, withDb } from "@/lib/server/db";
 import { audit } from "@/lib/server/audit";
+import { paymentConfig } from "@/lib/server/payments";
 import { moveStock } from "@/lib/server/inventory";
 import { importCsv, validateProductInput, type FieldErrors, type RawProductInput, type CsvImportResult } from "@/lib/productInput";
 
@@ -199,6 +200,8 @@ export async function settingsAction(_: unknown, fd: FormData) {
 
 export async function resetDemoAction() {
   const { actor } = await requirePerm("system.manage");
+  // Never wipe a live store's orders.
+  if (!paymentConfig().demo) redirect("/admin");
   await resetDb();
   await withDb((db) => audit(db, actor, "system.reset_demo", "system", "datastore"));
   revalidatePath("/", "layout");

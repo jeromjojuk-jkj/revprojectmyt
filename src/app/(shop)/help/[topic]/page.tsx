@@ -16,9 +16,6 @@ export default async function PolicyPage({ params }: { params: Promise<{ topic: 
     <article className="prose-krip mx-auto max-w-2xl px-4 pt-4">
       <Link href="/help" className="text-sm">← Help</Link>
       <h1 className="mt-2 text-xl font-semibold">{page.title}</h1>
-      {topic !== "faq" && topic !== "contact" && (
-        <p className="!text-xs rounded-lg bg-sun-soft px-3 py-2 !text-ink">Prototype policy — to be reviewed with legal counsel before launch.</p>
-      )}
       {page.body}
       {topic === "contact" && <ContactDetails store={await getStore()} />}
     </article>

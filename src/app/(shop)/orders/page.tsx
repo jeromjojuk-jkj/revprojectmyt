@@ -30,7 +30,7 @@ export default function OrdersPage() {
   return (
     <div className="mx-auto max-w-2xl px-4 pt-4">
       <h1 className="text-xl font-semibold">Your orders</h1>
-      <p className="text-sm text-ink-soft">Orders placed from this device. Sign-in to sync across devices isn’t connected in this prototype.</p>
+      <p className="text-sm text-ink-soft">Orders placed from this device. Keep your order confirmation link to view an order on another device.</p>
       {failed && <p role="alert" className="mt-4 text-sm text-danger">Couldn’t load orders. Check your connection and refresh.</p>}
       {!orders && !failed && <div className="mt-4 space-y-2"><div className="skeleton h-20" /><div className="skeleton h-20" /></div>}
       {orders && orders.length === 0 && (

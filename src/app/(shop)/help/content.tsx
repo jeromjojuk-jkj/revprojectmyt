@@ -1,17 +1,16 @@
 import type { ReactNode } from "react";
 
-// Prototype policy text. Every policy must be reviewed by Krip and a legal
-// advisor (Consumer Protection (E-Commerce) Rules, 2020; DPDP Act, 2023)
-// before launch. Nothing here promises timelines Krip can't yet keep.
+// Store policies shown under /help. Krip should read these and adjust them to how
+// it actually operates. Nothing here promises timelines Krip can't keep.
 
 export const PAGES: Record<string, { title: string; body: ReactNode }> = {
   about: {
     title: "About Krip",
     body: (
       <>
-        <p>Krip sells trending, affordable fashion, beauty and accessories for Gen Z and young adults across India. Trending looks. Your kind of price.</p>
+        <p>Krip sells useful home gadgets and everyday essentials — kitchen tools, cleaning helpers, baby-safety products and personal-care items — delivered across India.</p>
         <h2>How we work</h2>
-        <p>We source products from vendors we work with directly, check them, and sell them here and on other marketplaces. Every product page shows the seller, country of origin and return rules before you buy.</p>
+        <p>We source products from suppliers we work with directly and sell them here. Every product page shows what’s in the box, how to use it, and its return rule before you buy.</p>
         <h2>What we won’t do</h2>
         <ul>
           <li>No fake reviews, ratings or “only 2 left” warnings.</li>
@@ -25,12 +24,12 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
     title: "Contact Krip",
     body: (
       <>
-        <p>We’d love to hear from you — about an order, a size question, a return, or working with us.</p>
+        <p>We’d love to hear from you — about an order, a product question, a return, or working with us.</p>
         <h2>Before you write</h2>
         <ul>
           <li>Order questions: open <a href="/orders">Your Orders</a> and keep your order ID handy (it looks like KRP-261020-ABC123).</li>
           <li>Returns and refunds: see the <a href="/help/refunds">Refund Policy</a> and the return rule on each product page.</li>
-          <li>Sizes: every clothing and footwear page has a size chart and a Size Finder.</li>
+          <li>Product questions: each product page lists what’s in the box, sizes and how to use it.</li>
         </ul>
         <h2>Suppliers</h2>
         <p>Want to sell through Krip? See <a href="/help/suppliers">Sell with Krip</a>.</p>
@@ -41,22 +40,22 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
     title: "Return & Refund Policy",
     body: (
       <>
-        <p>This policy explains when and how you get money back. What’s returnable is shown on each product page before you buy.</p>
+        <p>This policy explains when and how you get money back. Whether an item can be returned is shown on each product page before you buy.</p>
         <h2>When you can get a refund</h2>
         <ul>
-          <li><b>Returned items:</b> items marked “returnable”, sent back within their return window unused, unwashed and with tags attached.</li>
+          <li><b>Returned items:</b> items marked “returnable”, sent back within their return window, unused and in the original packaging.</li>
           <li><b>Cancelled orders:</b> orders you cancel before they’re packed.</li>
-          <li><b>Problems on arrival:</b> damaged, defective or wrong items reported within 48 hours of delivery with photos (for non-returnable items like cosmetics and earrings we replace the item; if a replacement isn’t available we refund).</li>
+          <li><b>Problems on arrival:</b> damaged, defective, leaking or wrong items reported within 48 hours of delivery with photos. For non-returnable items we replace the item; if a replacement isn’t available we refund.</li>
           <li><b>Items we can’t deliver:</b> if we cancel because an item became unavailable or your pincode can’t be served.</li>
         </ul>
         <h2>Not refundable</h2>
         <ul>
-          <li>Items marked “Not returnable” or “Exchange only”, except when damaged, defective or wrong.</li>
-          <li>Items returned used, washed, without tags, or after the return window.</li>
+          <li>Items marked “Not returnable” (for example cleaning chemicals and personal-care or hygiene products), except when damaged, defective or wrong.</li>
+          <li>Items returned used, without their original packaging, or after the return window.</li>
         </ul>
         <h2>How refunds are paid</h2>
         <ul>
-          <li><b>Paid online (UPI/card):</b> back to the original payment method through our payment provider.</li>
+          <li><b>Paid online (UPI/card/net banking):</b> back to the original payment method through our payment provider.</li>
           <li><b>Cash on Delivery:</b> to a bank account or UPI ID you give us.</li>
           <li>The delivery charge is refunded when the whole order is cancelled before dispatch or when we sent a wrong or damaged item. The COD fee is refunded in the same cases.</li>
         </ul>
@@ -69,14 +68,14 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
     title: "Sell with Krip",
     body: (
       <>
-        <p>Make or source fashion, beauty or accessories? Krip works with vendors who can supply authorised product photos, accurate specifications and consistent stock.</p>
+        <p>Make or source useful home, kitchen, cleaning, baby-safety or personal-care products? Krip works with suppliers who can provide authorised product photos, accurate specifications and consistent stock.</p>
         <h2>What we need from suppliers</h2>
         <ul>
-          <li>Product data in our CSV format (size charts measured on the garment, materials, care, country of origin).</li>
-          <li>For cosmetics: full ingredient lists, net quantity, manufacturer/importer details and expiry information from the label.</li>
+          <li>Product details: what’s in the pack, sizes, materials and how to use it.</li>
+          <li>For personal-care and cleaning products: ingredients or composition, net quantity, manufacturer/importer details and expiry information from the label.</li>
           <li>Rights to the photos and descriptions you share.</li>
         </ul>
-        <p>A supplier enquiry form and contact details will be published here before launch.</p>
+        <p>Get in touch through <a href="/help/contact">Contact Us</a>.</p>
       </>
     ),
   },
@@ -86,7 +85,7 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
       <>
         <p>We ship across India through courier partners. Delivery dates shown on product pages and at checkout are estimates based on your pincode — they’re not guarantees.</p>
         <h2>Delivery charges</h2>
-        <p>A flat delivery charge applies per order and is shown in your bag before you pay. If a free-delivery threshold is ever offered, it will be shown in your bag too.</p>
+        <p>A flat delivery charge applies per order and is shown in your bag before you pay. If a free-delivery threshold is offered, it’s shown in your bag too.</p>
         <h2>Cash on Delivery</h2>
         <p>COD is available on eligible pincodes and order values, and a small COD fee applies. Eligibility is shown at checkout.</p>
         <h2>Tracking</h2>
@@ -98,12 +97,11 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
     title: "Returns & Refunds",
     body: (
       <>
-        <p>Every product page shows whether that item can be returned or exchanged, and for how long, <b>before</b> you buy.</p>
+        <p>Every product page shows whether that item can be returned, and for how long, <b>before</b> you buy.</p>
         <h2>Typical rules</h2>
         <ul>
-          <li>Most clothing, footwear and bags: return or exchange within 7 days of delivery if unused, unwashed and with tags attached.</li>
-          <li>Cosmetics and earrings: not returnable for hygiene reasons. If they arrive damaged, leaking or wrong, report it within 48 hours with photos and we’ll replace it.</li>
-          <li>Some items are exchange-only — this is labelled on the product page.</li>
+          <li>Most home and kitchen products: return within 7 days of delivery if unused and in the original packaging.</li>
+          <li>Cleaning chemicals, personal-care and hygiene products: not returnable once delivered. If they arrive damaged, leaking or wrong, report it within 48 hours with photos and we’ll replace it.</li>
         </ul>
         <h2>Refunds</h2>
         <p>Approved refunds are issued to the original payment method through our payment provider, or to a bank account/UPI for COD orders. Timelines depend on the provider and your bank.</p>
@@ -128,7 +126,7 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
         <h2>On your device</h2>
         <p>Your bag, wishlist, recently viewed items, recent searches, saved pincode and order links are stored in your browser’s local storage. You can clear them anytime from your browser settings or the Account page.</p>
         <h2>Location</h2>
-        <p>If you tap “Use my current location”, your browser asks your permission and then shares your coordinates with Krip once, to look up your pincode and city through a mapping service (OpenStreetMap in this prototype). We don’t store your coordinates. You can always type your pincode instead.</p>
+        <p>If you tap “Use my current location”, your browser asks your permission and then shares your coordinates with Krip once, to look up your pincode and city through a mapping service (OpenStreetMap). We don’t store your coordinates. You can always type your pincode instead.</p>
         <h2>Payments</h2>
         <p>Card and UPI details are handled by the payment provider. Krip never sees or stores your full card number or UPI PIN.</p>
         <h2>Sharing</h2>
@@ -164,8 +162,8 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
         <p><b>When is my order confirmed?</b> For online payments, only after the payment provider confirms the payment to us. For Cash on Delivery, as soon as it’s placed.</p>
         <p><b>Is COD available?</b> On eligible pincodes and order values. Checkout shows whether it’s available for you, and the COD fee, before you place the order.</p>
         <p><b>My money was deducted but the order shows payment failed.</b> Contact us with your order ID. Banks usually reverse failed debits automatically; we’ll check with the payment provider.</p>
-        <h2>Sizes, returns and exchanges</h2>
-        <p><b>Which size should I pick?</b> Every clothing and footwear page has a size chart and a Size Finder.</p>
+        <h2>Products and returns</h2>
+        <p><b>What’s in the box?</b> Every product page lists the pack contents, sizes and how to use it.</p>
         <p><b>Can I return or exchange this?</b> Each product page shows its return or exchange rule before you buy. See <a href="/help/returns">Returns & Refunds</a> and the <a href="/help/exchange">Exchange Policy</a>.</p>
         <h2>Account</h2>
         <p><b>Do I need an account?</b> No. Your bag, wishlist and order links are saved on this device.</p>
@@ -176,19 +174,20 @@ export const PAGES: Record<string, { title: string; body: ReactNode }> = {
     title: "Exchange Policy",
     body: (
       <>
-        <p>Some items can be exchanged for a different size or colour of the same product. Whether an item is exchangeable, and for how many days, is shown on its product page before you buy.</p>
+        <p>If an item arrives damaged, defective or wrong, we’ll exchange it for the right one. Whether an item can also be returned, and for how many days, is shown on its product page before you buy.</p>
         <h2>Conditions</h2>
         <ul>
           <li>Ask for the exchange within the window shown on the product page, counted from delivery.</li>
-          <li>The item must be unused, unwashed and have its tags and original packaging.</li>
-          <li>Exchanges depend on the size or colour you want being in stock. If it isn’t, we’ll offer a refund for returnable items or keep your request open, whichever you choose.</li>
+          <li>Report a damaged, defective or wrong item within 48 hours of delivery, with photos.</li>
+          <li>Keep the item and its original packaging until the exchange is sorted.</li>
+          <li>Exchanges depend on the item being in stock. If it isn’t, we’ll refund you.</li>
         </ul>
         <h2>Not exchangeable</h2>
         <ul>
-          <li>Cosmetics, earrings and other items marked “Not returnable”, except when they arrive damaged, defective or wrong — report that within 48 hours with photos.</li>
+          <li>Items you’ve used, or that are marked “Not returnable”, unless they arrived damaged, defective or wrong.</li>
         </ul>
         <h2>How to ask</h2>
-        <p>Contact us with your order ID and the size or colour you want. See <a href="/help/contact">Contact Us</a>.</p>
+        <p>Contact us with your order ID and photos of the problem. See <a href="/help/contact">Contact Us</a>.</p>
       </>
     ),
   },
