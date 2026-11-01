@@ -7,7 +7,7 @@ import { paymentConfig, signPayload, type GatewayEvent } from "@/lib/server/paym
 // signed event and delivers it through the same webhook verification path a
 // real provider would use. Disabled unless the demo gateway is active.
 export async function POST(req: Request) {
-  if (!paymentConfig().demo) return NextResponse.json({ error: "Demo gateway disabled" }, { status: 404 });
+  if (paymentConfig().provider !== "demo") return NextResponse.json({ error: "Demo gateway disabled" }, { status: 404 });
   const body = await req.json().catch(() => ({}));
   const order = await getOrderForCustomer(String(body.orderId ?? ""), String(body.t ?? ""));
   if (!order) return NextResponse.json({ error: "Order not found" }, { status: 404 });
