@@ -115,7 +115,7 @@ export function SearchBox() {
           e.preventDefault();
           submit();
         }}
-        className={`flex h-11 items-center overflow-hidden rounded-lg bg-white ring-2 transition-shadow ${open ? "ring-sun" : "ring-transparent"}`}
+        className={`flex h-11 items-center overflow-hidden rounded-lg bg-white text-ink ring-2 transition-shadow ${open ? "ring-sun" : "ring-transparent"}`}
       >
         {open && (
           <button type="button" aria-label="Close search" className="grid h-full w-11 shrink-0 place-items-center md:hidden" onClick={() => { setOpen(false); inputRef.current?.blur(); }}>
@@ -163,7 +163,7 @@ export function SearchBox() {
           aria-activedescendant={active >= 0 ? `${listId}-${active}` : undefined}
           autoComplete="off"
           enterKeyHint="search"
-          className="h-full min-w-0 flex-1 bg-transparent px-3 text-[15px] outline-none focus-visible:outline-none placeholder:text-neutral-500 [&::-webkit-search-cancel-button]:hidden"
+          className="h-full min-w-0 flex-1 bg-transparent px-3 text-[15px] text-ink caret-ink outline-none focus-visible:outline-none placeholder:text-neutral-500 [&::-webkit-search-cancel-button]:hidden"
         />
         {q && (
           <button type="button" aria-label="Clear search" className="grid h-10 w-10 shrink-0 place-items-center text-ink-soft" onClick={() => { setQ(""); inputRef.current?.focus(); }}>
@@ -192,7 +192,7 @@ export function SearchBox() {
       </form>
 
       {open && (
-        <div className="fixed inset-x-0 bottom-0 top-[var(--header-h)] z-40 overflow-y-auto bg-white px-4 pb-24 pt-3 shadow-xl md:absolute md:inset-x-0 md:top-full md:bottom-auto md:mt-2 md:max-h-[70vh] md:rounded-2xl md:px-2 md:pb-2 md:ring-1 md:ring-line">
+        <div className="fixed inset-x-0 bottom-0 top-[var(--header-h)] z-40 overflow-y-auto bg-white text-ink px-4 pb-24 pt-3 shadow-xl md:absolute md:inset-x-0 md:top-full md:bottom-auto md:mt-2 md:max-h-[70vh] md:rounded-2xl md:px-2 md:pb-2 md:ring-1 md:ring-line">
           {showRecent && hydrated && recent.length > 0 && (
             <div className="mb-1 flex items-center justify-between px-2">
               <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">Recent searches</p>
