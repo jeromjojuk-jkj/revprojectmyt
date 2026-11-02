@@ -245,3 +245,20 @@ test("slash key focuses search", async ({ page }) => {
   await page.keyboard.press("/");
   await expect(page.getByRole("combobox", { name: "Search Krip" })).toBeFocused();
 });
+
+test("typed search text is visible (not white on the white field)", async ({ page }) => {
+  await page.goto("/");
+  const input = page.getByRole("combobox", { name: "Search Krip" });
+  await input.click();
+  await input.pressSequentially("drain");
+  await expect(input).toHaveValue("drain");
+  const { color, bg } = await input.evaluate((el) => ({
+    color: getComputedStyle(el).color,
+    bg: getComputedStyle(el.closest("form")!).backgroundColor,
+  }));
+  expect(color).not.toBe(bg);
+  const option = page.getByRole("option").first();
+  await expect(option).toBeVisible();
+  const optColor = await option.locator("button span").nth(1).evaluate((el) => getComputedStyle(el).color);
+  expect(optColor).not.toBe("rgb(255, 255, 255)");
+});
