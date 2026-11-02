@@ -2,7 +2,7 @@
 // except through authenticated admin routes — see toPublicProduct() in catalog.ts.
 
 export type FashionCategoryId = "men" | "women" | "beauty" | "footwear" | "bags" | "jewellery" | "accessories";
-export type HomeCategoryId = "kitchen" | "cleaning" | "baby-safety" | "personal-care";
+export type HomeCategoryId = "kitchen" | "cleaning" | "baby-safety" | "personal-care" | "kids-learning";
 export type CategoryId = FashionCategoryId | HomeCategoryId;
 
 export type VibeId = "campus" | "streetwear" | "everyday" | "date-night" | "festive";
