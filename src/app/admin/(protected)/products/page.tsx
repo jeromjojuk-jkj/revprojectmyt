@@ -70,7 +70,7 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
         </div>
         <div className="flex gap-2 sm:col-span-2 lg:col-span-5"><button className={btn.dark}>Apply</button><Link href="/admin/products" className={btn.secondary}>Clear</Link></div>
       </form>
-      <ProductTable rows={rows} params={params} canEdit={ctx.can("products.edit")} canArchive={ctx.can("products.delete")} canCreate={ctx.can("products.create")} showFinance={ctx.can("finance.view")} />
+      <ProductTable rows={rows} params={params} canEdit={ctx.can("products.edit")} canEditStock={ctx.can("inventory.edit")} canArchive={ctx.can("products.delete")} canCreate={ctx.can("products.create")} showFinance={ctx.can("finance.view")} />
       <Pagination base="/admin/products" params={params} page={pg.page} pages={pg.pages} total={pg.total} />
     </div>
   );

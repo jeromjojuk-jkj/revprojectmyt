@@ -9,6 +9,7 @@ import type { CategoryId, ProductStatus } from "@/lib/types";
 import { bulkProductsAction, duplicateProductAction } from "@/app/admin/opsActions";
 import { Badge, Empty, SortLink, btn, field, td, th, type Tone } from "@/app/admin/_components/ui";
 import { QuickPrice } from "./QuickPrice";
+import { QuickStock } from "./QuickStock";
 
 export interface ProductRow {
   id: string; slug: string; title: string; brand: string; category: CategoryId; image: string; price: number; mrp: number | null;
@@ -20,7 +21,7 @@ const STATUS_TONE: Record<ProductStatus, Tone> = { active: "green", draft: "neut
 const OPTIONAL = { brand: "Brand", category: "Category", sold: "Sold", created: "Created", finance: "Cost & margin" } as const;
 type Col = keyof typeof OPTIONAL;
 
-export function ProductTable({ rows, params, canEdit, canArchive, canCreate, showFinance }: { rows: ProductRow[]; params: Record<string, string | undefined>; canEdit: boolean; canArchive: boolean; canCreate: boolean; showFinance: boolean }) {
+export function ProductTable({ rows, params, canEdit, canEditStock, canArchive, canCreate, showFinance }: { rows: ProductRow[]; params: Record<string, string | undefined>; canEdit: boolean; canEditStock: boolean; canArchive: boolean; canCreate: boolean; showFinance: boolean }) {
   const [sel, setSel] = useState<string[]>([]);
   const [op, setOp] = useState("");
   const [hidden, setHidden] = useState<Col[]>([]);
@@ -121,7 +122,15 @@ export function ProductTable({ rows, params, canEdit, canArchive, canCreate, sho
                   {canEdit ? <QuickPrice id={p.id} title={p.title} price={p.price} mrp={p.mrp} /> : formatPrice(p.price)}
                   {p.mrp && <span className="block text-xs text-ink-soft line-through">{formatPrice(p.mrp)}</span>}
                 </td>
-                <td className={`${td} text-right tabular-nums ${p.stock === 0 ? "font-semibold text-danger" : p.low ? "font-semibold text-amber-700" : ""}`}>{p.stock}</td>
+                <td className={`${td} text-right tabular-nums`}>
+                  {(() => {
+                    const tone = p.stock === 0 ? "font-semibold text-danger" : p.low ? "font-semibold text-amber-700" : "";
+                    if (!canEditStock) return <span className={tone}>{p.stock}</span>;
+                    if (p.variants === 1) return <QuickStock sku={p.firstSku} title={p.title} stock={p.stock} tone={tone} />;
+                    // Each colour/size has its own stock: edit them on Inventory.
+                    return <Link href={`/admin/inventory?q=${encodeURIComponent(p.title)}`} title="Edit stock per colour/size" className={`rounded-lg px-2 py-1 hover:bg-paper hover:underline ${tone}`}>{p.stock} ›</Link>;
+                  })()}
+                </td>
                 {show("sold") && <td className={`${td} text-right tabular-nums`}>{p.sold}</td>}
                 {show("finance") && <td className={`${td} text-right text-xs tabular-nums`}>{p.cost !== null ? formatPrice(p.cost) : "—"}{p.contribution !== null && <span className={`block ${p.contribution < 0 ? "font-semibold text-danger" : "text-ink-soft"}`}>{formatPrice(p.contribution)} ({p.margin}%)</span>}</td>}
                 <td className={td}><Badge tone={STATUS_TONE[p.status]}>{p.status}</Badge></td>

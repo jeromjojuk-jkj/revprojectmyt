@@ -189,6 +189,35 @@ export async function stockAdjustAction(_: ActionState, fd: FormData): Promise<A
   return { ok: true, message: `Stock for ${sku} updated.` };
 }
 
+/**
+ * Quick stock edit from the product list. "set" records a stock count; "add"
+ * records received stock (positive) or a correction (negative).
+ */
+export async function quickStockAction(sku: string, mode: "set" | "add", qty: number): Promise<{ ok: true; stock: number } | { ok: false; error: string }> {
+  const { actor } = await requirePerm("inventory.edit");
+  if (!Number.isInteger(qty) || Math.abs(qty) > 100_000 || (mode === "set" && qty < 0)) return { ok: false, error: "Enter a whole number of units." };
+  let stock = 0;
+  try {
+    await withDb((db) => {
+      const v = db.products.flatMap((p) => p.variants).find((x) => x.sku === sku);
+      if (!v) throw new Error("Unknown SKU.");
+      const delta = mode === "set" ? qty - v.stock : qty;
+      const before = v.stock;
+      if (delta !== 0) {
+        const reason: MovementReason = mode === "set" ? "audit_count" : delta > 0 ? "received" : "correction";
+        moveStock(db, sku, delta, reason, "quick edit", actor.name);
+        audit(db, actor, "inventory.adjust", "sku", sku, { before: { stock: before }, after: { stock: v.stock, reason } });
+      }
+      stock = v.stock;
+    });
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+  revalidatePath("/admin/inventory");
+  revalidatePath("/", "layout");
+  return { ok: true, stock };
+}
+
 // ---------- Customers ----------
 
 export async function customerNoteAction(_: ActionState, fd: FormData): Promise<ActionState> {
