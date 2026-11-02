@@ -952,10 +952,76 @@ const HOME_DEFS: Def[] = [
     description: "A manual juicer that sits on its own jug — twist citrus fruits on the cone, or press pomegranate seeds and watermelon through the strainer for fresh juice without a mixer. Colour as available.",
     createdAt: "2026-10-29", supplier: SUPPLIER, costPct: 0,
   },
+  {
+    id: "k021", slug: "washbag-toiletry-pouch-set-of-3", title: "Frosted Washbag Toiletry Pouch Set of 3", brand: "Generic",
+    category: "personal-care", subcategory: "Travel & Toiletry Bags", kind: "holder", images: photos("washbag-toiletry-pouch-set-of-3", 3),
+    price: 299, colors: [["Light blue", "bfdbfe"]], sizes: null, stock: [20], material: "Frosted see-through panel with zip",
+    packageContents: "3 zip pouches: large with handles, medium and small with wrist straps",
+    tags: ["washbag", "toiletry bag", "travel pouch", "cosmetic pouch", "makeup bag", "organiser"], vibes: [], collections: ["trending"],
+    features: [
+      "Large: about 30 × 22 × 11 cm, with two carry handles",
+      "Medium: about 26 × 16 × 9 cm, with a wrist strap",
+      "Small: about 21 × 12 × 7 cm, with a wrist strap",
+      "Frosted see-through front, so you can spot what’s inside",
+      "Zip closure on all three",
+    ],
+    howToUse: [
+      "Use the large bag for towels, bottles and bigger toiletries.",
+      "Keep makeup, skincare or chargers in the medium pouch.",
+      "Use the small pouch for brushes, razors, medicines or small items.",
+    ],
+    care: ["Wipe clean with a damp cloth", "Let it dry fully before zipping"],
+    description: "A set of three frosted zip pouches in different sizes for toiletries, makeup and travel essentials — the large one has carry handles, the two smaller ones have wrist straps. Sizes as listed by the supplier.",
+    createdAt: "2026-11-02", supplier: SUPPLIER, costPct: 0,
+  },
+  {
+    id: "k022", slug: "adhesive-wall-shelf-figurine-supports", title: "Adhesive Wall Shelf with Figure Supports, No Drilling", brand: "Generic",
+    category: "kitchen", subcategory: "Wall Shelves", kind: "holder", images: photos("adhesive-wall-shelf-figurine-supports", 4),
+    price: 249, colors: [["Colour as available", "e5e7eb"]], sizes: null, stock: [20], material: "Plastic shelf, adhesive wall pads",
+    packageContents: "1 shelf with 2 figure-shaped supports and adhesive wall pads (colour as available)",
+    tags: ["wall shelf", "bathroom shelf", "kitchen shelf", "adhesive shelf", "no drill", "spice rack"], vibes: [], collections: ["trending"],
+    features: [
+      "Sticks to the wall — no drilling or screws",
+      "About 33 cm long, 13.5 cm deep and 14.5 cm high",
+      "Two playful figure-shaped supports hold the shelf",
+      "For bathrooms, kitchens and bedside — toiletries, spice jars, small plants",
+    ],
+    howToUse: [
+      "Clean and dry the wall where the shelf will go.",
+      "Clip the supports into the adhesive pads.",
+      "Peel off the backing film and press the pads firmly onto the wall.",
+      "Wait a few hours before placing items, and keep loads light.",
+    ],
+    care: ["Use on smooth tiles, glass or painted walls — not on rough, damp or peeling surfaces", "Don’t overload; heavy items can pull the pads off"],
+    description: "A no-drill wall shelf held up by two cute figure-shaped supports. Stick it on bathroom or kitchen tiles for toiletries, spice jars or small décor. About 33 × 13.5 × 14.5 cm. Colour as available.",
+    createdAt: "2026-11-02", supplier: SUPPLIER, costPct: 0,
+  },
+  {
+    id: "k023", slug: "wooden-india-map-puzzle-states-capitals", title: "Wooden India Map Puzzle — States, Capitals & Union Territories", brand: "Generic",
+    category: "kids-learning", subcategory: "Educational Puzzles", kind: "holder", images: photos("wooden-india-map-puzzle-states-capitals", 4),
+    price: 349, colors: [["Multicolour", "f59e0b"]], sizes: null, stock: [15], material: "Wood",
+    packageContents: "1 wooden board with removable state pieces and knobs",
+    returns: RET_HOME,
+    tags: ["india map puzzle", "wooden puzzle", "educational toy", "geography", "states and capitals", "kids"], vibes: [], collections: ["trending"],
+    features: [
+      "Colourful wooden map of India with the states, capitals and union territories marked",
+      "Pieces lift out by their wooden knobs and fit back in place",
+      "Board about 30 cm tall",
+      "Shows neighbouring countries, seas and landmarks",
+    ],
+    howToUse: [
+      "Lift the pieces out by their knobs and mix them up.",
+      "Fit each state back in its place, reading its name and capital.",
+      "Play together and quiz each other on states and capitals.",
+    ],
+    care: ["Contains small pieces — not for children under 3; play under adult supervision", "Wipe with a dry cloth; keep away from water"],
+    description: "A wooden India map puzzle with removable state pieces and knobs — a hands-on way for children to learn states, capitals and union territories. The board is about 30 cm tall.",
+    createdAt: "2026-11-02", supplier: SUPPLIER, costPct: 0,
+  },
 ];
 
 /** Bump when products are added to HOME_DEFS so existing stores pick them up. */
-export const CATALOG_VERSION = 4;
+export const CATALOG_VERSION = 5;
 
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;
