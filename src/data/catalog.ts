@@ -531,7 +531,17 @@ const RET_HYGIENE_HOME: ReturnPolicy = {
   note: "Not returnable once delivered (hygiene or chemical product). If it arrives damaged, leaking or wrong, report it within 48 hours of delivery with photos and we’ll replace it.",
 };
 const SUPPLIER = "Supplier (confirm in admin)";
-const photos = (slug: string, n: number) => Array.from({ length: n }, (_, i) => `/products/${slug}/${i + 1}.jpg`);
+const photos = (slug: string, n: number, prefix = "") => Array.from({ length: n }, (_, i) => `/products/${slug}/${prefix}${i + 1}.jpg`);
+
+// Photos replaced with new files (new names, so no image cache serves the old ones).
+// Existing stores get these swapped in once, via CATALOG_VERSION.
+const REPLACED_PHOTOS: [slug: string, count: number, prefix: string][] = [
+  ["drain-sink-cleaner-powder-pack-of-2", 4, "v2-"],
+  ["caster-drainex-instant-drain-cleaner-pack-of-5", 4, "v2-"],
+];
+export const IMAGE_RENAMES: Record<string, string> = Object.fromEntries(
+  REPLACED_PHOTOS.flatMap(([slug, n, prefix]) => photos(slug, n).map((old, i) => [old, photos(slug, n, prefix)[i]])),
+);
 
 // Krip launch range: the products Krip actually sells, with the supplier's photos.
 // Descriptions only state what the product photos and packs show.
@@ -559,7 +569,7 @@ const HOME_DEFS: Def[] = [
   },
   {
     id: "k002", slug: "drain-sink-cleaner-powder-pack-of-2", title: "Powerful Drain & Sink Cleaner Powder, Pack of 2", brand: "Generic",
-    category: "cleaning", subcategory: "Drain Cleaners", kind: "bottle", images: photos("drain-sink-cleaner-powder-pack-of-2", 4),
+    category: "cleaning", subcategory: "Drain Cleaners", kind: "bottle", images: photos("drain-sink-cleaner-powder-pack-of-2", 4, "v2-"),
     price: 299, colors: [["Blue & White", "1e3a8a"]], sizes: null, stock: [25], material: "Powder",
     packageContents: "2 bottles of drain cleaner powder", returns: RET_HYGIENE_HOME,
     tags: ["drain cleaner", "sink", "blocked drain", "bathroom", "kitchen"], vibes: [], collections: ["trending"],
@@ -580,7 +590,7 @@ const HOME_DEFS: Def[] = [
   },
   {
     id: "k003", slug: "caster-drainex-instant-drain-cleaner-pack-of-5", title: "Caster Drainex Instant Drain Cleaner, Pack of 5", brand: "Caster",
-    category: "cleaning", subcategory: "Drain Cleaners", kind: "cloth", images: photos("caster-drainex-instant-drain-cleaner-pack-of-5", 4),
+    category: "cleaning", subcategory: "Drain Cleaners", kind: "cloth", images: photos("caster-drainex-instant-drain-cleaner-pack-of-5", 4, "v2-"),
     price: 149, colors: [["Blue", "1d4ed8"]], sizes: null, stock: [30], material: "Powder sachets",
     packageContents: "5 one-time-use sachets", returns: RET_HYGIENE_HOME,
     tags: ["drain cleaner", "drainex", "sachet", "shower drain", "sink"], vibes: [], collections: [],
@@ -1021,7 +1031,7 @@ const HOME_DEFS: Def[] = [
 ];
 
 /** Bump when products are added to HOME_DEFS so existing stores pick them up. */
-export const CATALOG_VERSION = 5;
+export const CATALOG_VERSION = 6;
 
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;
