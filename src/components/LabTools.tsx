@@ -70,7 +70,7 @@ export function Spotlight({ src, title, open, onClose }: { src: string; title: s
           onPointerMove={(e) => { const d = drag.current; if (d) setRot({ ry: clamp(d.ry + (e.clientX - d.x) * 0.4, 55), rx: clamp(d.rx - (e.clientY - d.y) * 0.25, 18) }); }}
           onPointerUp={() => { drag.current = null; setDragging(false); }}
         >
-          <span className="spot-img relative block aspect-[4/5] overflow-hidden rounded-3xl"><ProductImage src={src} alt={title} sizes="320px" /></span>
+          <span className="spot-img relative block aspect-square overflow-hidden rounded-3xl bg-white"><ProductImage src={src} alt={title} sizes="320px" /></span>
           <span className="spot-shine pointer-events-none absolute inset-0 rounded-3xl" aria-hidden />
         </div>
         <p className="mt-6 text-center text-xs text-white/70">Drag to turn · {title}</p>

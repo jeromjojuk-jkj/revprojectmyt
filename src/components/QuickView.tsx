@@ -16,7 +16,7 @@ function QuickViewBody({ product, onDone }: { product: ProductPublic; onDone: ()
   return (
     <div className="space-y-4">
       <div className="flex gap-3">
-        <div className="relative aspect-[4/5] w-28 shrink-0 overflow-hidden rounded-xl bg-neutral-100">
+        <div className="relative aspect-square w-28 shrink-0 overflow-hidden rounded-xl bg-white ring-1 ring-line">
           <ProductImage src={imageForColor(product.images[0], sel.hex)} alt={`${product.title} in ${sel.color}`} sizes="112px" />
         </div>
         <div className="min-w-0 space-y-1">

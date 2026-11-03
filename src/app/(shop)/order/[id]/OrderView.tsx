@@ -151,7 +151,7 @@ export function OrderView({ order, token }: { order: CustomerOrder; token: strin
         <ul className="space-y-3">
           {order.items.map((it) => (
             <li key={it.sku} className="flex gap-3 text-sm">
-              <Link href={`/product/${it.slug}`} className="relative aspect-[4/5] w-14 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
+              <Link href={`/product/${it.slug}`} className="relative aspect-square w-14 shrink-0 overflow-hidden rounded-lg bg-white ring-1 ring-line">
                 <ProductImage src={it.image} alt={it.title} sizes="56px" />
               </Link>
               <span className="flex-1">
