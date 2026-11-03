@@ -5,7 +5,7 @@ import crypto from "node:crypto";
 import os from "node:os";
 import type { AdminSession, AuditEntry, CustomerMeta, CustomRole, InventoryMovement, LoginEvent, Offer, Order, ProductRecord, Settings, StaffUser, StoreProfile } from "../types";
 import { normalizeCoupon } from "../coupons";
-import { buildSeedProducts, CATALOG_VERSION } from "@/data/catalog";
+import { buildSeedProducts, CATALOG_VERSION, IMAGE_RENAMES } from "@/data/catalog";
 import { DEFAULT_DELIVERY } from "@/lib/pincode";
 import { SEED_OFFERS } from "@/data/offers";
 
@@ -105,6 +105,7 @@ function migrate(db: DB) {
   if ((db.catalogVersion ?? 1) < CATALOG_VERSION) {
     const have = new Set(db.products.map((p) => p.id));
     db.products.push(...buildSeedProducts().filter((p) => !have.has(p.id)));
+    for (const p of db.products) p.images = p.images.map((u) => IMAGE_RENAMES[u] ?? u);
     db.catalogVersion = CATALOG_VERSION;
   }
 }
