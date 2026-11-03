@@ -119,6 +119,8 @@ export interface ProductPrivate {
   purchaseCost: number;
   /** Krip's own estimate of outbound shipping cost per unit. */
   shippingCost: number;
+  /** Other costs per unit: packing, labels, inserts, etc. */
+  otherCost?: number;
   channelPrices: ChannelPrice[];
   /** Admin confirmed Krip is authorised to use the images and descriptions. */
   rightsConfirmed?: boolean;

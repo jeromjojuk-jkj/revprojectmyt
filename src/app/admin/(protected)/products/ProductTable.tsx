@@ -10,18 +10,19 @@ import { bulkProductsAction, duplicateProductAction } from "@/app/admin/opsActio
 import { Badge, Empty, SortLink, btn, field, td, th, type Tone } from "@/app/admin/_components/ui";
 import { QuickPrice } from "./QuickPrice";
 import { QuickStock } from "./QuickStock";
+import { QuickCosts, type FeeModel } from "./QuickCosts";
 
 export interface ProductRow {
   id: string; slug: string; title: string; brand: string; category: CategoryId; image: string; price: number; mrp: number | null;
   stock: number; variants: number; firstSku: string; status: ProductStatus; sold: number; createdAt: string; sample: boolean; rights: boolean; low: boolean;
-  cost: number | null; contribution: number | null; margin: number | null;
+  cost: number | null; shippingCost: number | null; otherCost: number | null; contribution: number | null; margin: number | null;
 }
 
 const STATUS_TONE: Record<ProductStatus, Tone> = { active: "green", draft: "neutral", "out-of-stock": "yellow", archived: "dark" };
 const OPTIONAL = { brand: "Brand", category: "Category", sold: "Sold", created: "Created", finance: "Cost & margin" } as const;
 type Col = keyof typeof OPTIONAL;
 
-export function ProductTable({ rows, params, canEdit, canEditStock, canArchive, canCreate, showFinance }: { rows: ProductRow[]; params: Record<string, string | undefined>; canEdit: boolean; canEditStock: boolean; canArchive: boolean; canCreate: boolean; showFinance: boolean }) {
+export function ProductTable({ rows, params, canEdit, canEditStock, canArchive, canCreate, showFinance, fees }: { rows: ProductRow[]; params: Record<string, string | undefined>; canEdit: boolean; canEditStock: boolean; canArchive: boolean; canCreate: boolean; showFinance: boolean; fees: FeeModel }) {
   const [sel, setSel] = useState<string[]>([]);
   const [op, setOp] = useState("");
   const [hidden, setHidden] = useState<Col[]>([]);
@@ -94,7 +95,7 @@ export function ProductTable({ rows, params, canEdit, canEditStock, canArchive, 
               <th className={`${th} text-right`}><SortLink base="/admin/products" params={params} col="price">Price</SortLink></th>
               <th className={`${th} text-right`}><SortLink base="/admin/products" params={params} col="stock">Stock</SortLink></th>
               {show("sold") && <th className={`${th} text-right`}><SortLink base="/admin/products" params={params} col="sold">Sold</SortLink></th>}
-              {show("finance") && <th className={`${th} text-right`}>Cost · est. margin</th>}
+              {show("finance") && <th className={`${th} text-right`}>Costs · est. profit</th>}
               <th className={th}>Status</th>
               {show("created") && <th className={th}><SortLink base="/admin/products" params={params} col="created">Created</SortLink></th>}
               <th className={th}><span className="sr-only">Actions</span></th>
@@ -132,7 +133,15 @@ export function ProductTable({ rows, params, canEdit, canEditStock, canArchive, 
                   })()}
                 </td>
                 {show("sold") && <td className={`${td} text-right tabular-nums`}>{p.sold}</td>}
-                {show("finance") && <td className={`${td} text-right text-xs tabular-nums`}>{p.cost !== null ? formatPrice(p.cost) : "—"}{p.contribution !== null && <span className={`block ${p.contribution < 0 ? "font-semibold text-danger" : "text-ink-soft"}`}>{formatPrice(p.contribution)} ({p.margin}%)</span>}</td>}
+                {show("finance") && (
+                  <td className={`${td} text-right text-xs tabular-nums`}>
+                    {canEdit && p.cost !== null ? (
+                      <QuickCosts id={p.id} title={p.title} price={p.price} cost={p.cost} shipping={p.shippingCost ?? 0} other={p.otherCost ?? 0} fees={fees} contribution={p.contribution} margin={p.margin} />
+                    ) : (
+                      <>{p.cost !== null ? formatPrice(p.cost) : "—"}{p.contribution !== null && <span className={`block ${p.contribution < 0 ? "font-semibold text-danger" : "text-ink-soft"}`}>{formatPrice(p.contribution)} ({p.margin}%)</span>}</>
+                    )}
+                  </td>
+                )}
                 <td className={td}><Badge tone={STATUS_TONE[p.status]}>{p.status}</Badge></td>
                 {show("created") && <td className={`${td} whitespace-nowrap text-xs`}>{formatDate(p.createdAt, { day: "numeric", month: "short", year: "2-digit" })}</td>}
                 <td className={`${td} whitespace-nowrap`}>
