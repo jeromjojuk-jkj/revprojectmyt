@@ -48,7 +48,7 @@ export default function WishlistPage() {
 
       <div className="mt-4" role="tabpanel">
         {!hydrated || products === null ? (
-          <div className="grid grid-cols-2 gap-2.5"><div className="skeleton aspect-[4/5]" /><div className="skeleton aspect-[4/5]" /></div>
+          <div className="grid grid-cols-2 gap-2.5"><div className="skeleton aspect-square" /><div className="skeleton aspect-square" /></div>
         ) : products.length === 0 ? (
           <div className="rounded-2xl bg-white p-6 text-center ring-1 ring-line">
             <p className="font-semibold">{active === "all" ? "Nothing saved yet" : `“${current?.name}” is empty`}</p>

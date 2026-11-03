@@ -127,7 +127,7 @@ export default function CartPage() {
             return (
               <li key={l.sku} className={`rounded-2xl bg-white p-3 ring-1 ${info && !info.ok ? "ring-danger" : "ring-line"}`}>
                 <div className="flex gap-3">
-                  <Link href={`/product/${l.slug}`} className="relative aspect-[4/5] w-24 shrink-0 overflow-hidden rounded-xl bg-neutral-100">
+                  <Link href={`/product/${l.slug}`} className="relative aspect-square w-24 shrink-0 overflow-hidden rounded-xl bg-white ring-1 ring-line">
                     <ProductImage src={l.image} alt={l.title} sizes="96px" />
                   </Link>
                   <div className="min-w-0 flex-1">

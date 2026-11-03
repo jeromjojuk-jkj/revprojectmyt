@@ -48,7 +48,7 @@ export default async function HomePage() {
             <li key={c.id} className="shrink-0">
               <Link href={`/search?cat=${c.id}`} className="pressable flex w-[68px] flex-col items-center gap-1.5 text-center">
                 <span className="relative h-[64px] w-[64px] overflow-hidden rounded-2xl bg-white ring-1 ring-line">
-                  <ProductImage src={c.image ?? `/art/${c.art}-${c.hex}-2.svg`} alt="" sizes="64px" priority />
+                  <ProductImage src={c.image ?? `/art/${c.art}-${c.hex}-2.svg`} alt="" sizes="64px" priority fit="cover" />
                 </span>
                 <span className="text-[12px] font-medium leading-tight">{c.short}</span>
               </Link>
@@ -78,7 +78,7 @@ export default async function HomePage() {
             </span>
           </div>
           <div className="absolute bottom-0 right-2 h-[140px] w-[112px] md:right-10 md:h-[170px] md:w-[136px]" aria-hidden>
-            <ProductImage src={IS_FASHION ? "/art/dress-e6cfa4-1.svg" : "/art/organizer-d6b98c-1.svg"} alt="" sizes="140px" priority className="rounded-t-[60px]" />
+            <ProductImage src={IS_FASHION ? "/art/dress-e6cfa4-1.svg" : "/art/organizer-d6b98c-1.svg"} alt="" sizes="140px" priority fit="cover" className="rounded-t-[60px]" />
           </div>
         </Link>
       </div>

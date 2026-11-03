@@ -45,7 +45,7 @@ function LookItem({
           aria-label={`Include ${product.title}`}
         />
       </label>
-      <Link href={`/product/${product.slug}`} className="relative aspect-[4/5] w-20 shrink-0 overflow-hidden rounded-xl bg-neutral-100">
+      <Link href={`/product/${product.slug}`} className="relative aspect-square w-20 shrink-0 overflow-hidden rounded-xl bg-white">
         <ProductImage src={imageForColor(product.images[0], sel.hex)} alt={product.title} sizes="80px" />
       </Link>
       <div className="min-w-0 flex-1 space-y-1.5">

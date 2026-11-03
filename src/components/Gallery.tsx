@@ -24,7 +24,7 @@ export function Gallery({ images, alt, video = null }: { images: string[]; alt: 
       <div className="hidden w-20 shrink-0 flex-col gap-2 md:flex" role="tablist" aria-label="Product images">
         {video && (
           <button type="button" role="tab" aria-selected={index === 0} aria-label="Product reel" onClick={() => goTo(0)}
-            className={`relative aspect-[4/5] overflow-hidden rounded-lg bg-ink ring-2 ${index === 0 ? "ring-leaf" : "ring-transparent"}`}>
+            className={`relative aspect-square overflow-hidden rounded-lg bg-ink ring-2 ${index === 0 ? "ring-leaf" : "ring-transparent"}`}>
             <ProductImage src={images[0]} alt="" sizes="80px" />
             <span className="absolute inset-0 grid place-items-center bg-black/35 text-lg text-white" aria-hidden>▶</span>
           </button>
@@ -37,7 +37,7 @@ export function Gallery({ images, alt, video = null }: { images: string[]; alt: 
             aria-selected={i + offset === index}
             aria-label={`Image ${i + 1}`}
             onClick={() => goTo(i + offset)}
-            className={`relative aspect-[4/5] overflow-hidden rounded-lg ring-2 ${i + offset === index ? "ring-leaf" : "ring-transparent"}`}
+            className={`relative aspect-square overflow-hidden rounded-lg bg-white ring-2 ${i + offset === index ? "ring-leaf" : "ring-transparent"}`}
           >
             <ProductImage src={src} alt="" sizes="80px" />
           </button>
@@ -59,7 +59,7 @@ export function Gallery({ images, alt, video = null }: { images: string[]; alt: 
             <button
               key={src}
               type="button"
-              className="relative aspect-square w-full shrink-0 snap-center cursor-zoom-in bg-neutral-100 md:aspect-[4/5]"
+              className="relative aspect-square w-full shrink-0 snap-center cursor-zoom-in bg-white"
               onClick={() => {
                 setIndex(i + offset);
                 setZoomOpen(true);
@@ -110,7 +110,7 @@ function ReelSlide({ src, poster, title, active }: { src: string; poster: string
     else v.pause();
   };
   return (
-    <div className="relative aspect-square w-full shrink-0 snap-center overflow-hidden bg-ink md:aspect-[4/5]">
+    <div className="relative aspect-square w-full shrink-0 snap-center overflow-hidden bg-ink">
       {/* Blurred backdrop fills the sides of the 9:16 reel. */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={poster} alt="" aria-hidden className="absolute inset-0 h-full w-full scale-110 object-cover opacity-50 blur-2xl" />
@@ -151,7 +151,7 @@ function ZoomViewer({ open, onClose, src, alt }: { open: boolean; onClose: () =>
     <Sheet open={open} onClose={() => { setZoom(false); onClose(); }} title="Zoom">
       <button
         type="button"
-        className="relative mx-auto block aspect-[4/5] w-full max-w-md touch-pan-y overflow-hidden rounded-xl bg-neutral-100"
+        className="relative mx-auto block aspect-square w-full max-w-md touch-pan-y overflow-hidden rounded-xl bg-white"
         onClick={(e) => {
           setFrom(e as unknown as React.PointerEvent<HTMLElement>);
           setZoom((z) => !z);

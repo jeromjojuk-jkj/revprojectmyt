@@ -267,7 +267,7 @@ export default function CheckoutPage() {
             <ul className="mb-3 space-y-2">
               {(quote?.lines ?? []).map((l) => (
                 <li key={l.sku} className="flex gap-3 text-sm">
-                  <span className="relative aspect-[4/5] w-12 shrink-0 overflow-hidden rounded-lg bg-neutral-100">
+                  <span className="relative aspect-square w-12 shrink-0 overflow-hidden rounded-lg bg-white ring-1 ring-line">
                     {l.image && <ProductImage src={cart.find((c) => c.sku === l.sku)?.image ?? l.image} alt="" sizes="48px" />}
                   </span>
                   <span className="min-w-0 flex-1">

@@ -53,7 +53,7 @@ export function ProductCard({
       onPointerLeave={onLeave}
       className="card3d reveal pressable group relative flex flex-col overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[0_1px_0_rgba(0,0,0,0.04)] ring-1 ring-line"
     >
-      <div className="relative aspect-[4/5] overflow-hidden bg-neutral-100">
+      <div className="relative aspect-square overflow-hidden bg-white">
         <span aria-hidden className="glare pointer-events-none absolute inset-0 z-[1]" />
         <Link href={href} onClick={onNavigate} tabIndex={-1} aria-hidden className="absolute inset-0">
           <ProductImage src={product.images[0]} alt="" priority={priority} className="card-img" />
