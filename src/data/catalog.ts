@@ -538,6 +538,11 @@ const photos = (slug: string, n: number, prefix = "") => Array.from({ length: n 
 const REPLACED_PHOTOS: [slug: string, count: number, prefix: string][] = [
   ["drain-sink-cleaner-powder-pack-of-2", 4, "v2-"],
   ["caster-drainex-instant-drain-cleaner-pack-of-5", 4, "v2-"],
+  ["manual-hand-juicer-2-in-1-with-jug", 4, "v2-"],
+  ["adhesive-wall-shelf-figurine-supports", 4, "v2-"],
+  ["clazkit-ice-pop-mould-6-slots", 2, "v2-"],
+  ["wooden-india-map-puzzle-states-capitals", 4, "v2-"],
+  ["washbag-toiletry-pouch-set-of-3", 3, "v2-"],
 ];
 export const IMAGE_RENAMES: Record<string, string> = Object.fromEntries(
   REPLACED_PHOTOS.flatMap(([slug, n, prefix]) => photos(slug, n).map((old, i) => [old, photos(slug, n, prefix)[i]])),
@@ -897,7 +902,7 @@ const HOME_DEFS: Def[] = [
   },
   {
     id: "k018", slug: "clazkit-ice-pop-mould-6-slots", title: "Clazkit Ice Pop & Kulfi Mould, 6 Slots", brand: "Clazkit",
-    category: "kitchen", subcategory: "Ice & Kulfi Moulds", kind: "bottle", images: photos("clazkit-ice-pop-mould-6-slots", 2),
+    category: "kitchen", subcategory: "Ice & Kulfi Moulds", kind: "bottle", images: photos("clazkit-ice-pop-mould-6-slots", 2, "v2-"),
     price: 199, colors: [["Blue & red", "38bdf8"]], sizes: null, stock: [25], material: "Plastic",
     packageContents: "1 stand with 6 moulds and 6 stick lids",
     tags: ["ice pop mould", "kulfi mould", "popsicle maker", "ice cream mould", "summer", "kids"], vibes: [], collections: ["trending"],
@@ -942,7 +947,7 @@ const HOME_DEFS: Def[] = [
   },
   {
     id: "k020", slug: "manual-hand-juicer-2-in-1-with-jug", title: "2-in-1 Manual Hand Juicer with Jug", brand: "Generic",
-    category: "kitchen", subcategory: "Juicers", kind: "bottle", images: photos("manual-hand-juicer-2-in-1-with-jug", 4),
+    category: "kitchen", subcategory: "Juicers", kind: "bottle", images: photos("manual-hand-juicer-2-in-1-with-jug", 4, "v2-"),
     price: 199, colors: [["Assorted colours", "f97316"]], sizes: null, stock: [25], material: "Plastic",
     packageContents: "1 jug with lid, 1 juicer top with strainer, 1 press (colour as available)",
     tags: ["hand juicer", "manual juicer", "citrus squeezer", "lemon squeezer", "orange juicer", "pomegranate juicer"], vibes: [], collections: ["trending"],
@@ -964,7 +969,7 @@ const HOME_DEFS: Def[] = [
   },
   {
     id: "k021", slug: "washbag-toiletry-pouch-set-of-3", title: "Frosted Washbag Toiletry Pouch Set of 3", brand: "Generic",
-    category: "personal-care", subcategory: "Travel & Toiletry Bags", kind: "holder", images: photos("washbag-toiletry-pouch-set-of-3", 3),
+    category: "personal-care", subcategory: "Travel & Toiletry Bags", kind: "holder", images: photos("washbag-toiletry-pouch-set-of-3", 3, "v2-"),
     price: 299, colors: [["Light blue", "bfdbfe"]], sizes: null, stock: [20], material: "Frosted see-through panel with zip",
     packageContents: "3 zip pouches: large with handles, medium and small with wrist straps",
     tags: ["washbag", "toiletry bag", "travel pouch", "cosmetic pouch", "makeup bag", "organiser"], vibes: [], collections: ["trending"],
@@ -986,7 +991,7 @@ const HOME_DEFS: Def[] = [
   },
   {
     id: "k022", slug: "adhesive-wall-shelf-figurine-supports", title: "Adhesive Wall Shelf with Figure Supports, No Drilling", brand: "Generic",
-    category: "kitchen", subcategory: "Wall Shelves", kind: "holder", images: photos("adhesive-wall-shelf-figurine-supports", 4),
+    category: "kitchen", subcategory: "Wall Shelves", kind: "holder", images: photos("adhesive-wall-shelf-figurine-supports", 4, "v2-"),
     price: 249, colors: [["Colour as available", "e5e7eb"]], sizes: null, stock: [20], material: "Plastic shelf, adhesive wall pads",
     packageContents: "1 shelf with 2 figure-shaped supports and adhesive wall pads (colour as available)",
     tags: ["wall shelf", "bathroom shelf", "kitchen shelf", "adhesive shelf", "no drill", "spice rack"], vibes: [], collections: ["trending"],
@@ -1008,7 +1013,7 @@ const HOME_DEFS: Def[] = [
   },
   {
     id: "k023", slug: "wooden-india-map-puzzle-states-capitals", title: "Wooden India Map Puzzle — States, Capitals & Union Territories", brand: "Generic",
-    category: "kids-learning", subcategory: "Educational Puzzles", kind: "holder", images: photos("wooden-india-map-puzzle-states-capitals", 4),
+    category: "kids-learning", subcategory: "Educational Puzzles", kind: "holder", images: photos("wooden-india-map-puzzle-states-capitals", 4, "v2-"),
     price: 349, colors: [["Multicolour", "f59e0b"]], sizes: null, stock: [15], material: "Wood",
     packageContents: "1 wooden board with removable state pieces and knobs",
     returns: RET_HOME,
@@ -1031,7 +1036,7 @@ const HOME_DEFS: Def[] = [
 ];
 
 /** Bump when products are added to HOME_DEFS so existing stores pick them up. */
-export const CATALOG_VERSION = 6;
+export const CATALOG_VERSION = 7;
 
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;

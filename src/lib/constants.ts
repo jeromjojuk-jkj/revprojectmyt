@@ -20,7 +20,7 @@ export const HOME_CATEGORIES: Category[] = [
   { id: "cleaning", name: "Cleaning & Laundry", short: "Cleaning", art: "cloth", hex: "0ea5e9", image: "/products/magic-eraser-cleaning-sponge-pack-of-4/1.jpg" },
   { id: "baby-safety", name: "Baby Safety", short: "Baby safety", art: "lock", hex: "f472b6", image: "/products/daluci-baby-safety-socket-covers/1.jpg" },
   { id: "personal-care", name: "Personal Care", short: "Self-care", art: "holder", hex: "e7f3f6", image: "/products/silicone-ice-face-roller-pack-of-3/1.jpg" },
-  { id: "kids-learning", name: "Kids & Learning", short: "Kids", art: "lock", hex: "f59e0b", image: "/products/wooden-india-map-puzzle-states-capitals/1.jpg" },
+  { id: "kids-learning", name: "Kids & Learning", short: "Kids", art: "lock", hex: "f59e0b", image: "/products/wooden-india-map-puzzle-states-capitals/v2-1.jpg" },
 ];
 
 export const FASHION_CATEGORIES: Category[] = [
