@@ -76,7 +76,7 @@ test("admin requires sign-in and shows private costs only after login", async ({
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/admin$/);
   await page.goto("/admin/products");
-  await expect(page.getByText("Cost · est. margin")).toBeVisible();
+  await expect(page.getByText("Costs · est. profit")).toBeVisible();
   const csv = await page.request.get("/admin/export");
   expect(await csv.text()).toContain("Supplier (confirm in admin)");
 

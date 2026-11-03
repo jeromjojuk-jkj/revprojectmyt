@@ -91,6 +91,7 @@ export interface RawProductInput {
   sourceRef?: string;
   purchaseCost?: string | number;
   shippingCost?: string | number;
+  otherCost?: string | number;
   channelPrices?: string; // lines: Channel | price
   channelListings?: string; // lines: Channel | https://…
   rightsConfirmed?: string | boolean;
@@ -196,6 +197,8 @@ export function validateProductInput(
   if (purchaseCost === null || Number.isNaN(purchaseCost) || purchaseCost < 0) e.purchaseCost = "Purchase cost is required (₹, can be 0).";
   const shippingCost = num(raw.shippingCost) ?? 0;
   if (Number.isNaN(shippingCost) || shippingCost < 0) e.shippingCost = "Shipping cost must be ≥ 0.";
+  const otherCost = num(raw.otherCost) ?? 0;
+  if (Number.isNaN(otherCost) || otherCost < 0) e.otherCost = "Other costs must be ≥ 0.";
   const supplierName = str(raw.supplierName, 120);
   if (!supplierName) e.supplierName = "Supplier name is required.";
 
@@ -268,6 +271,7 @@ export function validateProductInput(
         sourceRef: str(raw.sourceRef, 120),
         purchaseCost: purchaseCost!,
         shippingCost,
+        otherCost,
         channelPrices: channelPrices.length ? channelPrices : [{ channel: "Krip", price: price! }],
         rightsConfirmed,
       },
@@ -295,6 +299,7 @@ export function toRawInput(p: ProductRecord): RawProductInput {
     usage: p.beauty?.usage ?? "", manufacturer: p.beauty?.manufacturer ?? "", shelfLife: p.beauty?.shelfLife ?? "",
     supplierName: p.private.supplierName, sourceRef: p.private.sourceRef, purchaseCost: String(p.private.purchaseCost),
     shippingCost: String(p.private.shippingCost),
+    otherCost: String(p.private.otherCost ?? 0),
     channelPrices: p.private.channelPrices.map((c) => `${c.channel} | ${c.price}`).join("\n"),
     channelListings: p.channelListings.map((c) => `${c.channel} | ${c.url}`).join("\n"),
     rightsConfirmed: p.private.rightsConfirmed ? "on" : "",
@@ -308,7 +313,7 @@ export const CSV_COLUMNS = [
   "fit", "material", "care", "package_contents", "origin", "seller", "style_tags", "vibes", "collections",
   "return_type", "return_days", "return_note",
   "ingredients", "quantity", "skin_types", "usage", "manufacturer", "shelf_life",
-  "supplier_name", "source_ref", "purchase_cost", "shipping_cost", "rights_confirmed",
+  "supplier_name", "source_ref", "purchase_cost", "shipping_cost", "other_cost", "rights_confirmed",
 ] as const;
 export const CSV_REQUIRED = ["slug", "title", "category", "subcategory", "description", "price", "image_urls", "sku", "color", "color_hex", "stock", "return_note", "supplier_name", "purchase_cost"];
 
@@ -365,7 +370,7 @@ export function importCsv(
       ingredients: first.ingredients, quantity: first.quantity, skinTypes: first.skin_types, usage: first.usage,
       manufacturer: first.manufacturer, shelfLife: first.shelf_life,
       supplierName: first.supplier_name, sourceRef: first.source_ref, purchaseCost: first.purchase_cost,
-      shippingCost: first.shipping_cost, rightsConfirmed: first.rights_confirmed,
+      shippingCost: first.shipping_cost, otherCost: first.other_cost, rightsConfirmed: first.rights_confirmed,
     };
     const res = validateProductInput(raw, { existingSlugs: ctx.existingSlugs, existingSkus: usedSkus, id: "pending", createdAt: ctx.now });
     if (!res.ok) {

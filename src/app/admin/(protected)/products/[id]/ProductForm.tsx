@@ -146,7 +146,8 @@ export function ProductForm({ initial, id }: { initial: RawProductInput; id: str
           <F name="supplierName" label="Supplier name" required />
           <F name="sourceRef" label="Supplier source reference" hint="Supplier SKU, PO or catalogue reference." />
           <F name="purchaseCost" label="Purchase cost per unit (₹)" type="number" required />
-          <F name="shippingCost" label="Estimated outbound shipping per unit (₹)" type="number" />
+          <F name="shippingCost" label="Shipping cost per unit (₹)" type="number" hint="What you pay the courier for one unit." />
+          <F name="otherCost" label="Other costs per unit (₹)" type="number" hint="Packing, labels, inserts, etc." />
         </div>
         <F name="channelPrices" label="Channel prices (one per line: Channel | price)" area hint="e.g. Krip | 449 ⏎ Amazon | 499 — used for contribution estimates." />
         <F name="channelListings" label="Public listings on other marketplaces (Channel | https://…)" area hint="Only real, live Krip listings. Shown to shoppers as clearly labelled outbound links." />

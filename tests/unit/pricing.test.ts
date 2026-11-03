@@ -50,3 +50,11 @@ test("contribution estimate", () => {
   assert.equal(r.returns, 80);
   assert.equal(r.contribution, 260);
 });
+
+test("contribution subtracts other per-unit costs (packing, labels)", () => {
+  const base = { sellingPrice: 200, purchaseCost: 80, shippingCost: 40, marketplaceFeePct: 0, paymentFeePct: 2, fixedFee: 0, returnAllowancePct: 0 };
+  const without = estimateContribution(base);
+  const withOther = estimateContribution({ ...base, otherCost: 10 });
+  assert.equal(without.contribution - withOther.contribution, 10);
+  assert.equal(withOther.contribution, 66); // 200 - 80 - 40 - 10 - 4 (2% fee)
+});

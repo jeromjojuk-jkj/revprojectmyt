@@ -4,7 +4,7 @@ import { audit } from "@/lib/server/audit";
 import { CSV_COLUMNS } from "@/lib/productInput";
 import { toCsvRow } from "@/lib/csv";
 
-const PRIVATE_COLUMNS = ["supplier_name", "source_ref", "purchase_cost", "shipping_cost"] as const;
+const PRIVATE_COLUMNS = ["supplier_name", "source_ref", "purchase_cost", "shipping_cost", "other_cost"] as const;
 
 // Staff with products.export; private supplier and cost columns only for finance roles.
 export async function GET() {
@@ -24,7 +24,7 @@ export async function GET() {
         ingredients: p.beauty?.ingredients ?? "", quantity: p.beauty?.quantity ?? "", skin_types: p.beauty?.skinTypes.join(", ") ?? "",
         usage: p.beauty?.usage ?? "", manufacturer: p.beauty?.manufacturer ?? "", shelf_life: p.beauty?.shelfLife ?? "",
         supplier_name: p.private.supplierName, source_ref: p.private.sourceRef, purchase_cost: p.private.purchaseCost,
-        shipping_cost: p.private.shippingCost, rights_confirmed: p.private.rightsConfirmed ? "yes" : "",
+        shipping_cost: p.private.shippingCost, other_cost: p.private.otherCost ?? 0, rights_confirmed: p.private.rightsConfirmed ? "yes" : "",
       };
       // Supplier and cost columns need finance access.
       if (!ctx.can("finance.view")) for (const k of PRIVATE_COLUMNS) row[k] = "";

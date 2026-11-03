@@ -5,12 +5,14 @@ import { estimateContribution } from "../pricing";
 /** Estimated per-unit contribution on each configured channel. ESTIMATE ONLY. */
 export function productEstimates(p: ProductRecord, s: Settings) {
   return s.channelFees.map((cf) => {
-    const price = p.private.channelPrices.find((c) => c.channel === cf.channel)?.price ?? (cf.channel === "Krip" ? p.price : null);
+    // Krip's own price is always the live selling price; a stored "Krip" channel price goes stale when the price changes.
+    const price = cf.channel === "Krip" ? p.price : (p.private.channelPrices.find((c) => c.channel === cf.channel)?.price ?? null);
     if (price === null) return { channel: cf.channel, price: null, contribution: null, marginPct: null };
     const r = estimateContribution({
       sellingPrice: price,
       purchaseCost: p.private.purchaseCost,
       shippingCost: p.private.shippingCost,
+      otherCost: p.private.otherCost ?? 0,
       marketplaceFeePct: cf.marketplaceFeePct,
       paymentFeePct: cf.paymentFeePct,
       fixedFee: cf.fixedFee,
@@ -32,7 +34,7 @@ export function orderEstimate(o: Order, products: ProductRecord[], s: Settings) 
       missing = true;
       continue;
     }
-    cost += p.private.purchaseCost * it.qty;
+    cost += (p.private.purchaseCost + (p.private.otherCost ?? 0)) * it.qty;
     shipping += p.private.shippingCost;
   }
   const revenue = o.total;

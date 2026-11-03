@@ -134,6 +134,7 @@ export function estimateContribution(args: {
   sellingPrice: number;
   purchaseCost: number;
   shippingCost: number;
+  otherCost?: number;
   marketplaceFeePct: number;
   paymentFeePct: number;
   fixedFee: number;
@@ -142,7 +143,7 @@ export function estimateContribution(args: {
   const fees =
     (args.sellingPrice * (args.marketplaceFeePct + args.paymentFeePct)) / 100 + args.fixedFee;
   const returns = (args.sellingPrice * args.returnAllowancePct) / 100;
-  const contribution = args.sellingPrice - args.purchaseCost - args.shippingCost - fees - returns;
+  const contribution = args.sellingPrice - args.purchaseCost - args.shippingCost - (args.otherCost ?? 0) - fees - returns;
   return {
     fees: Math.round(fees),
     returns: Math.round(returns),

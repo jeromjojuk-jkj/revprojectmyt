@@ -110,24 +110,54 @@ export async function bulkProductsAction(_: ActionState, fd: FormData): Promise<
   return { ok: true, message };
 }
 
-/** Sets one product's selling price from the product list's quick editor. */
-export async function setProductPriceAction(id: string, price: number): Promise<{ ok: true; price: number } | { ok: false; error: string }> {
+/**
+ * Sets one product's selling price (and optionally its MRP, which drives the
+ * "% off" shoppers see) from the product list's quick editor. mrp: undefined
+ * keeps the current MRP, null removes it.
+ */
+export async function setProductPriceAction(id: string, price: number, mrp?: number | null): Promise<{ ok: true; price: number } | { ok: false; error: string }> {
   const { actor } = await requirePerm("products.edit");
   if (!Number.isInteger(price) || price < 1 || price > 1_000_000) return { ok: false, error: "Enter a whole rupee amount of ₹1 or more." };
+  if (mrp !== undefined && mrp !== null && (!Number.isInteger(mrp) || mrp < 1 || mrp > 1_000_000)) return { ok: false, error: "MRP must be a whole rupee amount, or blank." };
   try {
     await withDb((db) => {
       const p = db.products.find((x) => x.id === id);
       if (!p) throw new Error("Product not found.");
-      if (p.mrp !== null && price > p.mrp) throw new Error(`Price can’t be above the MRP (₹${p.mrp}). Change the MRP on the product page first.`);
-      if (p.price === price) return;
-      audit(db, actor, "product.price", "product", id, { before: { price: p.price }, after: { price } });
+      const nextMrp = mrp === undefined ? p.mrp : mrp;
+      if (nextMrp !== null && price > nextMrp) throw new Error(`Price can’t be above the MRP (₹${nextMrp}).`);
+      if (p.price === price && p.mrp === nextMrp) return;
+      audit(db, actor, "product.price", "product", id, { before: { price: p.price, mrp: p.mrp }, after: { price, mrp: nextMrp } });
       p.price = price;
+      p.mrp = nextMrp;
     });
   } catch (e) {
     return { ok: false, error: (e as Error).message };
   }
   revalidatePath("/", "layout");
   return { ok: true, price };
+}
+
+/** Sets one product's private per-unit costs (used only for profit estimates) from the product list. */
+export async function quickCostsAction(id: string, costs: { purchaseCost: number; shippingCost: number; otherCost: number }): Promise<{ ok: true } | { ok: false; error: string }> {
+  const ctx = await requirePerm("products.edit");
+  if (!ctx.can("finance.view")) return { ok: false, error: "Editing costs needs finance access." };
+  for (const [k, v] of Object.entries(costs)) {
+    if (!Number.isFinite(v) || v < 0 || v > 1_000_000) return { ok: false, error: `${k === "purchaseCost" ? "Purchase cost" : k === "shippingCost" ? "Shipping cost" : "Other costs"} must be 0 or more.` };
+  }
+  try {
+    await withDb((db) => {
+      const p = db.products.find((x) => x.id === id);
+      if (!p) throw new Error("Product not found.");
+      const before = { purchaseCost: p.private.purchaseCost, shippingCost: p.private.shippingCost, otherCost: p.private.otherCost ?? 0 };
+      const round = (n: number) => Math.round(n * 100) / 100;
+      Object.assign(p.private, { purchaseCost: round(costs.purchaseCost), shippingCost: round(costs.shippingCost), otherCost: round(costs.otherCost) });
+      audit(db, ctx.actor, "product.costs", "product", id, { before, after: costs });
+    });
+  } catch (e) {
+    return { ok: false, error: (e as Error).message };
+  }
+  revalidatePath("/admin/products");
+  return { ok: true };
 }
 
 export async function duplicateProductAction(fd: FormData) {

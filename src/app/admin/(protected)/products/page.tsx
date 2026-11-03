@@ -42,10 +42,14 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
       id: p.id, slug: p.slug, title: p.title, brand: p.brand, category: p.category, image: p.images[0] ?? "", price: p.price, mrp: p.mrp,
       stock: stockOf(p), variants: p.variants.length, firstSku: p.variants[0]?.sku ?? "", status: p.status, sold: sold.get(p.id) ?? 0,
       createdAt: p.createdAt, sample: p.isSample, rights: !!p.private.rightsConfirmed, low: p.variants.some((v) => v.stock > 0 && v.stock <= t),
-      cost: ctx.can("finance.view") ? p.private.purchaseCost : null, contribution: krip?.contribution ?? null, margin: krip?.marginPct ?? null,
+      cost: ctx.can("finance.view") ? p.private.purchaseCost : null,
+      shippingCost: ctx.can("finance.view") ? p.private.shippingCost : null, otherCost: ctx.can("finance.view") ? p.private.otherCost ?? 0 : null,
+      contribution: krip?.contribution ?? null, margin: krip?.marginPct ?? null,
     };
   });
   const params = sp as Record<string, string | undefined>;
+  const krip = db.settings.channelFees.find((c) => c.channel === "Krip");
+  const fees = { marketplaceFeePct: krip?.marketplaceFeePct ?? 0, paymentFeePct: krip?.paymentFeePct ?? 0, fixedFee: krip?.fixedFee ?? 0, returnAllowancePct: db.settings.returnAllowancePct };
   return (
     <div>
       <PageHeader
@@ -70,7 +74,7 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
         </div>
         <div className="flex gap-2 sm:col-span-2 lg:col-span-5"><button className={btn.dark}>Apply</button><Link href="/admin/products" className={btn.secondary}>Clear</Link></div>
       </form>
-      <ProductTable rows={rows} params={params} canEdit={ctx.can("products.edit")} canEditStock={ctx.can("inventory.edit")} canArchive={ctx.can("products.delete")} canCreate={ctx.can("products.create")} showFinance={ctx.can("finance.view")} />
+      <ProductTable rows={rows} params={params} canEdit={ctx.can("products.edit")} canEditStock={ctx.can("inventory.edit")} canArchive={ctx.can("products.delete")} canCreate={ctx.can("products.create")} showFinance={ctx.can("finance.view")} fees={fees} />
       <Pagination base="/admin/products" params={params} page={pg.page} pages={pg.pages} total={pg.total} />
     </div>
   );
