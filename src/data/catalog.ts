@@ -547,6 +547,14 @@ const REPLACED_PHOTOS: [slug: string, count: number, prefix: string][] = [
   ["floral-stainless-steel-knife-set-of-3", 4, "v2-"],
   ["square-kitchen-storage-containers-black-lid", 4, "v2-"],
 ];
+/** Picks photos by 1-based position, e.g. [2, 3, 4, 1] moves the first photo to the end. */
+const reorder = (list: string[], order: number[]) => order.map((n) => list[n - 1]);
+
+// Photo order changes for existing stores: applied once, and only if the product
+// still has the old order (so a later reorder made in admin is never overwritten).
+export const IMAGE_ORDER_FIXES: { id: string; from: string[]; to: string[] }[] = [
+  { id: "k022", from: photos("adhesive-wall-shelf-figurine-supports", 4, "v2-"), to: reorder(photos("adhesive-wall-shelf-figurine-supports", 4, "v2-"), [2, 3, 4, 1]) },
+];
 export const IMAGE_RENAMES: Record<string, string> = Object.fromEntries(
   REPLACED_PHOTOS.flatMap(([slug, n, prefix]) => photos(slug, n).map((old, i) => [old, photos(slug, n, prefix)[i]])),
 );
@@ -994,7 +1002,7 @@ const HOME_DEFS: Def[] = [
   },
   {
     id: "k022", slug: "adhesive-wall-shelf-figurine-supports", title: "Adhesive Wall Shelf with Figure Supports, No Drilling", brand: "Generic",
-    category: "kitchen", subcategory: "Wall Shelves", kind: "holder", images: photos("adhesive-wall-shelf-figurine-supports", 4, "v2-"),
+    category: "kitchen", subcategory: "Wall Shelves", kind: "holder", images: reorder(photos("adhesive-wall-shelf-figurine-supports", 4, "v2-"), [2, 3, 4, 1]),
     price: 249, colors: [["Colour as available", "e5e7eb"]], sizes: null, stock: [20], material: "Plastic shelf, adhesive wall pads",
     packageContents: "1 shelf with 2 figure-shaped supports and adhesive wall pads (colour as available)",
     tags: ["wall shelf", "bathroom shelf", "kitchen shelf", "adhesive shelf", "no drill", "spice rack"], vibes: [], collections: ["trending"],
@@ -1135,7 +1143,7 @@ const HOME_DEFS: Def[] = [
 ];
 
 /** Bump when products are added to HOME_DEFS so existing stores pick them up. */
-export const CATALOG_VERSION = 9;
+export const CATALOG_VERSION = 10;
 
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;
