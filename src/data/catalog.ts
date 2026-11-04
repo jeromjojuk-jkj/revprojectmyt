@@ -1140,10 +1140,32 @@ const HOME_DEFS: Def[] = [
     description: "A trigger spray nozzle for your garden hose with 8 spray patterns — gentle mist for plants, shower for watering, and a strong jet for washing the car or floor.",
     createdAt: "2026-11-04", supplier: SUPPLIER, costPct: 0,
   },
+  {
+    id: "k029", slug: "rotating-6-grid-rice-grain-dispenser", title: "Rotating Rice & Grain Dispenser, 6 Compartments", brand: "Generic",
+    category: "kitchen", subcategory: "Storage Containers", kind: "bottle", images: photos("rotating-6-grid-rice-grain-dispenser", 4),
+    price: 799, colors: [["White & clear", "f5f5f5"]], sizes: null, stock: [15], material: "Plastic",
+    packageContents: "1 dispenser with lid and pull-out drawer",
+    tags: ["rice dispenser", "grain dispenser", "dal storage", "rotating container", "pulses organiser", "kitchen storage"], vibes: [], collections: ["trending"],
+    features: [
+      "6 separate compartments for rice, dals, pulses, millets and beans",
+      "Turns a full 360° to bring the compartment you want to the front",
+      "Press the button to drop grains into the pull-out drawer",
+      "About 1 kg (2.15 lb) of rice per compartment, about 6 kg in all — as listed by the supplier",
+      "Clear body so you can see what’s inside and how much is left",
+    ],
+    howToUse: [
+      "Open the lid and fill each compartment with a different grain.",
+      "Turn the dispenser to bring the one you need in front of the drawer.",
+      "Press the button to release grains into the drawer, then pull the drawer out.",
+    ],
+    care: ["For dry grains only", "Wipe clean with a dry or slightly damp cloth; dry fully before refilling", "Keep the lid closed"],
+    description: "A 360° rotating dispenser with 6 compartments for rice, dals and grains. Press a button to fill the pull-out drawer — no scooping, and everything stays sorted on your counter.",
+    createdAt: "2026-11-05", supplier: SUPPLIER, costPct: 0,
+  },
 ];
 
 /** Bump when products are added to HOME_DEFS so existing stores pick them up. */
-export const CATALOG_VERSION = 10;
+export const CATALOG_VERSION = 11;
 
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;
