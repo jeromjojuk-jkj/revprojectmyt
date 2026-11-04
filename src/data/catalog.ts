@@ -1036,10 +1036,106 @@ const HOME_DEFS: Def[] = [
     description: "A wooden India map puzzle with removable state pieces and knobs — a hands-on way for children to learn states, capitals and union territories. The board is about 30 cm tall.",
     createdAt: "2026-11-02", supplier: SUPPLIER, costPct: 0,
   },
+  {
+    id: "k024", slug: "cooling-arm-sleeves-uv-protection", title: "Black Arm Sleeves with Thumb Hole, 1 Pair (Free Size)", brand: "Generic",
+    category: "fitness", subcategory: "Arm Sleeves", kind: "cloth", images: photos("cooling-arm-sleeves-uv-protection", 6),
+    price: 149, colors: [["Black", "111111"]], sizes: null, stock: [30], material: "Stretch fabric (supplier to confirm blend)",
+    packageContents: "1 pair of arm sleeves", returns: RET_HYGIENE_HOME,
+    tags: ["arm sleeves", "sun sleeves", "cycling sleeves", "running", "bike riding", "cricket", "gym"], vibes: [], collections: ["trending"],
+    features: [
+      "Full-arm sleeves with a thumb hole so they stay in place",
+      "Stretchy, close fit — one size fits most adults",
+      "Covers your arms from the sun when riding, running, cycling or playing outdoors",
+      "Light enough to wear under a T-shirt or jersey",
+    ],
+    howToUse: ["Roll the sleeve up, slide your hand through and put your thumb through the hole.", "Pull it up to your upper arm and smooth it out."],
+    care: ["Hand wash in cold water", "Dry in the shade; don’t iron"],
+    description: "Black stretch arm sleeves with a thumb hole, for two-wheeler rides, running, cycling, cricket and the gym. Sold as a pair, free size.",
+    createdAt: "2026-11-04", supplier: SUPPLIER, costPct: 0,
+  },
+  {
+    id: "k025", slug: "adjustable-hand-grip-strengthener-5-60kg", title: "Adjustable Hand Grip Strengthener, 5–60 kg", brand: "Generic",
+    category: "fitness", subcategory: "Hand Grippers", kind: "lock", images: photos("adjustable-hand-grip-strengthener-5-60kg", 4),
+    price: 249, colors: [["Black", "111111"]], sizes: null, stock: [25], material: "Plastic handles with rubber grip, steel spring",
+    packageContents: "1 hand gripper",
+    tags: ["hand gripper", "grip strengthener", "forearm", "finger exercise", "home workout", "gym"], vibes: [], collections: ["trending"],
+    features: [
+      "Adjustable resistance from 5 kg to 60 kg with a turn knob",
+      "Steel spring with rubberised, non-slip handles",
+      "Train grip, fingers and forearms at home, at work or on the go",
+      "Small enough to keep in a bag or on your desk",
+    ],
+    howToUse: [
+      "Turn the knob to set a light resistance to start with.",
+      "Squeeze the handles together slowly, then release under control.",
+      "Do a few sets on each hand and raise the resistance as you get stronger.",
+    ],
+    care: ["Stop if you feel pain in your hand or wrist", "Wipe the handles clean; keep away from water to protect the spring"],
+    description: "A hand gripper with an adjustable spring from 5 to 60 kg, for building grip, finger and forearm strength anywhere.",
+    createdAt: "2026-11-04", supplier: SUPPLIER, costPct: 0,
+  },
+  {
+    id: "k026", slug: "amwax-all-in-one-car-shiner-with-sponge", title: "AMWAX All-in-One Shiner Spray with Sponge (volume to confirm)", brand: "AMWAX",
+    category: "car-garden", subcategory: "Car Care", kind: "bottle", images: photos("amwax-all-in-one-car-shiner-with-sponge", 2),
+    price: 299, colors: [["Black bottle", "111111"]], sizes: null, stock: [0], material: "Liquid shiner in spray bottle",
+    packageContents: "1 spray bottle of shiner, 1 applicator sponge", returns: RET_HYGIENE_HOME,
+    tags: ["car shiner", "car polish", "bike shiner", "dashboard polish", "tyre shine", "car care"], vibes: [], collections: [],
+    features: [
+      "Multi-purpose shiner, as labelled on the bottle",
+      "Trigger spray for easy application",
+      "Comes with an applicator sponge",
+    ],
+    howToUse: [
+      "Clean and dry the surface first.",
+      "Spray a little onto the sponge or surface.",
+      "Spread evenly and wipe off any excess. Follow the directions on the bottle.",
+    ],
+    care: ["Test on a small hidden spot first", "Keep away from children; avoid eyes and skin", "Don’t spray on brake parts, pedals or steering grips"],
+    description: "AMWAX All-in-One Shiner in a trigger spray bottle, with an applicator sponge. Draft until the bottle volume and surfaces it’s meant for are confirmed from the label.",
+    createdAt: "2026-11-04", status: "draft", supplier: SUPPLIER, costPct: 0,
+  },
+  {
+    id: "k027", slug: "half-finger-gloves-knuckle-guard", title: "Half-Finger Gloves with Knuckle Guard, 1 Pair", brand: "Generic",
+    category: "fitness", subcategory: "Gloves", kind: "cloth", images: photos("half-finger-gloves-knuckle-guard", 3),
+    price: 299, colors: [["Black", "111111"]], sizes: null, stock: [20], material: "Fabric with padded palm and hard knuckle shell (supplier to confirm)",
+    packageContents: "1 pair of gloves", returns: RET_HYGIENE_HOME,
+    tags: ["half finger gloves", "riding gloves", "bike gloves", "gym gloves", "fingerless gloves", "knuckle"], vibes: [], collections: ["trending"],
+    features: [
+      "Fingerless design keeps your fingertips free for phones and controls",
+      "Hard knuckle shell and padded palm",
+      "Velcro wrist strap to adjust the fit",
+      "For bike riding, the gym and outdoor use",
+    ],
+    howToUse: ["Slide your hand in, settle the knuckle shell over your knuckles, then close the wrist strap."],
+    care: ["Hand wash; dry in the shade", "Check the fit before buying — size to confirm with the seller"],
+    description: "Black half-finger gloves with a knuckle guard, padded palm and velcro wrist strap, for riding, workouts and outdoor use.",
+    createdAt: "2026-11-04", supplier: SUPPLIER, costPct: 0,
+  },
+  {
+    id: "k028", slug: "garden-hose-spray-nozzle-8-modes", title: "Garden Hose Spray Nozzle, 8 Spray Patterns", brand: "Generic",
+    category: "car-garden", subcategory: "Garden & Washing", kind: "bottle", images: photos("garden-hose-spray-nozzle-8-modes", 4),
+    price: 299, colors: [["Teal & black", "0f766e"]], sizes: null, stock: [20], material: "Plastic body with rubber grip, brass fittings",
+    packageContents: "1 spray nozzle with hose connector and ring",
+    tags: ["hose nozzle", "spray gun", "garden sprayer", "car wash", "water gun", "plants"], vibes: [], collections: ["trending"],
+    features: [
+      "Turn the dial to choose from 8 spray patterns — mist, shower, flat, jet and more",
+      "Trigger with a ribbed rubber grip",
+      "Connector included to fit onto your hose",
+      "For watering plants, washing the car, bike or balcony",
+    ],
+    howToUse: [
+      "Push the connector into your hose and tighten the ring.",
+      "Fit the nozzle onto the connector.",
+      "Turn the dial to the spray you want and press the trigger.",
+    ],
+    care: ["Turn off the tap when you’re done", "Drain the water and store out of direct sun"],
+    description: "A trigger spray nozzle for your garden hose with 8 spray patterns — gentle mist for plants, shower for watering, and a strong jet for washing the car or floor.",
+    createdAt: "2026-11-04", supplier: SUPPLIER, costPct: 0,
+  },
 ];
 
 /** Bump when products are added to HOME_DEFS so existing stores pick them up. */
-export const CATALOG_VERSION = 8;
+export const CATALOG_VERSION = 9;
 
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;
