@@ -543,6 +543,9 @@ const REPLACED_PHOTOS: [slug: string, count: number, prefix: string][] = [
   ["clazkit-ice-pop-mould-6-slots", 2, "v2-"],
   ["wooden-india-map-puzzle-states-capitals", 4, "v2-"],
   ["washbag-toiletry-pouch-set-of-3", 3, "v2-"],
+  ["clear-corner-guards-pack-of-4", 4, "v2-"],
+  ["floral-stainless-steel-knife-set-of-3", 4, "v2-"],
+  ["square-kitchen-storage-containers-black-lid", 4, "v2-"],
 ];
 export const IMAGE_RENAMES: Record<string, string> = Object.fromEntries(
   REPLACED_PHOTOS.flatMap(([slug, n, prefix]) => photos(slug, n).map((old, i) => [old, photos(slug, n, prefix)[i]])),
@@ -790,7 +793,7 @@ const HOME_DEFS: Def[] = [
   },
   {
     id: "k013", slug: "square-kitchen-storage-containers-black-lid", title: "Square Kitchen Storage Containers with Black Lids (pack size to confirm)", brand: "Generic",
-    category: "kitchen", subcategory: "Storage Containers", kind: "bottle", images: photos("square-kitchen-storage-containers-black-lid", 4),
+    category: "kitchen", subcategory: "Storage Containers", kind: "bottle", images: photos("square-kitchen-storage-containers-black-lid", 4, "v2-"),
     price: 299, colors: [["Clear with black lid", "171717"]], sizes: null, stock: [0], material: "Clear plastic body, black plastic lid",
     packageContents: "Square containers with lids — confirm the number per pack before listing",
     tags: ["storage container", "kitchen container", "dal box", "spice jar", "pantry organiser", "stackable"], vibes: [], collections: [],
@@ -811,7 +814,7 @@ const HOME_DEFS: Def[] = [
   },
   {
     id: "k014", slug: "floral-stainless-steel-knife-set-of-3", title: "Floral Print Stainless Steel Kitchen Knife Set of 3", brand: "Generic",
-    category: "kitchen", subcategory: "Knives", kind: "lock", images: photos("floral-stainless-steel-knife-set-of-3", 4),
+    category: "kitchen", subcategory: "Knives", kind: "lock", images: photos("floral-stainless-steel-knife-set-of-3", 4, "v2-"),
     price: 349, colors: [["Teal floral", "2dd4bf"]], sizes: null, stock: [20], material: "Stainless steel blades with printed coating, plastic handles",
     packageContents: "3 knives: fruit knife, chef knife, cleaver-style kitchen knife",
     tags: ["knife set", "kitchen knife", "chef knife", "fruit knife", "vegetable knife", "cleaver"], vibes: [], collections: ["trending"],
@@ -924,7 +927,7 @@ const HOME_DEFS: Def[] = [
   },
   {
     id: "k019", slug: "clear-corner-guards-pack-of-4", title: "Clear Table Corner Guards for Baby Safety, Pack of 4", brand: "Generic",
-    category: "baby-safety", subcategory: "Corner Guards", kind: "lock", images: photos("clear-corner-guards-pack-of-4", 4),
+    category: "baby-safety", subcategory: "Corner Guards", kind: "lock", images: photos("clear-corner-guards-pack-of-4", 4, "v2-"),
     price: 149, colors: [["Transparent", "e5e7eb"]], sizes: null, stock: [30], material: "Soft PVC with adhesive stickers",
     packageContents: "4 corner guards with adhesive stickers",
     tags: ["corner guard", "corner protector", "baby proofing", "child safety", "table edge"], vibes: [], collections: ["trending"],
@@ -1036,7 +1039,7 @@ const HOME_DEFS: Def[] = [
 ];
 
 /** Bump when products are added to HOME_DEFS so existing stores pick them up. */
-export const CATALOG_VERSION = 7;
+export const CATALOG_VERSION = 8;
 
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;
