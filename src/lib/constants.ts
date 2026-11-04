@@ -21,6 +21,8 @@ export const HOME_CATEGORIES: Category[] = [
   { id: "baby-safety", name: "Baby Safety", short: "Baby safety", art: "lock", hex: "f472b6", image: "/products/daluci-baby-safety-socket-covers/1.jpg" },
   { id: "personal-care", name: "Personal Care", short: "Self-care", art: "holder", hex: "e7f3f6", image: "/products/silicone-ice-face-roller-pack-of-3/1.jpg" },
   { id: "kids-learning", name: "Kids & Learning", short: "Kids", art: "lock", hex: "f59e0b", image: "/products/wooden-india-map-puzzle-states-capitals/v2-1.jpg" },
+  { id: "fitness", name: "Fitness & Sports", short: "Fitness", art: "lock", hex: "171717", image: "/products/adjustable-hand-grip-strengthener-5-60kg/1.jpg" },
+  { id: "car-garden", name: "Car & Garden", short: "Car & Garden", art: "bottle", hex: "0f766e", image: "/products/garden-hose-spray-nozzle-8-modes/3.jpg" },
 ];
 
 export const FASHION_CATEGORIES: Category[] = [
