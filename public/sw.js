@@ -3,11 +3,11 @@
 // the offline page is shown only when there is no connection at all.
 // Admin, API, checkout and payment requests are never cached.
 
-const VERSION = "krip-v1";
+const VERSION = "krip-v2";
 const STATIC = `${VERSION}-static`;
 const MEDIA = `${VERSION}-media`;
 const OFFLINE_URL = "/offline";
-const PRECACHE = [OFFLINE_URL, "/icons/icon-192.png", "/icons/icon-512.png"];
+const PRECACHE = [OFFLINE_URL, "/icons/icon-white-192.png", "/icons/icon-white-512.png"];
 const MEDIA_LIMIT = 150;
 
 self.addEventListener("install", (event) => {

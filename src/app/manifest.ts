@@ -12,19 +12,19 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#171717",
+    background_color: "#ffffff",
     theme_color: "#171717",
     lang: "en-IN",
     categories: ["shopping", "lifestyle"],
     icons: [
-      { src: "/icons/icon-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
-      { src: "/icons/icon-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
-      { src: "/icons/icon-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
+      { src: "/icons/icon-white-192.png", sizes: "192x192", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-white-512.png", sizes: "512x512", type: "image/png", purpose: "any" },
+      { src: "/icons/icon-white-maskable-512.png", sizes: "512x512", type: "image/png", purpose: "maskable" },
     ],
     shortcuts: [
-      { name: "Search", url: "/search?source=app", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
-      { name: "My orders", url: "/orders?source=app", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
-      { name: "Bag", url: "/cart?source=app", icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }] },
+      { name: "Search", url: "/search?source=app", icons: [{ src: "/icons/icon-white-192.png", sizes: "192x192" }] },
+      { name: "My orders", url: "/orders?source=app", icons: [{ src: "/icons/icon-white-192.png", sizes: "192x192" }] },
+      { name: "Bag", url: "/cart?source=app", icons: [{ src: "/icons/icon-white-192.png", sizes: "192x192" }] },
     ],
   };
 }
