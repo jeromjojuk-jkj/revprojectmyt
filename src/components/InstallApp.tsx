@@ -78,7 +78,7 @@ export function InstallApp() {
       className="fixed inset-x-3 z-40 mx-auto flex max-w-md items-center gap-3 rounded-2xl bg-ink p-3 text-white shadow-2xl md:bottom-6"
       style={{ bottom: "calc(var(--bottom-nav-h) + var(--safe-bottom) + 12px)" }}
     >
-      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-[#171717] ring-1 ring-white/15">
+      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-white">
         <LogoMark className="h-8 w-auto" />
       </span>
       <div className="min-w-0 flex-1">
