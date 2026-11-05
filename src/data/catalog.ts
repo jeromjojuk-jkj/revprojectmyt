@@ -1162,10 +1162,33 @@ const HOME_DEFS: Def[] = [
     description: "A 360° rotating dispenser with 6 compartments for rice, dals and grains. Press a button to fill the pull-out drawer — no scooping, and everything stays sorted on your counter.",
     createdAt: "2026-11-05", supplier: SUPPLIER, costPct: 0,
   },
+  {
+    id: "k030", slug: "cute-charger-protector-set-apple-20w", title: "Cute Charger & Cable Protector Set for Apple 18W/20W Adapter", brand: "Generic",
+    category: "mobile", subcategory: "Charger Protectors", kind: "holder", images: photos("cute-charger-protector-set-apple-20w", 10),
+    price: 299, colors: [["Yellow cat", "facc15"], ["Astronaut", "171717"], ["Ice cream", "8b5a2b"]], sizes: null, stock: [10, 10, 10], material: "Soft silicone (charger case and cable-end guard), plastic spiral cable wrap",
+    packageContents: "1 charger case, 1 spiral cable wrap, 1 cable-end guard and 1 cable strap — charger and cable not included",
+    tags: ["charger protector", "cable protector", "iphone charger cover", "cute charger case", "cable saver", "20w adapter"], vibes: [], collections: ["trending"],
+    features: [
+      "Made only for Apple 18W and 20W USB-C power adapters — check yours before buying",
+      "Soft silicone case slips over the adapter; prongs and port stay free",
+      "Spiral wrap and cable-end guard help stop the cable fraying where it bends",
+      "Strap keeps the cable neatly coiled",
+      "Choose a design: Yellow cat, Astronaut or Ice cream",
+    ],
+    howToUse: [
+      "Slide the adapter into the silicone case, prongs first.",
+      "Wind the spiral wrap along the cable, starting near the connector.",
+      "Fit the cable-end guard over the phone end of the cable.",
+      "Use the strap to coil the cable when you carry it.",
+    ],
+    care: ["Doesn’t fit 5W, 12W, 30W or larger, multi-port or non-Apple adapters", "Charger and cable are not included", "Keep small parts away from young children"],
+    description: "A cute silicone cover set for your Apple 18W/20W USB-C charger and cable: a case for the adapter, a spiral wrap and a cable-end guard to help stop fraying, plus a strap. Choose Yellow cat, Astronaut or Ice cream. Charger and cable not included.",
+    createdAt: "2026-11-05", supplier: SUPPLIER, costPct: 0,
+  },
 ];
 
 /** Bump when products are added to HOME_DEFS so existing stores pick them up. */
-export const CATALOG_VERSION = 11;
+export const CATALOG_VERSION = 12;
 
 function shippingFor(cat: CategoryId) {
   return cat === "footwear" ? 70 : cat === "bags" ? 60 : cat === "jewellery" || cat === "beauty" ? 40 : 50;
