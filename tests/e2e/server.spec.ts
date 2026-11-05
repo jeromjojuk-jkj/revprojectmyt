@@ -86,3 +86,15 @@ test("admin requires sign-in and shows private costs only after login", async ({
   await page.getByRole("button", { name: "Validate & preview" }).click();
   await expect(page.getByText(/Missing required column/)).toBeVisible();
 });
+
+test("site is installable: manifest, icons, service worker and offline page", async ({ request }) => {
+  const m = await (await request.get("/manifest.webmanifest")).json();
+  expect(m.display).toBe("standalone");
+  expect(m.short_name).toBe("Krip");
+  expect(m.icons.some((i: { sizes: string; purpose?: string }) => i.sizes === "512x512" && i.purpose === "maskable")).toBe(true);
+  for (const i of m.icons as { src: string }[]) expect((await request.get(i.src)).status()).toBe(200);
+  const sw = await request.get("/sw.js");
+  expect(sw.status()).toBe(200);
+  expect(sw.headers()["cache-control"]).toContain("no-cache");
+  expect((await request.get("/offline")).status()).toBe(200);
+});

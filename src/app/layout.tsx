@@ -12,6 +12,9 @@ export const metadata: Metadata = {
   title: { default: `krip — ${BRAND.tagline}`, template: "%s · krip" },
   description: IS_FASHION ? "Trending, affordable fashion, beauty and accessories. Trending looks. Your kind of price." : "Clever home gadgets and useful little things for every room, at your kind of price.",
   applicationName: "krip",
+  appleWebApp: { capable: true, title: "Krip", statusBarStyle: "black-translucent" },
+  icons: { apple: "/icons/apple-touch-icon.png" },
+  formatDetection: { telephone: false },
 };
 
 export const viewport: Viewport = {
