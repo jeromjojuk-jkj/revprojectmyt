@@ -9,10 +9,19 @@ import { getLiveOffers, getSettings, getStore } from "@/lib/server/catalog";
 import { DeliveryRulesProvider } from "@/components/DeliveryRules";
 import { paymentConfig } from "@/lib/server/payments";
 import { InstallApp } from "@/components/InstallApp";
+import { FestiveStrip } from "@/components/Festive";
+import { activeFestival } from "@/lib/festival";
+import type { Viewport } from "next";
 import { isAdmin } from "@/lib/server/auth";
 
 // Reads live offers and store settings, so render per request.
 export const dynamic = "force-dynamic";
+
+// Festive status-bar colour on phones and in the installed app while a festival theme is on.
+export function generateViewport(): Viewport {
+  const f = activeFestival();
+  return f ? { themeColor: f.themeColor } : {};
+}
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
   const [offers, store, settings] = await Promise.all([getLiveOffers(), getStore(), getSettings()]);
@@ -32,9 +41,12 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
   }
 
   const promo = offers.length ? { label: offers[0].offer.badge, href: "/#offers" } : null;
+  const festival = activeFestival();
   const ann = store.announcement;
   return (
     <DeliveryRulesProvider rules={settings.delivery}>
+      <div className="contents" data-festive={festival?.id}>
+      {festival && <FestiveStrip />}
       {staff && (
         <p className="bg-danger px-4 py-1.5 text-center text-xs font-semibold text-white">
           Maintenance mode is on — shoppers see a maintenance page. <Link href="/admin/settings/store" className="underline">Turn it off</Link>
@@ -57,6 +69,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
       <BottomNav />
       <ScrollAssist />
       <InstallApp />
+      </div>
     </DeliveryRulesProvider>
   );
 }
