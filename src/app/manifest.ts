@@ -1,8 +1,13 @@
 import type { MetadataRoute } from "next";
+import { activeFestival } from "@/lib/festival";
+
+// Read per request so the app's opening screen follows the festival theme dates.
+export const dynamic = "force-dynamic";
 
 // Web app manifest: lets phones install Krip as an app (home-screen icon, full screen).
 // Also the basis for the Play Store package (PWABuilder / Trusted Web Activity).
 export default function manifest(): MetadataRoute.Manifest {
+  const festival = activeFestival();
   return {
     id: "/",
     name: "Krip — Home gadgets & useful finds",
@@ -12,8 +17,9 @@ export default function manifest(): MetadataRoute.Manifest {
     scope: "/",
     display: "standalone",
     orientation: "portrait",
-    background_color: "#ffffff",
-    theme_color: "#171717",
+    // Opening (splash) screen: festive maroon during a festival, white otherwise.
+    background_color: festival ? festival.themeColor : "#ffffff",
+    theme_color: festival ? festival.themeColor : "#171717",
     lang: "en-IN",
     categories: ["shopping", "lifestyle"],
     icons: [

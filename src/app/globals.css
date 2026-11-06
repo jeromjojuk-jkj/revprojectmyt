@@ -303,3 +303,15 @@ html:has(dialog[open]) { overflow: hidden; }
 @media (prefers-reduced-motion: reduce) {
   [data-festive="diwali"] .glass-header::after, .diya-flame { animation: none; }
 }
+/* Diwali page background: warm marigold glow with a faint scatter of golden lights */
+body:has([data-festive="diwali"]) {
+  background-color: #fff3df;
+  background-image:
+    radial-gradient(60% 40% at 0% 0%, rgb(255 183 3 / .22), transparent 70%),
+    radial-gradient(50% 35% at 100% 30%, rgb(236 72 153 / .10), transparent 70%),
+    radial-gradient(55% 40% at 50% 100%, rgb(249 115 22 / .14), transparent 70%),
+    radial-gradient(circle at 20px 20px, rgb(212 160 23 / .35) 0 1.5px, transparent 2.5px),
+    radial-gradient(circle at 60px 50px, rgb(194 65 12 / .25) 0 1.5px, transparent 2.5px);
+  background-size: 100% 100%, 100% 100%, 100% 100%, 80px 80px, 80px 80px;
+  background-attachment: fixed;
+}
