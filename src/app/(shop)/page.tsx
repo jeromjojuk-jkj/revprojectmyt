@@ -11,6 +11,8 @@ import { LookCard } from "@/components/LookCard";
 import { RecentlyViewed } from "@/components/RecentlyViewed";
 import { IconChevron, IconSpark } from "@/components/Icons";
 import { colorFamily } from "@/lib/search";
+import { DiwaliHero } from "@/components/Festive";
+import { activeFestival } from "@/lib/festival";
 
 const COLOUR_ROW = [
   { name: "Black", css: "radial-gradient(circle at 30% 30%, #555, #111)" },
@@ -41,6 +43,7 @@ export default async function HomePage() {
 
   return (
     <div className="pb-4">
+      {activeFestival()?.id === "diwali" && <DiwaliHero />}
       {/* 2. Category shortcuts */}
       <nav aria-label="Shop by category" className="pt-3">
         <ul className="no-scrollbar flex gap-3 overflow-x-auto px-4 pb-1 md:justify-center">

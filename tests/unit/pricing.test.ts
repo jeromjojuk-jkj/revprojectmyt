@@ -58,3 +58,15 @@ test("contribution subtracts other per-unit costs (packing, labels)", () => {
   assert.equal(without.contribution - withOther.contribution, 10);
   assert.equal(withOther.contribution, 66); // 200 - 80 - 40 - 10 - 4 (2% fee)
 });
+
+test("Diwali theme runs 6–10 Nov 2026 (India time) and switches off on 11 Nov", async () => {
+  const { activeFestival } = await import("../../src/lib/festival.ts");
+  const at = (s: string) => activeFestival(new Date(s), undefined)?.id ?? null;
+  assert.equal(at("2026-11-05T23:59:00+05:30"), null);
+  assert.equal(at("2026-11-06T00:00:00+05:30"), "diwali");
+  assert.equal(at("2026-11-08T20:00:00+05:30"), "diwali");
+  assert.equal(at("2026-11-10T23:59:00+05:30"), "diwali");
+  assert.equal(at("2026-11-11T00:00:00+05:30"), null);
+  assert.equal(activeFestival(new Date("2026-11-08T12:00:00+05:30"), "off"), null);
+  assert.equal(activeFestival(new Date("2027-01-01T00:00:00+05:30"), "on")?.id, "diwali");
+});
