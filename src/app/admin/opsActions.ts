@@ -10,6 +10,7 @@ import { moveStock } from "@/lib/server/inventory";
 import { adminOrderAction, OrderError } from "@/lib/server/orders";
 import type { OrderOp } from "@/lib/orderflow";
 import { validateCouponInput } from "@/lib/coupons";
+import { validateFestivalOffer } from "@/lib/festivalOffers";
 import { validateStoreProfile } from "@/lib/storeProfile";
 import { CATEGORIES } from "@/lib/constants";
 import type { Permission } from "@/lib/rbac";
@@ -330,4 +331,39 @@ export async function storeSettingsAction(_: StoreFormState, fd: FormData): Prom
   });
   revalidatePath("/", "layout");
   return { ok: true };
+}
+
+// ---------- Festival offers ----------
+
+export async function saveFestivalOfferAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  const { actor } = await requirePerm("coupons.edit");
+  const raw = Object.fromEntries([...fd.entries()].filter(([, v]) => typeof v === "string")) as Record<string, string>;
+  const res = validateFestivalOffer(raw);
+  if (!res.ok) return { error: res.error };
+  const id = raw.id || `${res.value.name.toLowerCase().replace(/[^a-z0-9]+/g, "-")}-${res.value.date.slice(0, 4)}-${Date.now().toString(36).slice(-4)}`;
+  await withDb((db) => {
+    const list = (db.settings.festivalOffers ??= []);
+    const i = list.findIndex((f) => f.id === id);
+    const before = i >= 0 ? list[i] : undefined;
+    const next = { ...res.value, id };
+    if (i >= 0) list[i] = next;
+    else list.push(next);
+    list.sort((a, b) => a.date.localeCompare(b.date));
+    audit(db, actor, before ? "festival_offer.update" : "festival_offer.create", "festival_offer", id, { before, after: next });
+  });
+  revalidatePath("/", "layout");
+  return { ok: true, message: `${res.value.name} saved.` };
+}
+
+export async function deleteFestivalOfferAction(fd: FormData) {
+  const { actor } = await requirePerm("coupons.delete");
+  const id = String(fd.get("id"));
+  await withDb((db) => {
+    const list = db.settings.festivalOffers ?? [];
+    const i = list.findIndex((f) => f.id === id);
+    if (i < 0) return;
+    audit(db, actor, "festival_offer.delete", "festival_offer", id, { before: list[i] });
+    list.splice(i, 1);
+  });
+  revalidatePath("/", "layout");
 }

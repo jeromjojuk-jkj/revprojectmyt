@@ -11,6 +11,8 @@ import { paymentConfig } from "@/lib/server/payments";
 import { InstallApp } from "@/components/InstallApp";
 import { FestiveStrip } from "@/components/Festive";
 import { activeFestival } from "@/lib/festival";
+import { activeFestivalOffer } from "@/lib/festivalOffers";
+import { FestivalOfferBar } from "@/components/FestivalOfferBar";
 import type { Viewport } from "next";
 import { isAdmin } from "@/lib/server/auth";
 
@@ -42,11 +44,13 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
 
   const promo = offers.length ? { label: offers[0].offer.badge, href: "/#offers" } : null;
   const festival = activeFestival();
+  const festOffer = activeFestivalOffer(settings.festivalOffers);
   const ann = store.announcement;
   return (
     <DeliveryRulesProvider rules={settings.delivery}>
       <div className="contents" data-festive={festival?.id}>
       {festival && <FestiveStrip />}
+      {festOffer && <FestivalOfferBar offer={festOffer} />}
       {staff && (
         <p className="bg-danger px-4 py-1.5 text-center text-xs font-semibold text-white">
           Maintenance mode is on — shoppers see a maintenance page. <Link href="/admin/settings/store" className="underline">Turn it off</Link>

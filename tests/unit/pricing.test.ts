@@ -70,3 +70,28 @@ test("Diwali theme runs 6–10 Nov 2026 (India time) and switches off on 11 Nov"
   assert.equal(activeFestival(new Date("2026-11-08T12:00:00+05:30"), "off"), null);
   assert.equal(activeFestival(new Date("2027-01-01T00:00:00+05:30"), "on")?.id, "diwali");
 });
+
+test("festival offer: starts 4 days before, ends after the festival day, best of coupon or offer", async () => {
+  const { activeFestivalOffer, festivalDiscount } = await import("../../src/lib/festivalOffers.ts");
+  const xmas = { id: "x", name: "Christmas", date: "2026-12-25", days: 1, leadDays: 4, percentOff: 25, maxDiscount: 500, minSubtotal: 299, enabled: true, checkDate: false, tier: "big" as const };
+  const at = (s: string) => activeFestivalOffer([xmas], new Date(s))?.id ?? null;
+  assert.equal(at("2026-12-20T23:59:00+05:30"), null);
+  assert.equal(at("2026-12-21T00:00:00+05:30"), "x");
+  assert.equal(at("2026-12-25T23:59:00+05:30"), "x");
+  assert.equal(at("2026-12-26T00:00:00+05:30"), null);
+  assert.equal(activeFestivalOffer([{ ...xmas, enabled: false }], new Date("2026-12-24T12:00:00+05:30")), null);
+  assert.equal(festivalDiscount(xmas, 1000), 250);
+  assert.equal(festivalDiscount(xmas, 4000), 500); // capped
+  assert.equal(festivalDiscount(xmas, 200), 0); // below minimum
+  const s = { ...settings, festivalOffers: [xmas] };
+  const during = { now: new Date("2026-12-24T12:00:00+05:30") };
+  const q = computeQuote({ items: [{ sku: "P008-BLAC-M", qty: 4 }] }, products, s, {}, during); // ₹996
+  assert.equal(q.discount, 249);
+  assert.equal(q.festivalOffer, "Christmas offer (25% off)");
+  const qc = computeQuote({ items: [{ sku: "P008-BLAC-M", qty: 4 }], couponCode: "AURA50" }, products, s, {}, during);
+  assert.equal(qc.discount, 249); // offer beats the ₹50 coupon; they don't stack
+  assert.equal(qc.couponCode, null);
+  const after = computeQuote({ items: [{ sku: "P008-BLAC-M", qty: 4 }] }, products, s, {}, { now: new Date("2026-12-26T09:00:00+05:30") });
+  assert.equal(after.discount, 0);
+  assert.equal(after.festivalOffer, null);
+});
