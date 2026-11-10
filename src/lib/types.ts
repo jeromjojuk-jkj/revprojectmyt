@@ -187,6 +187,26 @@ export interface DeliveryRules {
   note: string;
 }
 
+/** Automatic % off the bag around a festival (see lib/festivalOffers.ts). */
+export interface FestivalOffer {
+  id: string;
+  name: string;
+  /** Main festival day, yyyy-mm-dd (India time). */
+  date: string;
+  /** Festival length in days (offer ends after the last one). */
+  days: number;
+  /** The offer starts this many days before the festival. */
+  leadDays: number;
+  percentOff: number;
+  /** ₹ cap on the discount; null = no cap. */
+  maxDiscount: number | null;
+  minSubtotal: number;
+  enabled: boolean;
+  /** Lunar-calendar date that should be confirmed before it starts. */
+  checkDate: boolean;
+  tier: "big" | "standard";
+}
+
 export interface Settings {
   deliveryFee: number;
   /** null = no free-delivery threshold configured. */
@@ -198,6 +218,7 @@ export interface Settings {
   channelFees: ChannelFee[];
   coupons: Coupon[];
   delivery: DeliveryRules;
+  festivalOffers?: FestivalOffer[];
 }
 
 export type PaymentMethod = "online" | "cod";
@@ -283,6 +304,8 @@ export interface Order {
   codFee: number;
   discount: number;
   couponCode: string | null;
+  /** Festival offer applied to this order, if any. */
+  festivalOffer?: string | null;
   total: number;
   address: Address;
   paymentMethod: PaymentMethod;
@@ -332,6 +355,8 @@ export interface Quote {
   discount: number;
   couponCode: string | null;
   couponMessage: string | null;
+  /** Festival offer applied instead of a coupon, e.g. "Christmas offer (25% off)". */
+  festivalOffer: string | null;
   total: number;
   itemCount: number;
   allAvailable: boolean;

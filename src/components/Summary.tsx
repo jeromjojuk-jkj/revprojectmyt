@@ -23,7 +23,7 @@ export function PriceSummary({ quote, showCodLine = true }: { quote: Quote; show
       </div>
       {quote.discount > 0 && (
         <div className="flex justify-between text-leaf">
-          <dt>Discount {quote.couponCode ? `(${quote.couponCode})` : ""}</dt>
+          <dt>{quote.festivalOffer ?? `Discount${quote.couponCode ? ` (${quote.couponCode})` : ""}`}</dt>
           <dd>−{formatPrice(quote.discount)}</dd>
         </div>
       )}

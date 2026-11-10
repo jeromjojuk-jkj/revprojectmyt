@@ -161,6 +161,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
       codFee: quote.codFee,
       discount: quote.discount,
       couponCode: quote.couponCode,
+      festivalOffer: quote.festivalOffer,
       total: quote.total,
       address: addr.value,
       paymentMethod: input.paymentMethod,

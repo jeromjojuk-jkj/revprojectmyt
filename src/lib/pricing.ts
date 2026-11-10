@@ -1,6 +1,7 @@
 import type { CouponUsage, PaymentMethod, ProductPublic, Quote, QuoteLine, Settings } from "./types.ts";
 import { evaluateCoupon } from "./coupons.ts";
 import { estimateDelivery } from "./pincode.ts";
+import { activeFestivalOffer, festivalDiscount } from "./festivalOffers.ts";
 
 export const MAX_QTY_PER_LINE = 5;
 
@@ -90,6 +91,21 @@ export function computeQuote(
     }
   }
 
+  // Festival offer applies by itself; it doesn't stack with a coupon — the shopper gets whichever saves more.
+  let festivalOffer: string | null = null;
+  const fest = activeFestivalOffer(settings.festivalOffers, ctx.now ?? new Date());
+  if (fest) {
+    const fd = festivalDiscount(fest, subtotal);
+    if (fd > discount) {
+      if (couponCode) couponMessage = `The ${fest.name} offer saves you more, so it’s applied instead of ${couponCode}.`;
+      discount = fd;
+      couponCode = null;
+      festivalOffer = `${fest.name} offer (${fest.percentOff}% off)`;
+    } else if (fd > 0 && couponCode) {
+      couponMessage = `${couponMessage ?? ""} It saves more than the ${fest.name} offer, so it’s used instead.`.trim();
+    }
+  }
+
   const afterDiscount = subtotal - discount;
   const delivery =
     subtotal === 0
@@ -121,6 +137,7 @@ export function computeQuote(
     discount,
     couponCode,
     couponMessage,
+    festivalOffer,
     total: afterDiscount + delivery + codFee,
     itemCount,
     allAvailable: lines.length > 0 && lines.every((l) => l.ok),

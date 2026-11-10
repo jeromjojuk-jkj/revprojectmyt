@@ -35,6 +35,7 @@ export const ADMIN_NAV: NavGroup[] = [
     title: "Growth & marketing",
     items: [
       { href: "/admin/coupons", label: "Coupons & discounts", icon: "coupons", perm: "coupons.view" },
+      { href: "/admin/festivals", label: "Festival offers", icon: "coupons", perm: "coupons.view" },
       { href: "/admin/offers", label: "Offer tiles", icon: "offers", perm: "offers.view" },
     ],
   },
@@ -57,7 +58,7 @@ export function navFor(can: (p: Permission) => boolean): NavGroup[] {
 
 const CRUMB: Record<string, string> = {
   admin: "Admin", orders: "Orders", products: "Products", inventory: "Inventory", movements: "Stock ledger", import: "CSV import",
-  customers: "Customers", coupons: "Coupons", offers: "Offer tiles", settings: "Delivery & charges", store: "Store & footer",
+  customers: "Customers", coupons: "Coupons", festivals: "Festival offers", offers: "Offer tiles", settings: "Delivery & charges", store: "Store & footer",
   staff: "Staff & roles", roles: "Roles", audit: "Audit log", system: "System health", roadmap: "Roadmap", security: "Security",
   search: "Search", new: "New", print: "Print", forbidden: "No access",
 };
