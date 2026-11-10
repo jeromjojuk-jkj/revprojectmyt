@@ -31,6 +31,13 @@ export function PriceSummary({ quote, showCodLine = true }: { quote: Quote; show
         <dt>Delivery</dt>
         <dd>{quote.delivery === 0 && quote.subtotal > 0 ? "Free" : formatPrice(quote.delivery)}</dd>
       </div>
+      {(quote.deliveryParts?.length ?? 0) > 1 && (
+        <ul className="-mt-1 space-y-0.5 pl-3 text-xs text-ink-soft">
+          {quote.deliveryParts.map((d) => (
+            <li key={d.vendorId ?? "krip"} className="flex justify-between"><span>Shipped by {d.name}</span><span>{d.amount ? formatPrice(d.amount) : "Free"}</span></li>
+          ))}
+        </ul>
+      )}
       {showCodLine && quote.codFee > 0 && (
         <div className="flex justify-between">
           <dt>Cash on Delivery fee</dt>

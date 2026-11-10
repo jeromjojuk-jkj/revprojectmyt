@@ -9,6 +9,8 @@ import { orderEstimate } from "@/lib/server/estimates";
 import { customerKey } from "@/lib/server/orders";
 import { Badge, Card, PageHeader, btn } from "@/app/admin/_components/ui";
 import { OrderActions } from "./OrderActions";
+import { PART_LABEL, dispatchState } from "@/lib/vendorFulfilment";
+import { vendorShares } from "@/lib/vendorPlans";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   return { title: `Order ${(await params).id}` };
@@ -58,8 +60,30 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <Card title="Actions">
+            {(o.vendorParts?.length ?? 0) > 0 && <p className="mb-3 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-900">{o.items.some((i) => !i.vendorId) ? "Pack / ship here is for Krip’s own items only — sellers ship theirs from their panel." : "Only sellers’ items: the sellers update this order from their panel and its status follows them. Use these actions only to step in."}</p>}
             <OrderActions id={o.id} ops={ops} canRefund={ctx.can("orders.refund")} remaining={paid - refunded} demo={o.demo} codManual={o.paymentMethod === "cod"} />
           </Card>
+          {(o.vendorParts?.length ?? 0) > 0 && (
+            <Card title="Sellers on this order">
+              <ul className="divide-y divide-line text-sm">
+                {o.vendorParts!.map((p) => {
+                  const v = db.vendors.find((x) => x.id === p.vendorId);
+                  const sh = vendorShares(o, o.commissionPerUnit ?? db.settings.vendorCommissionPerUnit ?? 10).get(p.vendorId);
+                  const late = o.status !== "cancelled" && dispatchState(p) === "late";
+                  return (
+                    <li key={p.vendorId} className="py-2">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <Link href={`/admin/vendors/${p.vendorId}`} className="font-medium text-leaf underline">{v?.businessName ?? p.vendorId}</Link>
+                        <span className="flex gap-1"><Badge tone={p.status === "cancel_requested" ? "red" : p.status === "delivered" ? "green" : "yellow"}>{PART_LABEL[p.status]}</Badge>{late && <Badge tone="red">Dispatch late</Badge>}</span>
+                      </div>
+                      <p className="text-xs text-ink-soft">{o.items.filter((i) => i.vendorId === p.vendorId).map((i) => `${i.qty} × ${i.title}`).join(", ")} · delivery {formatPrice(p.delivery)} · dispatch by {dt(p.dispatchBy)}{sh ? ` · seller earns ${formatPrice(sh.payout)}, Krip commission ${formatPrice(sh.commission)}` : ""}</p>
+                      {p.history.at(-1)?.note && <p className="text-xs">Latest: {p.history.at(-1)!.note}</p>}
+                    </li>
+                  );
+                })}
+              </ul>
+            </Card>
+          )}
           <Card title={`Items (${o.items.reduce((s, i) => s + i.qty, 0)})`}>
             <ul className="divide-y divide-line">
               {o.items.map((it) => (

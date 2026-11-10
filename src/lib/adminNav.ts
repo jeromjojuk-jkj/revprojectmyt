@@ -5,7 +5,7 @@ import type { Permission } from "./rbac.ts";
 
 export type NavIcon =
   | "dashboard" | "orders" | "products" | "inventory" | "import" | "customers" | "coupons" | "offers"
-  | "store" | "fees" | "staff" | "audit" | "health" | "roadmap";
+  | "store" | "fees" | "staff" | "audit" | "health" | "roadmap" | "sellers" | "review";
 
 export interface NavItem {
   href: string;
@@ -28,6 +28,13 @@ export const ADMIN_NAV: NavGroup[] = [
       { href: "/admin/products", label: "Products", icon: "products", perm: "products.view" },
       { href: "/admin/inventory", label: "Inventory", icon: "inventory", perm: "inventory.view" },
       { href: "/admin/import", label: "CSV import", icon: "import", perm: "products.create" },
+    ],
+  },
+  {
+    title: "Marketplace",
+    items: [
+      { href: "/admin/vendors", label: "Sellers", icon: "sellers", perm: "vendors.view" },
+      { href: "/admin/vendors/review", label: "Listing review", icon: "review", perm: "vendors.approve" },
     ],
   },
   { title: "Customers", items: [{ href: "/admin/customers", label: "Customers", icon: "customers", perm: "customers.view" }] },
@@ -60,7 +67,7 @@ const CRUMB: Record<string, string> = {
   admin: "Admin", orders: "Orders", products: "Products", inventory: "Inventory", movements: "Stock ledger", import: "CSV import",
   customers: "Customers", coupons: "Coupons", festivals: "Festival offers", offers: "Offer tiles", settings: "Delivery & charges", store: "Store & footer",
   staff: "Staff & roles", roles: "Roles", audit: "Audit log", system: "System health", roadmap: "Roadmap", security: "Security",
-  search: "Search", new: "New", print: "Print", forbidden: "No access",
+  search: "Search", vendors: "Sellers", review: "Listing review", new: "New", print: "Print", forbidden: "No access",
 };
 
 export function breadcrumbs(pathname: string): { href: string; label: string }[] {

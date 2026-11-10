@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   Bell, Boxes, ChevronDown, ChevronsLeft, ChevronsRight, FileUp, HeartPulse, LayoutDashboard, LogOut, Map, Menu,
   Package, Receipt, ScrollText, Search, Shield, ShoppingBag, Store, Tag, Ticket, Users, UserCog, X,
+  Handshake, ClipboardCheck,
 } from "lucide-react";
 import { breadcrumbs, type NavGroup, type NavIcon } from "@/lib/adminNav";
 import { Logo } from "@/components/Logo";
@@ -14,7 +15,7 @@ import { markNotificationsReadAction } from "../opsActions";
 
 const ICONS: Record<NavIcon, React.ComponentType<{ size?: number; "aria-hidden"?: boolean }>> = {
   dashboard: LayoutDashboard, orders: ShoppingBag, products: Package, inventory: Boxes, import: FileUp, customers: Users,
-  coupons: Ticket, offers: Tag, store: Store, fees: Receipt, staff: UserCog, audit: ScrollText, health: HeartPulse, roadmap: Map,
+  coupons: Ticket, offers: Tag, store: Store, fees: Receipt, staff: UserCog, audit: ScrollText, health: HeartPulse, roadmap: Map, sellers: Handshake, review: ClipboardCheck,
 };
 
 export interface AdminNotification {

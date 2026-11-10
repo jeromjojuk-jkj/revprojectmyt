@@ -1,6 +1,7 @@
 import "server-only";
 import type { Order, ProductRecord, Settings } from "../types";
 import { estimateContribution } from "../pricing";
+import { vendorShares } from "../vendorPlans";
 
 /** Estimated per-unit contribution on each configured channel. ESTIMATE ONLY. */
 export function productEstimates(p: ProductRecord, s: Settings) {
@@ -28,7 +29,10 @@ export function orderEstimate(o: Order, products: ProductRecord[], s: Settings) 
   let cost = 0;
   let shipping = 0;
   let missing = false;
+  // Sellers' items: what Krip passes on to the seller counts as cost, so only the commission remains.
+  for (const sh of vendorShares(o, o.commissionPerUnit ?? s.vendorCommissionPerUnit ?? 10).values()) cost += sh.payout;
   for (const it of o.items) {
+    if (it.vendorId) continue;
     const p = products.find((x) => x.id === it.productId);
     if (!p) {
       missing = true;
@@ -39,7 +43,8 @@ export function orderEstimate(o: Order, products: ProductRecord[], s: Settings) 
   }
   const revenue = o.total;
   const paymentFees = o.paymentMethod === "online" ? (revenue * krip.paymentFeePct) / 100 : 0;
-  const returns = ((o.subtotal - o.discount) * s.returnAllowancePct) / 100;
+  const kripItems = o.items.filter((i) => !i.vendorId).reduce((t, i) => t + i.unitPrice * i.qty, 0);
+  const returns = (Math.max(0, kripItems - o.discount) * s.returnAllowancePct) / 100;
   return {
     revenue,
     cost,

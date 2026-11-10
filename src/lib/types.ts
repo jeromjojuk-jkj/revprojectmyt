@@ -106,6 +106,10 @@ export interface ProductPublic {
   createdAt: string;
   status: ProductStatus;
   isSample: boolean;
+  /** Set when a marketplace vendor sells this product; absent/null = sold by Krip. */
+  vendorId?: string | null;
+  /** Vendor has a Premium/Advance plan and passed Krip's checks. */
+  sellerVerified?: boolean;
 }
 
 export interface ChannelPrice {
@@ -124,6 +128,10 @@ export interface ProductPrivate {
   channelPrices: ChannelPrice[];
   /** Admin confirmed Krip is authorised to use the images and descriptions. */
   rightsConfirmed?: boolean;
+  /** Vendor products: Krip's review before (and after content edits to) going live. */
+  review?: { status: "pending" | "approved" | "rejected"; note: string; at: string } | null;
+  /** Vendor products picked for the homepage "From our sellers" row (plan allowance). */
+  featured?: boolean;
 }
 
 export interface ProductRecord extends ProductPublic {
@@ -207,6 +215,77 @@ export interface FestivalOffer {
   tier: "big" | "standard";
 }
 
+export type VendorPlanId = "normal" | "premium" | "advance";
+export type VendorStatus = "pending_payment" | "pending_review" | "approved" | "rejected" | "suspended";
+
+/** A marketplace seller (server only). */
+export interface Vendor {
+  id: string;
+  businessName: string;
+  ownerName: string;
+  email: string;
+  phone: string;
+  passwordHash: string;
+  address: string;
+  city: string;
+  state: string;
+  pincode: string;
+  gstin: string;
+  pan: string;
+  /** Bank details for payouts; account number stored encrypted. */
+  bank: { holder: string; ifsc: string; accountLast4: string; accountEnc: string; upi: string };
+  plan: VendorPlanId;
+  planFee: number;
+  status: VendorStatus;
+  statusNote: string;
+  /** Plan fee payment. */
+  fee: { paid: boolean; paidAt: string | null; reference: string; demo: boolean; gatewayOrderIds: string[]; sessionId: string | null; sessionAt: string | null };
+  /** Checked by Krip (KYC / documents); shows a "Verified seller" badge on Premium and Advance. */
+  verified: boolean;
+  /** Vendor id at Cashfree Easy Split, once created there. */
+  cashfreeVendorId: string | null;
+  createdAt: string;
+  approvedAt: string | null;
+  failedLogins: number;
+  lockedUntil: string | null;
+  passwordChangedAt: string;
+  /** How the seller ships. Set by the seller in their panel. */
+  shipping?: VendorShipping;
+}
+
+/** A seller's own delivery charge and dispatch promise. They ship with their own courier. */
+export interface VendorShipping {
+  /** Delivery charge (₹) per order for this seller's items; 0 = free delivery. */
+  fee: number;
+  /** Free delivery when the seller's items in an order total at least this (₹); null = never. */
+  freeAbove: number | null;
+  /** Working days to hand the parcel to the courier after an order. */
+  handlingDays: number;
+  /** Usual courier, prefilled when shipping. */
+  courier: string;
+  /** Shop holidays: no new dispatch deadlines while on. */
+  onHoliday: boolean;
+}
+
+export type VendorPartStatus = "new" | "accepted" | "packed" | "shipped" | "delivered" | "cancel_requested";
+
+/** One seller's share of an order and its fulfilment, updated by the seller from their panel. */
+export interface VendorPart {
+  vendorId: string;
+  status: VendorPartStatus;
+  /** Delivery charge the shopper paid for this seller's items (₹); goes to the seller. */
+  delivery: number;
+  /** Latest time to hand over to the courier. */
+  dispatchBy: string;
+  history: { status: VendorPartStatus | "tracking" | "issue"; at: string; note?: string }[];
+  shipmentId: string | null;
+}
+
+export interface VendorSession { idHash: string; vendorId: string; createdAt: string; expiresAt: string; lastSeenAt: string; revokedAt: string | null }
+
+/** Money Krip paid out to a vendor outside Cashfree Easy Split (e.g. COD orders). */
+export interface VendorPayout { id: string; vendorId: string; amount: number; reference: string; at: string; by: string; note: string }
+
 export interface Settings {
   deliveryFee: number;
   /** null = no free-delivery threshold configured. */
@@ -219,6 +298,8 @@ export interface Settings {
   coupons: Coupon[];
   delivery: DeliveryRules;
   festivalOffers?: FestivalOffer[];
+  /** Krip's commission per unit sold by a marketplace vendor (₹). */
+  vendorCommissionPerUnit?: number;
 }
 
 export type PaymentMethod = "online" | "cod";
@@ -247,6 +328,8 @@ export interface Shipment {
   createdAt: string;
   createdBy: string;
   events: { at: string; status: string; note?: string }[];
+  /** Vendor who shipped this parcel; absent = Krip. */
+  vendorId?: string | null;
 }
 
 export interface RefundRecord {
@@ -270,6 +353,8 @@ export interface OrderItem {
   image: string;
   unitPrice: number;
   qty: number;
+  /** Marketplace vendor for this line; absent = Krip's own stock. */
+  vendorId?: string | null;
 }
 
 export interface Address {
@@ -321,6 +406,12 @@ export interface Order {
   gateway?: { orderId: string; sessionId: string; createdAt: string } | null;
   /** Every gateway order id ever created for this order, so late payments are still matched. */
   gatewayOrderIds?: string[];
+  /** Easy Split: vendor shares sent with the current Cashfree order (₹). */
+  vendorSplits?: { vendorId: string; amount: number }[] | null;
+  /** Marketplace sellers' parts of this order (their items, delivery charge and fulfilment). */
+  vendorParts?: VendorPart[];
+  /** Krip's commission per seller unit, fixed when the order was placed. */
+  commissionPerUnit?: number;
   /** Admin-only fields below. Never sent to shoppers. */
   onHold?: boolean;
   notes?: OrderNote[];
@@ -357,6 +448,8 @@ export interface Quote {
   couponMessage: string | null;
   /** Festival offer applied instead of a coupon, e.g. "Christmas offer (25% off)". */
   festivalOffer: string | null;
+  /** Delivery split by who ships: null = Krip, else the seller's id. Sums to `delivery`. */
+  deliveryParts: { vendorId: string | null; name: string; amount: number }[];
   total: number;
   itemCount: number;
   allAvailable: boolean;

@@ -288,7 +288,8 @@ export function ProductDetail({
             </span>
             <div className="min-w-0 flex-1">
               <h2 id="seller-title" className="text-xs text-ink-soft">Sold by</h2>
-              <p className="truncate font-semibold">{product.seller ?? "Krip"}</p>
+              <p className="flex items-center gap-1.5 font-semibold"><span className="truncate">{product.seller ?? "Krip"}</span>{product.vendorId && product.sellerVerified && <span className="shrink-0 rounded-full bg-leaf-soft px-2 py-0.5 text-[11px] font-semibold text-leaf" title="Krip has checked this seller’s business documents">✓ Verified seller</span>}</p>
+              {product.vendorId && <p className="text-xs text-ink-soft">Packed and shipped by this seller · Krip marketplace</p>}
               <p className="text-xs text-ink-soft">Brand: {product.brand}{product.origin ? ` · Made in ${product.origin}` : ""}</p>
             </div>
             {product.brand !== "Generic" && (
