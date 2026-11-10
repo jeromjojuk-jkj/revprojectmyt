@@ -20,6 +20,8 @@ function columns(store: StoreProfile): { title: string; links: FooterLink[] }[] 
       links: [
         { href: "/help/about", label: "About Krip" },
         { href: "/help/contact", label: "Contact" },
+        { href: "/sell", label: "Sell on Krip" },
+        { href: "/vendor/login", label: "Seller sign in" },
       ],
     },
     {

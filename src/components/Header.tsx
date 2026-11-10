@@ -51,7 +51,7 @@ function AllMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
     { title: "Trending", links: [{ href: "/search?collection=trending", label: "Trending Now" }, { href: "/drops", label: "New Drops" }, { href: "/#offers", label: "Seasonal offers" }, ...(IS_FASHION ? [{ href: "/fit", label: "Build a Fit" }, { href: "/colour-match", label: "Colour Match" }, { href: "/swipe", label: "Style Swipe" }, { href: "/looks", label: "Complete the Look" }, { href: "/vibe", label: "Vibe Finder" }] : [{ href: "/swipe", label: "Style Swipe" }])] },
     { title: "Shop by category", links: CATEGORIES.map((c) => ({ href: `/search?cat=${c.id}`, label: c.name })) },
     ...(IS_FASHION ? [{ title: "Shop by vibe", links: VIBES.map((v) => ({ href: `/search?vibe=${v.id}`, label: v.name })) }] : []),
-    { title: "Help & settings", links: [{ href: "/account", label: "Your account" }, { href: "/orders", label: "Your orders" }, { href: "/wishlist", label: "Wishlist & lists" }, { href: "/help", label: "Help & contact" }, { href: "/help/returns", label: "Returns & exchanges" }] },
+    { title: "Help & settings", links: [{ href: "/account", label: "Your account" }, { href: "/orders", label: "Your orders" }, { href: "/wishlist", label: "Wishlist & lists" }, { href: "/help", label: "Help & contact" }, { href: "/help/returns", label: "Returns & exchanges" }, { href: "/sell", label: "Sell on Krip" }] },
   ];
   return (
     <Sheet open={open} onClose={onClose} title="Hello, guest" side>

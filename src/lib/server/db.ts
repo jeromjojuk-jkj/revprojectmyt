@@ -3,7 +3,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import os from "node:os";
-import type { AdminSession, AuditEntry, CustomerMeta, CustomRole, InventoryMovement, LoginEvent, Offer, Order, ProductRecord, Settings, StaffUser, StoreProfile } from "../types";
+import type { Vendor, VendorPayout, VendorSession, AdminSession, AuditEntry, CustomerMeta, CustomRole, InventoryMovement, LoginEvent, Offer, Order, ProductRecord, Settings, StaffUser, StoreProfile } from "../types";
 import { normalizeCoupon } from "../coupons";
 import { buildSeedProducts, CATALOG_VERSION, IMAGE_ORDER_FIXES, IMAGE_RENAMES } from "@/data/catalog";
 import { DEFAULT_DELIVERY } from "@/lib/pincode";
@@ -33,6 +33,9 @@ export interface DB {
   movements: InventoryMovement[];
   /** Keyed by customer id (hash of phone number). */
   customers: Record<string, CustomerMeta>;
+  vendors: Vendor[];
+  vendorSessions: VendorSession[];
+  vendorPayouts: VendorPayout[];
 }
 
 export const DEFAULT_STORE: StoreProfile = {
@@ -65,6 +68,7 @@ export const DEFAULT_SETTINGS: Settings = {
   coupons: [],
   delivery: { ...DEFAULT_DELIVERY },
   festivalOffers: structuredClone(DEFAULT_FESTIVAL_OFFERS),
+  vendorCommissionPerUnit: 10,
 };
 
 function seed(): DB {
@@ -90,6 +94,9 @@ function emptyBackOffice() {
     audit: [] as AuditEntry[],
     movements: [] as InventoryMovement[],
     customers: {} as Record<string, CustomerMeta>,
+    vendors: [] as Vendor[],
+    vendorSessions: [] as VendorSession[],
+    vendorPayouts: [] as VendorPayout[],
   };
 }
 
@@ -104,6 +111,7 @@ function migrate(db: DB) {
   for (const c of db.settings.coupons) if (c.code === "AURA50" && c.description.startsWith("Sample code")) c.active = false;
   db.settings.delivery = { ...DEFAULT_DELIVERY, ...db.settings.delivery };
   db.settings.festivalOffers ??= structuredClone(DEFAULT_FESTIVAL_OFFERS);
+  db.settings.vendorCommissionPerUnit ??= 10;
   // Catalogue additions reach existing stores once; products removed or edited in admin aren't touched.
   if ((db.catalogVersion ?? 1) < CATALOG_VERSION) {
     const have = new Set(db.products.map((p) => p.id));

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { readDb } from "@/lib/server/db";
-import { toPublicProduct } from "@/lib/server/catalog";
+import { sellableProducts, toPublicProduct } from "@/lib/server/catalog";
+import { vendorShippingRules } from "@/lib/server/vendorLedger";
 import { computeQuote } from "@/lib/pricing";
 
 export const dynamic = "force-dynamic";
@@ -16,8 +17,10 @@ export async function POST(req: Request) {
       paymentMethod: body.paymentMethod === "cod" ? "cod" : body.paymentMethod === "online" ? "online" : null,
       couponCode: typeof body.couponCode === "string" ? body.couponCode.slice(0, 30) : null,
     },
-    db.products.filter((p) => p.status !== "draft" && p.status !== "archived").map(toPublicProduct),
+    sellableProducts(db).filter((p) => p.status !== "draft" && p.status !== "archived").map(toPublicProduct),
     db.settings,
+    {},
+    { vendorShipping: vendorShippingRules(db) },
   );
   return NextResponse.json({ quote });
 }

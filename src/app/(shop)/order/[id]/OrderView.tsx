@@ -143,7 +143,24 @@ export function OrderView({ order, token }: { order: CustomerOrder; token: strin
             })}
           </ol>
         )}
-        <p className="mt-2 text-xs text-ink-soft">Tracking updates appear here when the Krip team updates your order. Courier tracking links will be added once a shipping partner is connected.</p>
+        {order.shipments.length > 0 && (
+          <div className="mt-3 space-y-3 border-t border-line pt-3">
+            {order.shipments.map((sh, i) => (
+              <div key={`${sh.awb}-${i}`} className="text-sm">
+                <p className="font-semibold">{order.shipments.length > 1 ? `Parcel ${i + 1}: ` : "Shipped with "}{sh.carrier}</p>
+                <p className="text-xs text-ink-soft">AWB <span className="font-mono">{sh.awb}</span>{sh.trackingUrl && <> · <a href={sh.trackingUrl} target="_blank" rel="noopener noreferrer" className="font-semibold text-leaf underline">Track on courier site</a></>}</p>
+                <ol className="mt-1.5 space-y-1 border-l-2 border-line pl-3 text-xs">
+                  {[...sh.events].reverse().map((e, j) => <li key={j}><b>{e.status}</b> · {formatDate(e.at, { day: "numeric", month: "short", hour: "numeric", minute: "2-digit" })}{e.note ? ` — ${e.note}` : ""}</li>)}
+                </ol>
+              </div>
+            ))}
+          </div>
+        )}
+        <p className="mt-2 text-xs text-ink-soft">
+          {new Set(order.items.map((it) => it.vendorId ?? "krip")).size > 1
+            ? "Your items come from different sellers, so they may arrive in separate parcels. Each parcel’s tracking appears here when it ships."
+            : "Tracking updates appear here as your order moves."}
+        </p>
       </section>
 
       <section className="rounded-2xl bg-white p-4 ring-1 ring-line" aria-labelledby="items-title">

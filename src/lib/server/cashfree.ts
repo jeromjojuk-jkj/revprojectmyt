@@ -51,6 +51,8 @@ export interface CashfreeOrderInput {
   returnUrl: string;
   notifyUrl: string;
   note: string;
+  /** Easy Split: amounts (₹) sent straight to marketplace vendors; the rest settles to Krip. */
+  splits?: { vendorId: string; amount: number }[];
 }
 
 export async function createCashfreeOrder(i: CashfreeOrderInput): Promise<{ sessionId: string }> {
@@ -66,6 +68,7 @@ export async function createCashfreeOrder(i: CashfreeOrderInput): Promise<{ sess
     },
     order_meta: { return_url: i.returnUrl, notify_url: i.notifyUrl },
     order_note: i.note.slice(0, 200),
+    ...(i.splits?.length ? { order_splits: i.splits.map((s) => ({ vendor_id: s.vendorId, amount: Math.round(s.amount * 100) / 100 })) } : {}),
   });
   if (!d.payment_session_id) throw new Error("Cashfree did not return a payment session.");
   return { sessionId: d.payment_session_id };
@@ -125,4 +128,25 @@ export function verifyCashfreeWebhook(raw: string, timestamp: string | null, sig
     return false;
   }
   return got.length === expected.length && crypto.timingSafeEqual(got, expected);
+}
+
+/** Easy Split is on when CASHFREE_EASY_SPLIT=on and Cashfree has enabled split payments for the account. */
+export const easySplitEnabled = () => cashfreeEnv().configured && process.env.CASHFREE_EASY_SPLIT?.trim().toLowerCase() === "on";
+
+/** Registers a marketplace vendor with Cashfree Easy Split so order splits can pay them directly. */
+export async function createCashfreeVendor(v: {
+  vendorId: string; name: string; email: string; phone: string; accountNumber: string; accountHolder: string; ifsc: string; pan: string; gstin: string;
+}): Promise<{ vendorId: string }> {
+  await call("POST", "/easy-split/vendors", {
+    vendor_id: v.vendorId,
+    status: "ACTIVE",
+    name: v.name.slice(0, 100),
+    email: v.email,
+    phone: v.phone,
+    verify_account: true,
+    dashboard_access: false,
+    bank: { account_number: v.accountNumber, account_holder: v.accountHolder, ifsc: v.ifsc },
+    kyc_details: { account_type: "BUSINESS", business_type: "Ecommerce", pan: v.pan, ...(v.gstin ? { gst: v.gstin } : {}) },
+  });
+  return { vendorId: v.vendorId };
 }

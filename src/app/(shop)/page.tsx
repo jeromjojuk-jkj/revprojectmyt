@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { getLiveOffers, getPublicProducts } from "@/lib/server/catalog";
+import { getFeaturedSellerProducts, getLiveOffers, getPublicProducts } from "@/lib/server/catalog";
 import { OfferRail } from "@/components/OfferRail";
 import { AutoMarquee } from "@/components/AutoMarquee";
 import { CATEGORIES, BUDGETS, VIBES, IS_FASHION } from "@/lib/constants";
@@ -31,7 +31,7 @@ const COLOUR_ROW = [
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const [products, offers] = await Promise.all([getPublicProducts(), getLiveOffers()]);
+  const [products, offers, sellerPicks] = await Promise.all([getPublicProducts(), getLiveOffers(), getFeaturedSellerProducts()]);
   const inStock = (p: (typeof products)[number]) => p.status === "active" && p.variants.some((v) => v.stock > 0);
   const trending = products.filter((p) => p.collections.includes("trending")).sort((a, b) => Number(inStock(b)) - Number(inStock(a))).slice(0, 8);
   const newest = [...products].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 10);
@@ -116,6 +116,12 @@ export default async function HomePage() {
         </ul>
       </Section>
 
+
+      {sellerPicks.length > 0 && (
+        <Section id="sellers" title="From our sellers" kicker="Featured by sellers on the Krip marketplace" href="/sell" hrefLabel="Sell on Krip">
+          <ProductRail products={sellerPicks} />
+        </Section>
+      )}
 
       {/* 6. New Drops */}
       <Section id="drops" title="New Drops" kicker="Just landed" href="/drops" hrefLabel="All drops">

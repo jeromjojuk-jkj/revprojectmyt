@@ -1,4 +1,6 @@
 import "server-only";
+import { vendorShippingRules } from "./vendorLedger";
+import { addWorkingDays, shippingOf, vendorShares } from "../vendorPlans";
 import crypto from "node:crypto";
 import type { Address, Order, OrderStatus, PaymentMethod } from "../types";
 import { allowedOps, paidAmount, refundedAmount, type OrderOp } from "../orderflow";
@@ -8,9 +10,9 @@ import { computeQuote } from "../pricing";
 import { isValidPincode, estimateDelivery } from "../pincode";
 import { INDIAN_STATES } from "../constants";
 import { readDb, withDb, type DB } from "./db";
-import { toPublicProduct } from "./catalog";
+import { sellableProducts, toPublicProduct } from "./catalog";
 import { paymentConfig, verifySignature, type GatewayEvent } from "./payments";
-import { cashfreeEnv, createCashfreeOrder, fetchCashfreeResult } from "./cashfree";
+import { cashfreeEnv, createCashfreeOrder, easySplitEnabled, fetchCashfreeResult } from "./cashfree";
 
 const RESERVATION_MINUTES = 15;
 
@@ -120,10 +122,10 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
     };
     const quote = computeQuote(
       { items: input.items, pincode: addr.value.pincode, paymentMethod: input.paymentMethod, couponCode: input.couponCode },
-      db.products.map(toPublicProduct),
+      sellableProducts(db).map(toPublicProduct),
       db.settings,
       {},
-      { couponUsage },
+      { couponUsage, vendorShipping: vendorShippingRules(db) },
     );
     if (code && !quote.couponCode) {
       throw new OrderError(quote.couponMessage ?? "This code can’t be used.", "coupon_invalid", 409, quote);
@@ -155,7 +157,13 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
       items: quote.lines.map((l) => ({
         productId: l.productId!, slug: l.slug!, sku: l.sku, title: l.title, color: l.color, size: l.size,
         image: l.image, unitPrice: l.unitPrice, qty: l.qty,
+        vendorId: db.products.find((p) => p.id === l.productId)?.vendorId ?? null,
       })),
+      commissionPerUnit: db.settings.vendorCommissionPerUnit ?? 10,
+      vendorParts: quote.deliveryParts.filter((d) => d.vendorId).map((d) => {
+        const vend = db.vendors.find((x) => x.id === d.vendorId);
+        return { vendorId: d.vendorId!, status: "new" as const, delivery: d.amount, dispatchBy: addWorkingDays(now, vend ? shippingOf(vend).handlingDays : 2).toISOString(), history: [], shipmentId: null };
+      }),
       subtotal: quote.subtotal,
       delivery: quote.delivery,
       codFee: quote.codFee,
@@ -253,7 +261,19 @@ export async function getCashfreeSession(id: string, token: string, origin: stri
   const attempt = (order.gatewayOrderIds?.length ?? 0) + 1;
   const gatewayOrderId = `${order.id}-${attempt}`;
   const t = encodeURIComponent(token);
+  // Easy Split: each seller who is registered with Cashfree gets their share (items + their delivery − commission) straight from Cashfree.
+  let splits: { vendorId: string; amount: number }[] = [];
+  if (easySplitEnabled() && order.vendorParts?.length) {
+    const db = await readDb();
+    const shares = vendorShares(order, order.commissionPerUnit ?? db.settings.vendorCommissionPerUnit ?? 10);
+    splits = [...shares].flatMap(([vid, sh]) => {
+      const cf = db.vendors.find((v) => v.id === vid && v.status === "approved")?.cashfreeVendorId;
+      return cf && sh.payout > 0 ? [{ vendorId: cf, amount: sh.payout }] : [];
+    });
+    if (splits.reduce((a, b) => a + b.amount, 0) >= order.total) splits = [];
+  }
   const { sessionId } = await createCashfreeOrder({
+    splits,
     gatewayOrderId,
     amount: order.total,
     customerId: customerKey(order.address.phone),
@@ -269,6 +289,7 @@ export async function getCashfreeSession(id: string, token: string, origin: stri
     if (!o) return;
     o.gatewayOrderIds = [...(o.gatewayOrderIds ?? []), gatewayOrderId];
     o.gateway = { orderId: gatewayOrderId, sessionId, createdAt: new Date().toISOString() };
+    o.vendorSplits = splits.length ? splits : null;
   });
   return { sessionId, mode: env.mode };
 }
@@ -459,7 +480,7 @@ export async function adminOrderAction(id: string, input: OrderActionInput, acto
 /** Public, minimal view of an order (no access token / idempotency key). */
 export function toCustomerOrder(o: Order) {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { accessToken, idempotencyKey, notes, assignee, refunds, shipments, gateway, gatewayOrderIds, ...rest } = o;
+  const { accessToken, idempotencyKey, notes, assignee, refunds, shipments, gateway, gatewayOrderIds, vendorParts, vendorSplits, ...rest } = o;
   return {
     ...rest,
     shipments: (shipments ?? []).map((s) => ({ carrier: s.carrier, awb: s.awb, trackingUrl: s.trackingUrl, events: s.events })),
