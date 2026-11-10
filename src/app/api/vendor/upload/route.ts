@@ -16,7 +16,8 @@ const TYPES: { type: string; ext: string; magic: (b: Uint8Array) => boolean }[] 
 export async function POST(req: Request) {
   const v = await getVendor();
   if (!v || v.status !== "approved") return NextResponse.json({ error: "Please sign in as an approved seller." }, { status: 401 });
-  if (!process.env.BLOB_READ_WRITE_TOKEN) return NextResponse.json({ error: "Photo upload isn’t switched on yet. Paste https:// photo links instead." }, { status: 503 });
+  // Vercel connects a Blob store either with a read-write token or (newer) with BLOB_STORE_ID + Vercel's built-in OIDC sign-in.
+  if (!process.env.BLOB_READ_WRITE_TOKEN && !process.env.BLOB_STORE_ID) return NextResponse.json({ error: "Photo upload isn’t switched on yet. Paste https:// photo links instead." }, { status: 503 });
   const fd = await req.formData().catch(() => null);
   const file = fd?.get("file");
   if (!(file instanceof File)) return NextResponse.json({ error: "Choose a photo." }, { status: 400 });
@@ -25,6 +26,11 @@ export async function POST(req: Request) {
   const kind = TYPES.find((t) => t.magic(buf));
   if (!kind) return NextResponse.json({ error: "Use a JPG, PNG or WebP photo." }, { status: 415 });
   const name = `sellers/${v.id}/${crypto.randomBytes(8).toString("hex")}.${kind.ext}`;
-  const blob = await put(name, Buffer.from(buf), { access: "public", contentType: kind.type, addRandomSuffix: false });
-  return NextResponse.json({ url: blob.url });
+  try {
+    const blob = await put(name, Buffer.from(buf), { access: "public", contentType: kind.type, addRandomSuffix: false });
+    return NextResponse.json({ url: blob.url });
+  } catch (e) {
+    console.error("Seller photo upload failed", e);
+    return NextResponse.json({ error: "Upload failed on our side. Please try again, or paste an https:// photo link." }, { status: 502 });
+  }
 }
