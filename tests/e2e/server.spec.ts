@@ -98,3 +98,14 @@ test("site is installable: manifest, icons, service worker and offline page", as
   expect(sw.headers()["cache-control"]).toContain("no-cache");
   expect((await request.get("/offline")).status()).toBe(200);
 });
+
+test("health check for uptime monitors: ok, uncached, nothing sensitive", async ({ request }) => {
+  const res = await request.get("/api/health");
+  expect(res.status()).toBe(200);
+  expect(res.headers()["cache-control"]).toContain("no-store");
+  const d = await res.json();
+  expect(d.status).toBe("ok");
+  expect(d.checks.datastore).toBe("ok");
+  expect(JSON.stringify(d)).not.toMatch(/secret|token|password|redis|upstash|@/i);
+  expect((await request.head("/api/health")).status()).toBe(200);
+});
