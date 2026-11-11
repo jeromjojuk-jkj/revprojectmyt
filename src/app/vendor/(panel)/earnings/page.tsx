@@ -2,8 +2,8 @@ import Link from "next/link";
 import { readDb } from "@/lib/server/db";
 import { requireApprovedVendor } from "@/lib/server/vendors";
 import { vendorLedger } from "@/lib/server/vendorLedger";
-import { planOf } from "@/lib/vendorPlans";
-import { formatPrice } from "@/lib/format";
+import { commissionOf, describeCommission, planOf } from "@/lib/vendorPlans";
+import { formatMoney, formatPrice } from "@/lib/format";
 
 export const metadata = { title: "Seller earnings", robots: { index: false } };
 
@@ -13,7 +13,6 @@ export default async function VendorEarnings() {
   const v = await requireApprovedVendor();
   const db = await readDb();
   const led = vendorLedger(db, v.id);
-  const rate = db.settings.vendorCommissionPerUnit ?? 10;
   const t = led.totals;
   const card = "rounded-2xl bg-white p-4 ring-1 ring-line";
   return (
@@ -26,9 +25,9 @@ export default async function VendorEarnings() {
       </div>
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         <div className={card}><p className="text-xs text-ink-soft">Sales (items)</p><p className="text-2xl font-bold">{formatPrice(t.gross)}</p><p className="text-xs text-ink-soft">{t.units} units · + {formatPrice(t.delivery)} delivery</p></div>
-        <div className={card}><p className="text-xs text-ink-soft">Krip commission (₹{rate}/unit)</p><p className="text-2xl font-bold">−{formatPrice(t.commission)}</p></div>
-        <div className={card}><p className="text-xs text-ink-soft">Your earnings</p><p className="text-2xl font-bold text-leaf">{formatPrice(t.earnings)}</p><p className="text-xs text-ink-soft">{formatPrice(t.viaCashfree)} paid via Cashfree</p></div>
-        <div className={card}><p className="text-xs text-ink-soft">Krip owes you now</p><p className="text-2xl font-bold">{formatPrice(t.dueNow)}</p><p className="text-xs text-ink-soft">{formatPrice(t.pending)} more after delivery · {formatPrice(t.paidManually)} paid so far</p></div>
+        <div className={card}><p className="text-xs text-ink-soft">Krip commission</p><p className="text-2xl font-bold">−{formatMoney(t.commission)}</p><p className="text-xs text-ink-soft">{describeCommission(commissionOf(db.settings))}</p></div>
+        <div className={card}><p className="text-xs text-ink-soft">Your earnings</p><p className="text-2xl font-bold text-leaf">{formatMoney(t.earnings)}</p><p className="text-xs text-ink-soft">{formatMoney(t.viaCashfree)} paid via Cashfree</p></div>
+        <div className={card}><p className="text-xs text-ink-soft">Krip owes you now</p><p className="text-2xl font-bold">{formatMoney(t.dueNow)}</p><p className="text-xs text-ink-soft">{formatMoney(t.pending)} more after delivery · {formatMoney(t.paidManually)} paid so far</p></div>
       </div>
 
       <section className={card}>
@@ -45,8 +44,8 @@ export default async function VendorEarnings() {
                     <td className="text-right">{s.units}</td>
                     <td className="text-right">{formatPrice(s.gross)}</td>
                     <td className="text-right">{formatPrice(s.delivery)}</td>
-                    <td className="text-right">−{formatPrice(s.commission)}</td>
-                    <td className="text-right font-medium">{formatPrice(s.payout)}</td>
+                    <td className="text-right">−{formatMoney(s.commission)}</td>
+                    <td className="text-right font-medium">{formatMoney(s.payout)}</td>
                     <td className="pl-3">{SETTLE[s.settlement]}</td>
                   </tr>
                 ))}
@@ -60,7 +59,7 @@ export default async function VendorEarnings() {
         <h2 className="font-semibold">Payouts from Krip</h2>
         {led.payouts.length === 0 ? <p className="mt-2 text-sm text-ink-soft">None yet.</p> : (
           <ul className="mt-2 divide-y divide-line text-sm">
-            {led.payouts.map((p) => <li key={p.id} className="flex justify-between gap-3 py-2"><span>{new Date(p.at).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" })} · ref {p.reference}{p.note ? ` · ${p.note}` : ""}</span><b>{formatPrice(p.amount)}</b></li>)}
+            {led.payouts.map((p) => <li key={p.id} className="flex justify-between gap-3 py-2"><span>{new Date(p.at).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" })} · ref {p.reference}{p.note ? ` · ${p.note}` : ""}</span><b>{formatMoney(p.amount)}</b></li>)}
           </ul>
         )}
         <p className="mt-2 text-xs text-ink-soft">Paid to {v.bank.holder}, account ending {v.bank.accountLast4} ({v.bank.ifsc}).</p>

@@ -3,8 +3,8 @@ import { notFound } from "next/navigation";
 import { readDb } from "@/lib/server/db";
 import { requireApprovedVendor } from "@/lib/server/vendors";
 import { allowedVendorOps, dispatchState, orderOpenForVendor, PART_LABEL, TRACKING_UPDATES } from "@/lib/vendorFulfilment";
-import { shippingOf, vendorShares } from "@/lib/vendorPlans";
-import { formatPrice } from "@/lib/format";
+import { describeCommission, orderCommission, shippingOf, vendorShares } from "@/lib/vendorPlans";
+import { formatMoney, formatPrice } from "@/lib/format";
 import { VendorOrderActions } from "./VendorOrderActions";
 
 export const metadata = { title: "Seller order", robots: { index: false } };
@@ -19,7 +19,8 @@ export default async function VendorOrder({ params }: { params: Promise<{ id: st
   const part = o?.vendorParts?.find((p) => p.vendorId === v.id);
   if (!o || !part || o.status === "payment_pending" || o.status === "payment_failed") notFound();
   const items = o.items.filter((i) => i.vendorId === v.id);
-  const share = vendorShares(o, o.commissionPerUnit ?? db.settings.vendorCommissionPerUnit ?? 10).get(v.id)!;
+  const share = vendorShares(o, orderCommission(o, db.settings)).get(v.id)!;
+  const basis = orderCommission(o, db.settings);
   const shipment = o.shipments?.find((s) => s.id === part.shipmentId);
   const ops = allowedVendorOps(o, part);
   const closed = orderOpenForVendor(o);
@@ -56,8 +57,8 @@ export default async function VendorOrder({ params }: { params: Promise<{ id: st
             <dl className="mt-2 space-y-1 border-t border-line pt-2 text-sm">
               <div className="flex justify-between"><dt>Items</dt><dd>{formatPrice(share.items)}</dd></div>
               <div className="flex justify-between"><dt>Delivery charge paid by customer</dt><dd>{share.delivery ? formatPrice(share.delivery) : "Free"}</dd></div>
-              <div className="flex justify-between text-ink-soft"><dt>Krip commission ({share.units} × ₹{o.commissionPerUnit ?? db.settings.vendorCommissionPerUnit ?? 10})</dt><dd>−{formatPrice(share.commission)}</dd></div>
-              <div className="flex justify-between font-semibold"><dt>You earn</dt><dd>{formatPrice(share.payout)}</dd></div>
+              <div className="flex justify-between text-ink-soft"><dt>Krip commission ({typeof basis === "number" ? `${share.units} × ₹${basis}` : describeCommission(basis)})</dt><dd>−{formatMoney(share.commission)}</dd></div>
+              <div className="flex justify-between font-semibold"><dt>You earn</dt><dd>{formatMoney(share.payout)}</dd></div>
             </dl>
           </section>
 

@@ -6,7 +6,7 @@ import { formatPrice } from "@/lib/format";
 
 const input = "h-11 w-full rounded-xl border-2 border-line bg-white px-3 text-[15px] outline-none focus:border-leaf";
 
-export function RegisterForm({ plans, states, initialPlan }: { plans: { id: string; name: string; fee: number }[]; states: readonly string[]; initialPlan: string }) {
+export function RegisterForm({ plans, states, initialPlan, commission }: { plans: { id: string; name: string; fee: number }[]; states: readonly string[]; initialPlan: string; commission: string }) {
   const [state, action, pending] = useActionState(registerVendorAction, null);
   const v = state?.values ?? {};
   const err = state?.errors ?? {};
@@ -80,7 +80,7 @@ export function RegisterForm({ plans, states, initialPlan }: { plans: { id: stri
       </fieldset>
       <label className="flex items-start gap-2 text-sm">
         <input type="checkbox" name="terms" className="mt-0.5 h-5 w-5 accent-leaf" />
-        <span>I’ll only list genuine products I’m allowed to sell, ship orders on time, and accept Krip’s ₹10-per-product commission and the <a href="/help/terms" className="text-leaf underline" target="_blank">terms</a>.</span>
+        <span>I’ll only list genuine products I’m allowed to sell, ship orders on time, and accept Krip’s commission ({commission} of each product’s selling price) and the <a href="/help/terms" className="text-leaf underline" target="_blank">terms</a>.</span>
       </label>
       {err.terms && <p className="text-xs text-danger">{err.terms}</p>}
       {(state?.error || (state?.errors && Object.keys(state.errors).length > 0)) && (

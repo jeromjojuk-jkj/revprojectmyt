@@ -5,7 +5,7 @@ import { computeQuote } from "../../src/lib/pricing.ts";
 import type { Order, ProductPublic, Settings } from "../../src/lib/types.ts";
 import { normalizeCoupon } from "../../src/lib/coupons.ts";
 import { DEFAULT_DELIVERY } from "../../src/lib/pincode.ts";
-import { addWorkingDays, validateShipping, vendorShares } from "../../src/lib/vendorPlans.ts";
+import { addWorkingDays, DEFAULT_COMMISSION, describeCommission, unitCommission, validateCommission, validateShipping, vendorShares } from "../../src/lib/vendorPlans.ts";
 import { applyVendorOp, allowedVendorOps, FulfilmentError } from "../../src/lib/vendorFulfilment.ts";
 import { validateRegistration, validateVendorProduct } from "../../src/lib/vendorInput.ts";
 
@@ -48,11 +48,28 @@ test("Cash on Delivery is off when the bag has a seller's item", () => {
   assert.equal(computeQuote({ items: [k()], pincode: "560001", paymentMethod: "cod" }, products, settings).codAvailable, true);
 });
 
-test("seller payout = items + their delivery charge − ₹10 per unit", () => {
-  const o = { items: [{ vendorId: "V1", unitPrice: 499, qty: 3 }, { vendorId: null, unitPrice: 200, qty: 1 }], vendorParts: [{ vendorId: "V1", delivery: 40 }] } as unknown as Order;
-  const s = vendorShares(o, 10).get("V1")!;
-  assert.deepEqual(s, { items: 1497, units: 3, delivery: 40, commission: 30, payout: 1507 });
-  assert.equal(vendorShares(o, 10).size, 1);
+test("commission: 1% on products up to ₹100, 2% above ₹100, to the paisa", () => {
+  assert.equal(unitCommission(49, DEFAULT_COMMISSION), 0.49);
+  assert.equal(unitCommission(100, DEFAULT_COMMISSION), 1);
+  assert.equal(unitCommission(101, DEFAULT_COMMISSION), 2.02);
+  assert.equal(unitCommission(499, DEFAULT_COMMISSION), 9.98);
+  assert.equal(describeCommission(DEFAULT_COMMISSION), "1% on products up to ₹100, 2% above ₹100");
+  assert.equal(unitCommission(499, 10), 10, "older orders keep the flat ₹10");
+});
+
+test("seller payout = items + their delivery charge − commission", () => {
+  const o = { items: [{ vendorId: "V1", unitPrice: 499, qty: 3 }, { vendorId: "V1", unitPrice: 80, qty: 2 }, { vendorId: null, unitPrice: 200, qty: 1 }], vendorParts: [{ vendorId: "V1", delivery: 40 }] } as unknown as Order;
+  const s = vendorShares(o, DEFAULT_COMMISSION).get("V1")!;
+  // 3 × 9.98 + 2 × 0.80 = 31.54
+  assert.deepEqual(s, { items: 1657, units: 5, delivery: 40, commission: 31.54, payout: 1665.46 });
+  assert.equal(vendorShares(o, DEFAULT_COMMISSION).size, 1);
+});
+
+test("commission settings are validated", () => {
+  assert.deepEqual(validateCommission({ upTo: "100", lowPct: "1", highPct: "2.5" }), { ok: true, value: { upTo: 100, lowPct: 1, highPct: 2.5 } });
+  assert.equal(validateCommission({ upTo: "100", lowPct: "1.1", highPct: "2.3" }).ok, true);
+  assert.equal(validateCommission({ upTo: "100", lowPct: "1.25", highPct: "2" }).ok, false);
+  assert.equal(validateCommission({ upTo: "0", lowPct: "1", highPct: "2" }).ok, false);
 });
 
 test("dispatch deadline skips Sundays (IST)", () => {

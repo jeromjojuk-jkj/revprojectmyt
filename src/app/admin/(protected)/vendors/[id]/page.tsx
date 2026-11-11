@@ -6,7 +6,7 @@ import { vendorLedger } from "@/lib/server/vendorLedger";
 import { easySplitEnabled } from "@/lib/server/cashfree";
 import { planOf, shippingOf } from "@/lib/vendorPlans";
 import { PART_LABEL, dispatchState } from "@/lib/vendorFulfilment";
-import { formatPrice } from "@/lib/format";
+import { formatMoney, formatPrice } from "@/lib/format";
 import { Badge, Card, Notice, PageHeader, Table, btn, field, label, td, th } from "@/app/admin/_components/ui";
 import { VForm } from "../VForm";
 import { STATUS } from "../status";
@@ -89,17 +89,17 @@ export default async function Seller({ params }: { params: Promise<{ id: string 
         </Card>
       )}
 
-      <Card title={`Earnings — Krip owes ${formatPrice(led.totals.dueNow)}`}>
-        <p className="text-sm text-ink-soft">Sales {formatPrice(led.totals.gross)} + delivery {formatPrice(led.totals.delivery)} − commission {formatPrice(led.totals.commission)} = seller earnings {formatPrice(led.totals.earnings)}. Via Cashfree split: {formatPrice(led.totals.viaCashfree)}. Waiting for delivery: {formatPrice(led.totals.pending)}. Paid by Krip so far: {formatPrice(led.totals.paidManually)}.</p>
+      <Card title={`Earnings — Krip owes ${formatMoney(led.totals.dueNow)}`}>
+        <p className="text-sm text-ink-soft">Sales {formatPrice(led.totals.gross)} + delivery {formatPrice(led.totals.delivery)} − commission {formatMoney(led.totals.commission)} = seller earnings {formatMoney(led.totals.earnings)}. Via Cashfree split: {formatMoney(led.totals.viaCashfree)}. Waiting for delivery: {formatMoney(led.totals.pending)}. Paid by Krip so far: {formatMoney(led.totals.paidManually)}.</p>
         {canManage && (
           <VForm action={vendorPayoutAction} hidden={{ id: v.id }} className="mt-3 flex flex-wrap items-end gap-2">
-            <div><label className={label} htmlFor="amt">Amount paid (₹)</label><input id="amt" name="amount" inputMode="numeric" defaultValue={led.totals.dueNow || ""} className={`${field} w-32`} /></div>
+            <div><label className={label} htmlFor="amt">Amount paid (₹)</label><input id="amt" name="amount" inputMode="decimal" defaultValue={led.totals.dueNow || ""} className={`${field} w-32`} /></div>
             <div><label className={label} htmlFor="ref">Bank / UPI reference</label><input id="ref" name="reference" className={`${field} w-48`} /></div>
             <div><label className={label} htmlFor="pn">Note</label><input id="pn" name="note" className={`${field} w-56`} /></div>
             <button className={btn.primary}>Record payout</button>
           </VForm>
         )}
-        {led.payouts.length > 0 && <ul className="mt-3 divide-y divide-line text-sm">{led.payouts.map((p) => <li key={p.id} className="flex justify-between py-1.5"><span>{day(p.at)} · {p.reference} · by {p.by}{p.note ? ` · ${p.note}` : ""}</span><b>{formatPrice(p.amount)}</b></li>)}</ul>}
+        {led.payouts.length > 0 && <ul className="mt-3 divide-y divide-line text-sm">{led.payouts.map((p) => <li key={p.id} className="flex justify-between py-1.5"><span>{day(p.at)} · {p.reference} · by {p.by}{p.note ? ` · ${p.note}` : ""}</span><b>{formatMoney(p.amount)}</b></li>)}</ul>}
       </Card>
 
       <Card title={`Orders (${led.sales.length})`}>
@@ -113,7 +113,7 @@ export default async function Seller({ params }: { params: Promise<{ id: string 
                   <td className={td}>{day(s.createdAt)}</td>
                   <td className={td}>{s.settlement === "void" ? "Cancelled" : s.part ? PART_LABEL[s.part.status] : "—"}{s.part && s.settlement !== "void" && dispatchState(s.part) === "late" && <div><Badge tone="red">Late</Badge></div>}</td>
                   <td className={td}>{s.units} · {formatPrice(s.gross)}</td>
-                  <td className={td}>{formatPrice(s.payout)}</td>
+                  <td className={td}>{formatMoney(s.payout)}</td>
                   <td className={td}>{{ split: "Cashfree split", owed: "Krip pays", pending: "After delivery", void: "Cancelled" }[s.settlement]}</td>
                 </tr>
               ))}

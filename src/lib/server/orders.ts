@@ -1,6 +1,6 @@
 import "server-only";
 import { vendorShippingRules } from "./vendorLedger";
-import { addWorkingDays, shippingOf, vendorShares } from "../vendorPlans";
+import { addWorkingDays, commissionOf, orderCommission, shippingOf, vendorShares } from "../vendorPlans";
 import crypto from "node:crypto";
 import type { Address, Order, OrderStatus, PaymentMethod } from "../types";
 import { allowedOps, paidAmount, refundedAmount, type OrderOp } from "../orderflow";
@@ -159,7 +159,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
         image: l.image, unitPrice: l.unitPrice, qty: l.qty,
         vendorId: db.products.find((p) => p.id === l.productId)?.vendorId ?? null,
       })),
-      commissionPerUnit: db.settings.vendorCommissionPerUnit ?? 10,
+      commissionRule: commissionOf(db.settings),
       vendorParts: quote.deliveryParts.filter((d) => d.vendorId).map((d) => {
         const vend = db.vendors.find((x) => x.id === d.vendorId);
         return { vendorId: d.vendorId!, status: "new" as const, delivery: d.amount, dispatchBy: addWorkingDays(now, vend ? shippingOf(vend).handlingDays : 2).toISOString(), history: [], shipmentId: null };
@@ -265,7 +265,7 @@ export async function getCashfreeSession(id: string, token: string, origin: stri
   let splits: { vendorId: string; amount: number }[] = [];
   if (easySplitEnabled() && order.vendorParts?.length) {
     const db = await readDb();
-    const shares = vendorShares(order, order.commissionPerUnit ?? db.settings.vendorCommissionPerUnit ?? 10);
+    const shares = vendorShares(order, orderCommission(order, db.settings));
     splits = [...shares].flatMap(([vid, sh]) => {
       const cf = db.vendors.find((v) => v.id === vid && v.status === "approved")?.cashfreeVendorId;
       return cf && sh.payout > 0 ? [{ vendorId: cf, amount: sh.payout }] : [];

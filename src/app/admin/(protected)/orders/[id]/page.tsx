@@ -10,7 +10,8 @@ import { customerKey } from "@/lib/server/orders";
 import { Badge, Card, PageHeader, btn } from "@/app/admin/_components/ui";
 import { OrderActions } from "./OrderActions";
 import { PART_LABEL, dispatchState } from "@/lib/vendorFulfilment";
-import { vendorShares } from "@/lib/vendorPlans";
+import { orderCommission, vendorShares } from "@/lib/vendorPlans";
+import { formatMoney } from "@/lib/format";
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   return { title: `Order ${(await params).id}` };
@@ -68,7 +69,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
               <ul className="divide-y divide-line text-sm">
                 {o.vendorParts!.map((p) => {
                   const v = db.vendors.find((x) => x.id === p.vendorId);
-                  const sh = vendorShares(o, o.commissionPerUnit ?? db.settings.vendorCommissionPerUnit ?? 10).get(p.vendorId);
+                  const sh = vendorShares(o, orderCommission(o, db.settings)).get(p.vendorId);
                   const late = o.status !== "cancelled" && dispatchState(p) === "late";
                   return (
                     <li key={p.vendorId} className="py-2">
@@ -76,7 +77,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
                         <Link href={`/admin/vendors/${p.vendorId}`} className="font-medium text-leaf underline">{v?.businessName ?? p.vendorId}</Link>
                         <span className="flex gap-1"><Badge tone={p.status === "cancel_requested" ? "red" : p.status === "delivered" ? "green" : "yellow"}>{PART_LABEL[p.status]}</Badge>{late && <Badge tone="red">Dispatch late</Badge>}</span>
                       </div>
-                      <p className="text-xs text-ink-soft">{o.items.filter((i) => i.vendorId === p.vendorId).map((i) => `${i.qty} × ${i.title}`).join(", ")} · delivery {formatPrice(p.delivery)} · dispatch by {dt(p.dispatchBy)}{sh ? ` · seller earns ${formatPrice(sh.payout)}, Krip commission ${formatPrice(sh.commission)}` : ""}</p>
+                      <p className="text-xs text-ink-soft">{o.items.filter((i) => i.vendorId === p.vendorId).map((i) => `${i.qty} × ${i.title}`).join(", ")} · delivery {formatPrice(p.delivery)} · dispatch by {dt(p.dispatchBy)}{sh ? ` · seller earns ${formatMoney(sh.payout)}, Krip commission ${formatMoney(sh.commission)}` : ""}</p>
                       {p.history.at(-1)?.note && <p className="text-xs">Latest: {p.history.at(-1)!.note}</p>}
                     </li>
                   );

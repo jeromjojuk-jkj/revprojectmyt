@@ -8,6 +8,7 @@ import { normalizeCoupon } from "../coupons";
 import { buildSeedProducts, CATALOG_VERSION, IMAGE_ORDER_FIXES, IMAGE_RENAMES } from "@/data/catalog";
 import { DEFAULT_DELIVERY } from "@/lib/pincode";
 import { DEFAULT_FESTIVAL_OFFERS } from "@/lib/festivalOffers";
+import { DEFAULT_COMMISSION } from "@/lib/vendorPlans";
 import { SEED_OFFERS } from "@/data/offers";
 
 // Prototype datastore: a single JSON file with an in-process write lock.
@@ -68,7 +69,7 @@ export const DEFAULT_SETTINGS: Settings = {
   coupons: [],
   delivery: { ...DEFAULT_DELIVERY },
   festivalOffers: structuredClone(DEFAULT_FESTIVAL_OFFERS),
-  vendorCommissionPerUnit: 10,
+  vendorCommission: { ...DEFAULT_COMMISSION },
 };
 
 function seed(): DB {
@@ -111,7 +112,9 @@ function migrate(db: DB) {
   for (const c of db.settings.coupons) if (c.code === "AURA50" && c.description.startsWith("Sample code")) c.active = false;
   db.settings.delivery = { ...DEFAULT_DELIVERY, ...db.settings.delivery };
   db.settings.festivalOffers ??= structuredClone(DEFAULT_FESTIVAL_OFFERS);
-  db.settings.vendorCommissionPerUnit ??= 10;
+  // Commission moved from a flat ₹10 per unit to a % of the price; orders already placed keep their own terms.
+  db.settings.vendorCommission ??= { ...DEFAULT_COMMISSION };
+  delete db.settings.vendorCommissionPerUnit;
   // Catalogue additions reach existing stores once; products removed or edited in admin aren't touched.
   if ((db.catalogVersion ?? 1) < CATALOG_VERSION) {
     const have = new Set(db.products.map((p) => p.id));
