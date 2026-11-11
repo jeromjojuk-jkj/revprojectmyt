@@ -118,7 +118,7 @@ test("seller marketplace: register → approve → list → sell → ship → ea
   await seller.getByRole("link", { name: /KRP-/ }).first().click();
   await expect(seller.getByText("Ravi Kumar")).toBeVisible();
   await expect(seller.getByText("You earn")).toBeVisible();
-  await expect(seller.getByText("₹369")).toBeVisible(); // 349 + 30 − 10
+  await expect(seller.getByText("₹372.02")).toBeVisible(); // 349 + 30 − 2% of 349 (₹6.98)
   await seller.getByRole("button", { name: "Accept order" }).click();
   await expect(seller.getByText("Order accepted.")).toBeVisible();
   await seller.getByRole("button", { name: "Mark as packed" }).click();
@@ -145,15 +145,15 @@ test("seller marketplace: register → approve → list → sell → ship → ea
   expect(slipHtml).toContain("Ravi Kumar");
   expect(slipHtml).not.toContain("₹349");
 
-  // 7. Earnings: Krip owes the seller ₹369 (no Easy Split in tests); admin records the payout.
+  // 7. Earnings: Krip owes the seller ₹372.02 (no Easy Split in tests); admin records the payout.
   await seller.goto("/vendor/earnings");
   await expect(seller.getByText("Krip pays you")).toBeVisible();
   await admin.goto("/admin/vendors");
   await admin.getByRole("link", { name: "Asha Home Store" }).click();
-  await expect(admin.getByText(/Krip owes ₹369/)).toBeVisible();
+  await expect(admin.getByText(/Krip owes ₹372\.02/)).toBeVisible();
   await admin.getByLabel("Bank / UPI reference").fill("UTR12345678");
   await admin.getByRole("button", { name: "Record payout" }).click();
-  await expect(admin.getByText("Payout of ₹369 recorded.")).toBeVisible();
+  await expect(admin.getByText("Payout of ₹372.02 recorded.")).toBeVisible();
   await admin.getByRole("button", { name: "Show full account number" }).click();
   await expect(admin.getByText("123456789012")).toBeVisible();
 

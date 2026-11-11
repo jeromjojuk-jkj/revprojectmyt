@@ -7,7 +7,7 @@ import { withDb, readDb } from "@/lib/server/db";
 import { audit } from "@/lib/server/audit";
 import { unseal } from "@/lib/server/vault";
 import { createCashfreeVendor, easySplitEnabled } from "@/lib/server/cashfree";
-import { planOf } from "@/lib/vendorPlans";
+import { describeCommission, planOf, validateCommission } from "@/lib/vendorPlans";
 import type { VendorStatus } from "@/lib/types";
 
 export type VendorAdminState = { ok?: string; error?: string; secret?: string } | null;
@@ -86,9 +86,9 @@ export async function revealBankAction(_: VendorAdminState, fd: FormData): Promi
 export async function vendorPayoutAction(_: VendorAdminState, fd: FormData): Promise<VendorAdminState> {
   const { actor } = await requirePerm("vendors.manage");
   const id = str(fd, "id", 20);
-  const amount = Number(str(fd, "amount", 10));
+  const amount = Number(str(fd, "amount", 12));
   const reference = str(fd, "reference", 80);
-  if (!Number.isInteger(amount) || amount < 1 || amount > 10_000_000) return { error: "Enter the amount paid in whole rupees." };
+  if (!Number.isFinite(amount) || amount < 0.01 || amount > 10_000_000 || Math.abs(Math.round(amount * 100) - amount * 100) > 1e-6) return { error: "Enter the amount paid, e.g. 489 or 489.02." };
   if (reference.length < 4) return { error: "Enter the bank / UPI transaction reference." };
   await withDb((db) => {
     if (!db.vendors.some((x) => x.id === id)) return;
@@ -155,13 +155,14 @@ export async function reviewListingAction(_: VendorAdminState, fd: FormData): Pr
 
 export async function commissionAction(_: VendorAdminState, fd: FormData): Promise<VendorAdminState> {
   const { actor } = await requirePerm("finance.manage");
-  const n = Number(str(fd, "rate", 6));
-  if (!Number.isInteger(n) || n < 0 || n > 1000) return { error: "Enter ₹0–₹1000 per unit." };
+  const r = validateCommission({ upTo: str(fd, "upTo", 8), lowPct: str(fd, "lowPct", 6), highPct: str(fd, "highPct", 6) });
+  if (!r.ok) return { error: r.error };
   await withDb((db) => {
-    const before = db.settings.vendorCommissionPerUnit;
-    db.settings.vendorCommissionPerUnit = n;
-    audit(db, actor, "settings.vendor_commission", "settings", "vendorCommissionPerUnit", { before, after: n });
+    const before = db.settings.vendorCommission ?? null;
+    db.settings.vendorCommission = r.value;
+    audit(db, actor, "settings.vendor_commission", "settings", "vendorCommission", { before, after: r.value });
   });
   refresh();
-  return { ok: `Commission set to ₹${n} per unit for new orders. Orders already placed keep their rate.` };
+  revalidatePath("/sell");
+  return { ok: `Saved: ${describeCommission(r.value)}. Applies to new orders; orders already placed keep theirs.` };
 }

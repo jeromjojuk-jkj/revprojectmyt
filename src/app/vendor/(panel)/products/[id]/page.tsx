@@ -4,6 +4,8 @@ import { CATEGORIES } from "@/lib/constants";
 import { readDb } from "@/lib/server/db";
 import { requireApprovedVendor } from "@/lib/server/vendors";
 import { VendorProductForm } from "../VendorProductForm";
+import { commissionOf, describeCommission } from "@/lib/vendorPlans";
+import { getSettings } from "@/lib/server/catalog";
 
 export const metadata = { title: "Edit product", robots: { index: false } };
 
@@ -23,7 +25,7 @@ export default async function EditVendorProduct({ params }: { params: Promise<{ 
       <Link href="/vendor/products" className="text-sm text-leaf underline">← Products</Link>
       <h1 className="text-2xl font-bold">Edit product</h1>
       {r?.status === "rejected" && <p className="rounded-xl bg-danger-soft p-3 text-sm text-danger"><b>Krip didn’t approve this listing:</b> {r.note || "Please check the details and photos."} Fix it and save to send it again.</p>}
-      <VendorProductForm initial={initial} categories={CATEGORIES.map((c) => ({ id: c.id, name: c.name }))} live={p.status === "active"} />
+      <VendorProductForm initial={initial} categories={CATEGORIES.map((c) => ({ id: c.id, name: c.name }))} commission={describeCommission(commissionOf(await getSettings()))} live={p.status === "active"} />
     </div>
   );
 }

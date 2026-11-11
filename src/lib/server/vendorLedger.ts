@@ -1,7 +1,7 @@
 import "server-only";
 import type { DB } from "./db";
 import type { Order } from "../types";
-import { shippingOf, vendorShares } from "../vendorPlans";
+import { orderCommission, paise, shippingOf, vendorShares } from "../vendorPlans";
 import type { VendorShippingRule } from "../pricing";
 
 export interface VendorSale {
@@ -26,10 +26,9 @@ export interface VendorSale {
  * everything else (COD, or online before Easy Split was on) is owed by Krip once delivered.
  */
 export function vendorLedger(db: DB, vendorId: string) {
-  const rate = db.settings.vendorCommissionPerUnit ?? 10;
   const sales: VendorSale[] = [];
   for (const o of db.orders) {
-    const share = vendorShares(o, o.commissionPerUnit ?? rate).get(vendorId);
+    const share = vendorShares(o, orderCommission(o, db.settings)).get(vendorId);
     if (!share) continue;
     if (o.status === "payment_pending" || o.status === "payment_failed") continue;
     const split = o.paymentMethod === "online" && (o.vendorSplits ?? []).some((x) => x.vendorId === vendorId);
@@ -51,15 +50,15 @@ export function vendorLedger(db: DB, vendorId: string) {
     sales,
     payouts,
     totals: {
-      gross: live.reduce((s, x) => s + x.gross, 0),
-      delivery: live.reduce((s, x) => s + x.delivery, 0),
-      units: live.reduce((s, x) => s + x.units, 0),
-      commission: live.reduce((s, x) => s + x.commission, 0),
-      earnings: live.reduce((s, x) => s + x.payout, 0),
-      viaCashfree: live.filter((s) => s.settlement === "split").reduce((s, x) => s + x.payout, 0),
-      pending: live.filter((s) => s.settlement === "pending").reduce((s, x) => s + x.payout, 0),
+      gross: paise(live.reduce((s, x) => s + x.gross, 0)),
+      delivery: paise(live.reduce((s, x) => s + x.delivery, 0)),
+      units: paise(live.reduce((s, x) => s + x.units, 0)),
+      commission: paise(live.reduce((s, x) => s + x.commission, 0)),
+      earnings: paise(live.reduce((s, x) => s + x.payout, 0)),
+      viaCashfree: paise(live.filter((s) => s.settlement === "split").reduce((s, x) => s + x.payout, 0)),
+      pending: paise(live.filter((s) => s.settlement === "pending").reduce((s, x) => s + x.payout, 0)),
       paidManually,
-      dueNow: Math.max(0, owedTotal - paidManually),
+      dueNow: paise(Math.max(0, owedTotal - paidManually)),
     },
   };
 }

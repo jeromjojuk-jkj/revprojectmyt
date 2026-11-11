@@ -2,8 +2,8 @@ import Link from "next/link";
 import { requirePerm } from "@/lib/server/auth";
 import { readDb } from "@/lib/server/db";
 import { vendorLedger } from "@/lib/server/vendorLedger";
-import { planOf } from "@/lib/vendorPlans";
-import { formatPrice } from "@/lib/format";
+import { commissionOf, describeCommission, planOf } from "@/lib/vendorPlans";
+import { formatMoney, formatPrice } from "@/lib/format";
 import { easySplitEnabled } from "@/lib/server/cashfree";
 import { Badge, Card, Empty, Notice, PageHeader, Table, btn, field, label, td, th } from "@/app/admin/_components/ui";
 import type { VendorStatus } from "@/lib/types";
@@ -22,6 +22,7 @@ export default async function Sellers({ searchParams }: { searchParams: Promise<
   const all = [...db.vendors].sort((a, b) => b.createdAt.localeCompare(a.createdAt));
   const list = status ? all.filter((v) => v.status === status) : all;
   const pendingListings = db.products.filter((p) => p.vendorId && p.private.review?.status === "pending").length;
+  const rule = commissionOf(db.settings);
   const fees = all.filter((v) => v.fee.paid && !v.fee.demo).reduce((s, v) => s + v.planFee, 0);
   return (
     <div className="space-y-4">
@@ -44,8 +45,8 @@ export default async function Sellers({ searchParams }: { searchParams: Promise<
                   <td className={td}>{planOf(v.plan).name}<div className="text-xs text-ink-soft">{formatPrice(v.planFee)} {v.fee.paid ? (v.fee.demo ? "(test)" : "paid") : "unpaid"}</div></td>
                   <td className={td}><Badge tone={STATUS[v.status][1]}>{STATUS[v.status][0]}</Badge>{v.verified && <div className="mt-1"><Badge tone="blue">Verified</Badge></div>}</td>
                   <td className={td}>{n} live</td>
-                  <td className={td}>{formatPrice(led.totals.gross)}<div className="text-xs text-ink-soft">{led.totals.units} units · ₹{led.totals.commission} commission</div></td>
-                  <td className={td}>{formatPrice(led.totals.dueNow)}</td>
+                  <td className={td}>{formatPrice(led.totals.gross)}<div className="text-xs text-ink-soft">{led.totals.units} units · {formatMoney(led.totals.commission)} commission</div></td>
+                  <td className={td}>{formatMoney(led.totals.dueNow)}</td>
                   <td className={td}>{new Date(v.createdAt).toLocaleDateString("en-IN", { timeZone: "Asia/Kolkata" })}</td>
                 </tr>
               );
@@ -58,14 +59,17 @@ export default async function Sellers({ searchParams }: { searchParams: Promise<
           <p className="text-2xl font-bold">{formatPrice(fees)}</p>
           <p className="text-xs text-ink-soft">Real payments only (test payments excluded).</p>
         </Card>
-        <Card title="Commission per unit sold">
-          {ctx.can("finance.manage") ? (
-            <VForm action={commissionAction} hidden={{}} className="flex flex-wrap items-end gap-2">
-              <div><label className={label} htmlFor="rate">₹ per unit</label><input id="rate" name="rate" inputMode="numeric" defaultValue={db.settings.vendorCommissionPerUnit ?? 10} className={`${field} w-28`} /></div>
+        <Card title="Commission on sellers’ sales">
+          <p className="font-semibold">{describeCommission(rule)}</p>
+          {ctx.can("finance.manage") && (
+            <VForm action={commissionAction} hidden={{}} className="mt-3 flex flex-wrap items-end gap-2">
+              <div><label className={label} htmlFor="c-low">% for products up to the limit</label><input id="c-low" name="lowPct" inputMode="decimal" defaultValue={rule.lowPct} className={`${field} w-24`} /></div>
+              <div><label className={label} htmlFor="c-upto">Price limit (₹)</label><input id="c-upto" name="upTo" inputMode="numeric" defaultValue={rule.upTo} className={`${field} w-24`} /></div>
+              <div><label className={label} htmlFor="c-high">% above the limit</label><input id="c-high" name="highPct" inputMode="decimal" defaultValue={rule.highPct} className={`${field} w-24`} /></div>
               <button className={btn.primary}>Save</button>
             </VForm>
-          ) : <p className="text-2xl font-bold">₹{db.settings.vendorCommissionPerUnit ?? 10}</p>}
-          <p className="mt-2 text-xs text-ink-soft">The seller registration page promises ₹10 — change it there too if you change this. Orders already placed keep their rate.</p>
+          )}
+          <p className="mt-2 text-xs text-ink-soft">Charged on each product’s selling price (per unit). The Sell on Krip page and seller panel show this automatically. Orders already placed keep the commission they were placed with.</p>
         </Card>
       </div>
     </div>

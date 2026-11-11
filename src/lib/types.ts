@@ -298,9 +298,14 @@ export interface Settings {
   coupons: Coupon[];
   delivery: DeliveryRules;
   festivalOffers?: FestivalOffer[];
-  /** Krip's commission per unit sold by a marketplace vendor (₹). */
+  /** Krip's commission on marketplace sellers' sales: a % of the selling price, lower for cheap products. */
+  vendorCommission?: CommissionRule;
+  /** Old flat ₹-per-unit commission (replaced by vendorCommission). */
   vendorCommissionPerUnit?: number;
 }
+
+/** Commission as a % of each product's selling price: lowPct when the price is ≤ upTo (₹), highPct above. */
+export interface CommissionRule { upTo: number; lowPct: number; highPct: number }
 
 export type PaymentMethod = "online" | "cod";
 
@@ -410,7 +415,9 @@ export interface Order {
   vendorSplits?: { vendorId: string; amount: number }[] | null;
   /** Marketplace sellers' parts of this order (their items, delivery charge and fulfilment). */
   vendorParts?: VendorPart[];
-  /** Krip's commission per seller unit, fixed when the order was placed. */
+  /** Krip's commission rule, fixed when the order was placed. */
+  commissionRule?: CommissionRule;
+  /** Older orders: flat ₹ commission per seller unit. */
   commissionPerUnit?: number;
   /** Admin-only fields below. Never sent to shoppers. */
   onHold?: boolean;

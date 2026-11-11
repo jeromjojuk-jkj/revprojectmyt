@@ -6,7 +6,7 @@ import { saveVendorProductAction } from "@/app/vendor/productActions";
 const input = "h-11 w-full rounded-xl border-2 border-line bg-white px-3 text-[15px] outline-none focus:border-leaf";
 const area = "w-full rounded-xl border-2 border-line bg-white p-3 text-[15px] outline-none focus:border-leaf";
 
-export function VendorProductForm({ initial, categories, live }: { initial: Record<string, string>; categories: { id: string; name: string }[]; live: boolean }) {
+export function VendorProductForm({ initial, categories, live, commission }: { initial: Record<string, string>; categories: { id: string; name: string }[]; live: boolean; commission: string }) {
   const [state, action, pending] = useActionState(saveVendorProductAction, null);
   const v = state?.values ?? initial;
   const err = state?.errors ?? {};
@@ -80,7 +80,7 @@ export function VendorProductForm({ initial, categories, live }: { initial: Reco
       <fieldset className={box}>
         <legend className="px-1 font-semibold">Price & stock</legend>
         <div className="grid gap-3 sm:grid-cols-3">
-          {F({ name: "price", label: "Selling price (₹)", mode: "numeric", hint: "Incl. GST. You get this − ₹10 per unit." })}
+          {F({ name: "price", label: "Selling price (₹)", mode: "numeric", hint: `Incl. GST. Krip’s commission: ${commission}.` })}
           {F({ name: "mrp", label: "MRP (₹, optional)", mode: "numeric", hint: "Printed MRP only." })}
           {F({ name: "stock", label: "Stock you have", mode: "numeric" })}
         </div>
