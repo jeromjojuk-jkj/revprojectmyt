@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { getFeaturedSellerProducts, getLiveOffers, getPublicProducts } from "@/lib/server/catalog";
 import { OfferRail } from "@/components/OfferRail";
-import { AutoMarquee } from "@/components/AutoMarquee";
 import { CATEGORIES, BUDGETS, VIBES, IS_FASHION } from "@/lib/constants";
 import { LOOKS } from "@/data/catalog";
 import { ProductGrid, ProductRail } from "@/components/ProductCard";
@@ -125,7 +124,7 @@ export default async function HomePage() {
 
       {/* 6. New Drops */}
       <Section id="drops" title="New Drops" kicker="Just landed" href="/drops" hrefLabel="All drops">
-        <AutoMarquee products={newest} label="New Drops, sliding" />
+        <ProductRail products={newest} />
       </Section>
 
       {!IS_FASHION && (
@@ -217,7 +216,7 @@ export default async function HomePage() {
 
       {/* 9. Beauty & accessories */}
       <Section id="beauty" title="Beauty & accessories" kicker="Finishing touches" href="/search?cat=beauty,jewellery,accessories">
-        <AutoMarquee products={beautyAcc} label="Beauty and accessories, sliding" secondsPerItem={3.6} />
+        <ProductRail products={beautyAcc} />
       </Section>
 
         </>
