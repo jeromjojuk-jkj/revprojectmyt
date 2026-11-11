@@ -194,11 +194,15 @@ test("back button returns to the previous page", async ({ page }) => {
   await expect(page).toHaveURL(/\/$/);
 });
 
-test("sliding product rows can be paused", async ({ page }) => {
+test("product rows and offers only move when swiped (no automatic sliding)", async ({ page }) => {
   await page.goto("/");
-  const toggle = page.getByRole("button", { name: /Pause slides/ }).first();
-  await toggle.click();
-  await expect(page.getByRole("button", { name: /Play slides/ }).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /Pause slides|Pause offers/ })).toHaveCount(0);
+  const offers = page.locator("#offers ul");
+  if (await offers.count()) {
+    const start = await offers.evaluate((el) => el.scrollLeft);
+    await page.waitForTimeout(5500);
+    expect(await offers.evaluate((el) => el.scrollLeft)).toBe(start);
+  }
 });
 
 test("Krip Lab: Build a Fit totals, Colour Match reads a sample, Size Finder suggests a size", async ({ page }) => {

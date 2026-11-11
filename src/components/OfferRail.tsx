@@ -2,7 +2,7 @@
 
 import { IS_FASHION } from "@/lib/constants";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
 import type { OfferView } from "@/lib/offers";
 import { OFFER_THEMES } from "@/lib/offers";
 import { imageForColor } from "@/lib/art";
@@ -59,39 +59,13 @@ export function OfferCard({ view, priority = false, onTerms }: { view: OfferView
 
 export function OfferRail({ offers }: { offers: OfferView[] }) {
   const [terms, setTerms] = useState<OfferView | null>(null);
-  const [paused, setPaused] = useState(false);
-  const [held, setHeld] = useState(false);
   const [active, setActive] = useState(0);
-  const listRef = useRef<HTMLUListElement>(null);
-
-  // Auto-advance one tile every 4.5 s; stops while touched, hovered or focused,
-  // when paused, or when the device asks for reduced motion.
-  useEffect(() => {
-    if (paused || held || offers.length < 2) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-    const t = setInterval(() => {
-      const el = listRef.current;
-      if (!el) return;
-      const tile = el.querySelector("li");
-      const step = (tile?.getBoundingClientRect().width ?? 240) + 10;
-      const atEnd = el.scrollLeft + el.clientWidth >= el.scrollWidth - 8;
-      el.scrollTo({ left: atEnd ? 0 : el.scrollLeft + step, behavior: "smooth" });
-    }, 4500);
-    return () => clearInterval(t);
-  }, [paused, held, offers.length]);
 
   if (!offers.length) return null;
   return (
     <section id="offers" aria-labelledby="offers-title" className="scroll-mt-[calc(var(--header-h)+8px)] pt-4">
       <h2 id="offers-title" className="sr-only">Special offers</h2>
       <ul
-        ref={listRef}
-        onPointerEnter={() => setHeld(true)}
-        onPointerLeave={() => setHeld(false)}
-        onTouchStart={() => setHeld(true)}
-        onTouchEnd={() => setTimeout(() => setHeld(false), 3000)}
-        onFocus={() => setHeld(true)}
-        onBlur={() => setHeld(false)}
         onScroll={(e) => {
           const el = e.currentTarget;
           const w = (el.querySelector("li")?.getBoundingClientRect().width ?? 240) + 10;
@@ -112,9 +86,6 @@ export function OfferRail({ offers }: { offers: OfferView[] }) {
               <span key={o.offer.id} className={`h-1.5 rounded-full transition-all ${i === active ? "w-5 bg-ink" : "w-1.5 bg-ink/25"}`} />
             ))}
           </div>
-          <button type="button" onClick={() => setPaused((p) => !p)} aria-pressed={paused} className="motion-reduce:hidden flex h-8 items-center rounded-full px-2.5 text-xs font-semibold ring-1 ring-line">
-            {paused ? "▶ Play offers" : "❚❚ Pause offers"}
-          </button>
         </div>
       )}
       <Sheet open={!!terms} onClose={() => setTerms(null)} title="Offer terms">
