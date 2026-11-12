@@ -31,8 +31,10 @@ export const VENDOR_PLANS: VendorPlan[] = [
 ];
 
 export const planOf = (id: VendorPlanId) => VENDOR_PLANS.find((p) => p.id === id)!;
-/** 1% on products up to ₹100, 2% on products above ₹100. */
-export const DEFAULT_COMMISSION: CommissionRule = { upTo: 100, lowPct: 1, highPct: 2 };
+/** No commission: sellers get the whole sale. (Can be set in admin, e.g. 1% up to ₹100 and 2% above.) */
+export const DEFAULT_COMMISSION: CommissionRule = { upTo: 100, lowPct: 0, highPct: 0 };
+
+export const noCommission = (r: CommissionRule) => r.lowPct === 0 && r.highPct === 0;
 
 /** A commission rule, or a flat ₹ per unit (older orders). */
 export type CommissionBasis = CommissionRule | number;
@@ -56,6 +58,7 @@ const pct = (n: number) => `${Number.isInteger(n) ? n : n.toFixed(1)}%`;
 
 /** e.g. "1% on products up to ₹100, 2% above ₹100". */
 export function describeCommission(r: CommissionRule): string {
+  if (noCommission(r)) return "no commission";
   return r.lowPct === r.highPct ? `${pct(r.lowPct)} of the selling price` : `${pct(r.lowPct)} on products up to ₹${r.upTo}, ${pct(r.highPct)} above ₹${r.upTo}`;
 }
 

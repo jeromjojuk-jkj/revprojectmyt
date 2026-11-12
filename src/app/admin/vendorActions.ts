@@ -6,7 +6,7 @@ import { requirePerm } from "@/lib/server/auth";
 import { withDb, readDb } from "@/lib/server/db";
 import { audit } from "@/lib/server/audit";
 import { unseal } from "@/lib/server/vault";
-import { createCashfreeVendor, easySplitEnabled } from "@/lib/server/cashfree";
+import { vendorLedger } from "@/lib/vendorWallet";
 import { describeCommission, planOf, validateCommission } from "@/lib/vendorPlans";
 import type { VendorStatus } from "@/lib/types";
 
@@ -82,46 +82,83 @@ export async function revealBankAction(_: VendorAdminState, fd: FormData): Promi
   return { secret: acc };
 }
 
-/** Records money Krip paid the seller outside Cashfree (bank transfer / UPI). */
+const money = (raw: string) => {
+  const n = Number(raw);
+  return Number.isFinite(n) && Math.abs(Math.round(n * 100) - n * 100) <= 1e-6 ? Math.round(n * 100) / 100 : NaN;
+};
+
+/** Records money Krip sent from the seller's wallet to their bank without a request (bank transfer / UPI). */
 export async function vendorPayoutAction(_: VendorAdminState, fd: FormData): Promise<VendorAdminState> {
   const { actor } = await requirePerm("vendors.manage");
   const id = str(fd, "id", 20);
-  const amount = Number(str(fd, "amount", 12));
+  const amount = money(str(fd, "amount", 12));
   const reference = str(fd, "reference", 80);
-  if (!Number.isFinite(amount) || amount < 0.01 || amount > 10_000_000 || Math.abs(Math.round(amount * 100) - amount * 100) > 1e-6) return { error: "Enter the amount paid, e.g. 489 or 489.02." };
+  if (!(amount >= 0.01 && amount <= 10_000_000)) return { error: "Enter the amount paid, e.g. 489 or 489.02." };
   if (reference.length < 4) return { error: "Enter the bank / UPI transaction reference." };
+  let err: string | null = null;
   await withDb((db) => {
-    if (!db.vendors.some((x) => x.id === id)) return;
-    const p = { id: crypto.randomBytes(4).toString("hex"), vendorId: id, amount, reference, at: new Date().toISOString(), by: actor.name, note: str(fd, "note", 200) };
-    db.vendorPayouts.push(p);
+    if (!db.vendors.some((x) => x.id === id)) { err = "Seller not found."; return; }
+    const led = vendorLedger(db, id);
+    if (amount > led.totals.available) { err = `Only ₹${led.totals.available} is free in this seller’s wallet${led.totals.requested ? " (a withdrawal request is holding the rest — pay that instead)" : ""}.`; return; }
+    db.vendorPayouts.push({ id: crypto.randomBytes(4).toString("hex"), vendorId: id, amount, reference, at: new Date().toISOString(), by: actor.name, note: str(fd, "note", 200), withdrawalId: null });
     audit(db, actor, "vendor.payout", "vendor", id, { after: { amount, reference } });
   });
+  if (err) return { error: err };
   refresh(id);
   return { ok: `Payout of ₹${amount} recorded.` };
 }
 
-/** Registers the seller with Cashfree Easy Split so online orders pay them directly. */
-export async function vendorCashfreeAction(_: VendorAdminState, fd: FormData): Promise<VendorAdminState> {
+/** Pay or reject a seller's withdrawal request. Paying records the bank / UPI reference the seller sees. */
+export async function withdrawalAction(_: VendorAdminState, fd: FormData): Promise<VendorAdminState> {
   const { actor } = await requirePerm("vendors.manage");
-  if (!easySplitEnabled()) return { error: "Easy Split is off. Ask Cashfree to enable split payments, then set CASHFREE_EASY_SPLIT=on in Vercel." };
   const id = str(fd, "id", 20);
-  const v = (await readDb()).vendors.find((x) => x.id === id);
-  if (!v) return { error: "Seller not found." };
-  if (v.status !== "approved") return { error: "Approve the seller first." };
-  const acc = await unseal(v.bank.accountEnc);
-  if (!acc) return { error: "Couldn’t read the bank account number." };
-  try {
-    await createCashfreeVendor({ vendorId: v.id, name: v.businessName, email: v.email, phone: v.phone, accountNumber: acc, accountHolder: v.bank.holder, ifsc: v.bank.ifsc, pan: v.pan, gstin: v.gstin });
-  } catch (e) {
-    return { error: `Cashfree refused: ${(e as Error).message.slice(0, 200)}` };
-  }
+  const op = str(fd, "op", 10);
+  const reference = str(fd, "reference", 80);
+  const note = str(fd, "note", 200);
+  if (op !== "paid" && op !== "reject") return { error: "Unknown action." };
+  if (op === "paid" && reference.length < 4) return { error: "Enter the bank / UPI transaction reference after sending the money." };
+  if (op === "reject" && note.length < 5) return { error: "Tell the seller why (they see this)." };
+  let err: string | null = null;
+  let vendorId = "";
   await withDb((db) => {
-    const x = db.vendors.find((y) => y.id === id);
-    if (x) x.cashfreeVendorId = x.id;
-    audit(db, actor, "vendor.cashfree", "vendor", id);
+    const w = db.vendorWithdrawals.find((x) => x.id === id);
+    if (!w || w.status !== "requested") { err = "This request was already handled or cancelled."; return; }
+    vendorId = w.vendorId;
+    const now = new Date().toISOString();
+    w.decidedAt = now;
+    w.by = actor.name;
+    if (op === "paid") {
+      w.status = "paid";
+      w.reference = reference;
+      db.vendorPayouts.push({ id: crypto.randomBytes(4).toString("hex"), vendorId: w.vendorId, amount: w.amount, reference, at: now, by: actor.name, note: "Withdrawal sent to your bank", withdrawalId: w.id });
+    } else {
+      w.status = "rejected";
+      w.note = note;
+    }
+    audit(db, actor, `vendor.withdraw.${op}`, "vendor", w.vendorId, { after: { amount: w.amount, reference, note } });
+  });
+  if (err) return { error: err };
+  refresh(vendorId);
+  revalidatePath("/admin/vendors/withdrawals");
+  return { ok: op === "paid" ? "Marked as paid. The seller sees the reference in their wallet." : "Request rejected; the money stays in the seller’s wallet." };
+}
+
+/** Manual wallet correction, e.g. −₹349 for a returned item refunded to the customer. */
+export async function walletAdjustmentAction(_: VendorAdminState, fd: FormData): Promise<VendorAdminState> {
+  const { actor } = await requirePerm("vendors.manage");
+  const id = str(fd, "id", 20);
+  const amount = money(str(fd, "amount", 12));
+  const reason = str(fd, "reason", 200);
+  const orderId = str(fd, "orderId", 40) || null;
+  if (!Number.isFinite(amount) || amount === 0 || Math.abs(amount) > 10_000_000) return { error: "Enter an amount, e.g. -349 to take money out or 50 to add." };
+  if (reason.length < 5) return { error: "Give a reason — the seller sees it in their wallet." };
+  await withDb((db) => {
+    if (!db.vendors.some((x) => x.id === id)) return;
+    db.vendorAdjustments.push({ id: crypto.randomBytes(4).toString("hex"), vendorId: id, amount, reason, at: new Date().toISOString(), by: actor.name, orderId });
+    audit(db, actor, "vendor.wallet.adjust", "vendor", id, { after: { amount, reason, orderId } });
   });
   refresh(id);
-  return { ok: "Added to Cashfree Easy Split. Their share of new online orders goes to them directly." };
+  return { ok: `Wallet ${amount > 0 ? "credited" : "debited"} ₹${Math.abs(amount)}.` };
 }
 
 /** Approve or reject a seller's product listing. */

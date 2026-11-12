@@ -80,7 +80,7 @@ export function VendorProductForm({ initial, categories, live, commission }: { i
       <fieldset className={box}>
         <legend className="px-1 font-semibold">Price & stock</legend>
         <div className="grid gap-3 sm:grid-cols-3">
-          {F({ name: "price", label: "Selling price (₹)", mode: "numeric", hint: `Incl. GST. Krip’s commission: ${commission}.` })}
+          {F({ name: "price", label: "Selling price (₹)", mode: "numeric", hint: commission === "no commission" ? "Incl. GST. You get the full price — no commission." : `Incl. GST. Krip’s commission: ${commission}.` })}
           {F({ name: "mrp", label: "MRP (₹, optional)", mode: "numeric", hint: "Printed MRP only." })}
           {F({ name: "stock", label: "Stock you have", mode: "numeric" })}
         </div>

@@ -1,4 +1,4 @@
-import { VENDOR_PLANS, commissionOf, describeCommission } from "@/lib/vendorPlans";
+import { VENDOR_PLANS, commissionOf, describeCommission, noCommission } from "@/lib/vendorPlans";
 import { getSettings } from "@/lib/server/catalog";
 import { INDIAN_STATES } from "@/lib/constants";
 import { RegisterForm } from "./RegisterForm";
@@ -7,7 +7,8 @@ export const metadata = { title: "Register as a seller", robots: { index: false 
 
 export default async function Register({ searchParams }: { searchParams: Promise<{ plan?: string }> }) {
   const { plan } = await searchParams;
-  const commission = describeCommission(commissionOf(await getSettings()));
+  const rule = commissionOf(await getSettings());
+  const commission = noCommission(rule) ? "" : describeCommission(rule);
   return (
     <div className="mx-auto max-w-2xl px-4 pb-10 pt-4">
       <h1 className="text-2xl font-bold">Register as a seller</h1>

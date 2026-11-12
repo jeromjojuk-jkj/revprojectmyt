@@ -1,6 +1,6 @@
 import "server-only";
 import { vendorShippingRules } from "./vendorLedger";
-import { addWorkingDays, commissionOf, orderCommission, shippingOf, vendorShares } from "../vendorPlans";
+import { addWorkingDays, commissionOf, shippingOf } from "../vendorPlans";
 import crypto from "node:crypto";
 import type { Address, Order, OrderStatus, PaymentMethod } from "../types";
 import { allowedOps, paidAmount, refundedAmount, type OrderOp } from "../orderflow";
@@ -12,7 +12,7 @@ import { INDIAN_STATES } from "../constants";
 import { readDb, withDb, type DB } from "./db";
 import { sellableProducts, toPublicProduct } from "./catalog";
 import { paymentConfig, verifySignature, type GatewayEvent } from "./payments";
-import { cashfreeEnv, createCashfreeOrder, easySplitEnabled, fetchCashfreeResult } from "./cashfree";
+import { cashfreeEnv, createCashfreeOrder, fetchCashfreeResult } from "./cashfree";
 
 const RESERVATION_MINUTES = 15;
 
@@ -261,19 +261,8 @@ export async function getCashfreeSession(id: string, token: string, origin: stri
   const attempt = (order.gatewayOrderIds?.length ?? 0) + 1;
   const gatewayOrderId = `${order.id}-${attempt}`;
   const t = encodeURIComponent(token);
-  // Easy Split: each seller who is registered with Cashfree gets their share (items + their delivery − commission) straight from Cashfree.
-  let splits: { vendorId: string; amount: number }[] = [];
-  if (easySplitEnabled() && order.vendorParts?.length) {
-    const db = await readDb();
-    const shares = vendorShares(order, orderCommission(order, db.settings));
-    splits = [...shares].flatMap(([vid, sh]) => {
-      const cf = db.vendors.find((v) => v.id === vid && v.status === "approved")?.cashfreeVendorId;
-      return cf && sh.payout > 0 ? [{ vendorId: cf, amount: sh.payout }] : [];
-    });
-    if (splits.reduce((a, b) => a + b.amount, 0) >= order.total) splits = [];
-  }
+  // Easy Split is paused: the whole payment settles to Krip and each seller's share goes to their Krip wallet.
   const { sessionId } = await createCashfreeOrder({
-    splits,
     gatewayOrderId,
     amount: order.total,
     customerId: customerKey(order.address.phone),
@@ -289,7 +278,7 @@ export async function getCashfreeSession(id: string, token: string, origin: stri
     if (!o) return;
     o.gatewayOrderIds = [...(o.gatewayOrderIds ?? []), gatewayOrderId];
     o.gateway = { orderId: gatewayOrderId, sessionId, createdAt: new Date().toISOString() };
-    o.vendorSplits = splits.length ? splits : null;
+    o.vendorSplits = null;
   });
   return { sessionId, mode: env.mode };
 }

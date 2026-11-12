@@ -130,7 +130,11 @@ export function verifyCashfreeWebhook(raw: string, timestamp: string | null, sig
   return got.length === expected.length && crypto.timingSafeEqual(got, expected);
 }
 
-/** Easy Split is on when CASHFREE_EASY_SPLIT=on and Cashfree has enabled split payments for the account. */
+/**
+ * Easy Split (paused): sellers are paid from their Krip wallets for now. These helpers are kept for when
+ * Cashfree activates Easy Split; nothing calls them at the moment.
+ * Easy Split is on when CASHFREE_EASY_SPLIT=on and Cashfree has enabled split payments for the account.
+ */
 export const easySplitEnabled = () => cashfreeEnv().configured && process.env.CASHFREE_EASY_SPLIT?.trim().toLowerCase() === "on";
 
 /** Registers a marketplace vendor with Cashfree Easy Split so order splits can pay them directly. */

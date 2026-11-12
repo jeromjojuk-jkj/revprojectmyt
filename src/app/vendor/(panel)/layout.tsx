@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 export default async function VendorPanelLayout({ children }: { children: React.ReactNode }) {
   const v = await requireVendor();
   const live = v.status === "approved";
-  const links: [string, string][] = [["/vendor", "Dashboard"], ...(live ? ([["/vendor/products", "Products"], ["/vendor/orders", "Orders"], ["/vendor/shipping", "Shipping"], ["/vendor/earnings", "Earnings"]] as [string, string][]) : [])];
+  const links: [string, string][] = [["/vendor", "Dashboard"], ...(live ? ([["/vendor/products", "Products"], ["/vendor/orders", "Orders"], ["/vendor/shipping", "Shipping"], ["/vendor/wallet", "Wallet"]] as [string, string][]) : [])];
   return (
     <div className="min-h-dvh bg-paper">
       <header className="bg-ink text-white">
