@@ -35,6 +35,7 @@ export const ADMIN_NAV: NavGroup[] = [
     items: [
       { href: "/admin/vendors", label: "Sellers", icon: "sellers", perm: "vendors.view" },
       { href: "/admin/vendors/review", label: "Listing review", icon: "review", perm: "vendors.approve" },
+      { href: "/admin/vendors/withdrawals", label: "Seller payouts", icon: "fees", perm: "vendors.view" },
     ],
   },
   { title: "Customers", items: [{ href: "/admin/customers", label: "Customers", icon: "customers", perm: "customers.view" }] },
@@ -67,7 +68,7 @@ const CRUMB: Record<string, string> = {
   admin: "Admin", orders: "Orders", products: "Products", inventory: "Inventory", movements: "Stock ledger", import: "CSV import",
   customers: "Customers", coupons: "Coupons", festivals: "Festival offers", offers: "Offer tiles", settings: "Delivery & charges", store: "Store & footer",
   staff: "Staff & roles", roles: "Roles", audit: "Audit log", system: "System health", roadmap: "Roadmap", security: "Security",
-  search: "Search", vendors: "Sellers", review: "Listing review", new: "New", print: "Print", forbidden: "No access",
+  search: "Search", vendors: "Sellers", review: "Listing review", withdrawals: "Seller payouts", new: "New", print: "Print", forbidden: "No access",
 };
 
 export function breadcrumbs(pathname: string): { href: string; label: string }[] {

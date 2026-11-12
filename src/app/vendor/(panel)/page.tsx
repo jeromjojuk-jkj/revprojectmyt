@@ -3,7 +3,7 @@ import { readDb } from "@/lib/server/db";
 import { refreshVendorFee, requireVendor } from "@/lib/server/vendors";
 import { vendorLedger } from "@/lib/server/vendorLedger";
 import { paymentConfig } from "@/lib/server/payments";
-import { commissionOf, describeCommission, planOf } from "@/lib/vendorPlans";
+import { commissionOf, describeCommission, noCommission, planOf } from "@/lib/vendorPlans";
 import { formatMoney, formatPrice } from "@/lib/format";
 import { FeeCheckout } from "./FeeCheckout";
 import { dispatchState } from "@/lib/vendorFulfilment";
@@ -56,7 +56,7 @@ export default async function VendorDashboard() {
             <div className={card}><p className="text-xs text-ink-soft">Live products</p><p className="text-2xl font-bold">{live}<span className="text-sm font-normal text-ink-soft"> / {plan.productLimit ?? "∞"}</span></p></div>
             <div className={card}><p className="text-xs text-ink-soft">Waiting for Krip review</p><p className="text-2xl font-bold">{pending}</p></div>
             <div className={card}><p className="text-xs text-ink-soft">Units sold</p><p className="text-2xl font-bold">{led.totals.units}</p></div>
-            <div className={card}><p className="text-xs text-ink-soft">Your earnings (after Krip’s commission)</p><p className="text-2xl font-bold">{formatMoney(led.totals.earnings)}</p></div>
+            <Link href="/vendor/wallet" className={`${card} block hover:ring-leaf`}><p className="text-xs text-ink-soft">Wallet — available to withdraw</p><p className="text-2xl font-bold text-leaf">{formatMoney(led.totals.available)}</p>{led.totals.pending > 0 && <p className="text-xs text-ink-soft">+ {formatMoney(led.totals.pending)} after delivery</p>}</Link>
           </div>
           {open.length > 0 && (
             <Link href="/vendor/orders" className={`block rounded-2xl p-4 font-medium ring-1 ${late ? "bg-danger-soft text-danger ring-danger/30" : "bg-sun-soft ring-sun"}`}>
@@ -73,7 +73,7 @@ export default async function VendorDashboard() {
 
       <section className={card}>
         <h2 className="font-semibold">Your plan: {plan.name}</h2>
-        <ul className="mt-2 grid gap-1 text-sm sm:grid-cols-2">{[...plan.perks, `Commission: ${describeCommission(commissionOf(db.settings))}`].map((x) => <li key={x}>✓ {x}</li>)}</ul>
+        <ul className="mt-2 grid gap-1 text-sm sm:grid-cols-2">{[...plan.perks, noCommission(commissionOf(db.settings)) ? "No commission — 100% of each sale goes to your wallet" : `Commission: ${describeCommission(commissionOf(db.settings))}`].map((x) => <li key={x}>✓ {x}</li>)}</ul>
         {plan.verifiedBadge && <p className="mt-2 text-sm">{v.verified ? "✅ Verified seller badge is on." : "Verified seller badge: shown after Krip finishes checking your documents."}</p>}
         {plan.prioritySupport && db.store.supportEmail && <p className="mt-1 text-sm">Priority support: <a className="text-leaf underline" href={`mailto:${db.store.supportEmail}?subject=Priority%20seller%20support%20${v.id}`}>{db.store.supportEmail}</a></p>}
       </section>

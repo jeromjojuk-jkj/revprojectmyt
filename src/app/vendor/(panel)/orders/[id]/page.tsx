@@ -42,7 +42,7 @@ export default async function VendorOrder({ params }: { params: Promise<{ id: st
         </p>
       )}
 
-      <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_360px]">
         <div className="space-y-4">
           <section className={card}>
             <h2 className="font-semibold">Your items</h2>
@@ -57,8 +57,8 @@ export default async function VendorOrder({ params }: { params: Promise<{ id: st
             <dl className="mt-2 space-y-1 border-t border-line pt-2 text-sm">
               <div className="flex justify-between"><dt>Items</dt><dd>{formatPrice(share.items)}</dd></div>
               <div className="flex justify-between"><dt>Delivery charge paid by customer</dt><dd>{share.delivery ? formatPrice(share.delivery) : "Free"}</dd></div>
-              <div className="flex justify-between text-ink-soft"><dt>Krip commission ({typeof basis === "number" ? `${share.units} × ₹${basis}` : describeCommission(basis)})</dt><dd>−{formatMoney(share.commission)}</dd></div>
-              <div className="flex justify-between font-semibold"><dt>You earn</dt><dd>{formatMoney(share.payout)}</dd></div>
+              {share.commission > 0 && <div className="flex justify-between text-ink-soft"><dt>Krip commission ({typeof basis === "number" ? `${share.units} × ₹${basis}` : describeCommission(basis)})</dt><dd>−{formatMoney(share.commission)}</dd></div>}
+              <div className="flex justify-between font-semibold"><dt>You get (added to your wallet when delivered)</dt><dd>{formatMoney(share.payout)}</dd></div>
             </dl>
           </section>
 

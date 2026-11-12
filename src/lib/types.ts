@@ -283,8 +283,26 @@ export interface VendorPart {
 
 export interface VendorSession { idHash: string; vendorId: string; createdAt: string; expiresAt: string; lastSeenAt: string; revokedAt: string | null }
 
-/** Money Krip paid out to a vendor outside Cashfree Easy Split (e.g. COD orders). */
-export interface VendorPayout { id: string; vendorId: string; amount: number; reference: string; at: string; by: string; note: string }
+/** Money Krip sent from a seller's wallet to their bank (bank transfer / UPI). */
+export interface VendorPayout { id: string; vendorId: string; amount: number; reference: string; at: string; by: string; note: string; withdrawalId?: string | null }
+
+/** A seller asking to move money from their Krip wallet to their bank account. */
+export interface VendorWithdrawal {
+  id: string;
+  vendorId: string;
+  amount: number;
+  status: "requested" | "paid" | "rejected";
+  requestedAt: string;
+  decidedAt: string | null;
+  /** Bank / UPI reference once paid. */
+  reference: string;
+  /** Seller's note, or Krip's reason when rejected. */
+  note: string;
+  by: string | null;
+}
+
+/** A manual wallet correction by Krip, e.g. a return refunded to the customer (negative) or a goodwill credit. */
+export interface VendorAdjustment { id: string; vendorId: string; amount: number; reason: string; at: string; by: string; orderId: string | null }
 
 export interface Settings {
   deliveryFee: number;
@@ -302,6 +320,8 @@ export interface Settings {
   vendorCommission?: CommissionRule;
   /** Old flat ₹-per-unit commission (replaced by vendorCommission). */
   vendorCommissionPerUnit?: number;
+  /** When sellers moved to wallets (all sale money credited to the seller; Easy Split paused). */
+  vendorWalletSince?: string;
 }
 
 /** Commission as a % of each product's selling price: lowPct when the price is ≤ upTo (₹), highPct above. */

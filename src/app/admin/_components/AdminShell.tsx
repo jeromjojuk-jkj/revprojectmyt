@@ -75,9 +75,10 @@ export function AdminShell({
       return next;
     });
   };
-  const isActive = (href: string) => (href === "/admin" ? pathname === "/admin" : pathname === href || pathname.startsWith(href + "/")) &&
-    // "/admin/settings" shouldn't light up on "/admin/settings/store".
-    !(href === "/admin/settings" && pathname.startsWith("/admin/settings/store"));
+  const matches = (href: string) => (href === "/admin" ? pathname === "/admin" : pathname === href || pathname.startsWith(href + "/"));
+  // Only the most specific menu item lights up (e.g. "Seller payouts", not also "Sellers"; "Store & footer", not also "Delivery & charges").
+  const allHrefs = nav.flatMap((g) => g.items.map((i) => i.href));
+  const isActive = (href: string) => matches(href) && !allHrefs.some((h) => h !== href && h.startsWith(href + "/") && matches(h));
   const unread = notifications.filter((n) => n.unread).length;
   const crumbs = breadcrumbs(pathname);
 

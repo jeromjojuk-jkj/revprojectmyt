@@ -117,8 +117,9 @@ test("seller marketplace: register → approve → list → sell → ship → ea
   await seller.goto("/vendor/orders");
   await seller.getByRole("link", { name: /KRP-/ }).first().click();
   await expect(seller.getByText("Ravi Kumar")).toBeVisible();
-  await expect(seller.getByText("You earn")).toBeVisible();
-  await expect(seller.getByText("₹372.02")).toBeVisible(); // 349 + 30 − 2% of 349 (₹6.98)
+  await expect(seller.getByText(/You get \(added to your wallet/)).toBeVisible();
+  await expect(seller.getByText("Krip commission")).toHaveCount(0); // no commission: the whole sale is the seller's
+  await expect(seller.getByText("₹379", { exact: true })).toBeVisible(); // 349 + 30 delivery
   await seller.getByRole("button", { name: "Accept order" }).click();
   await expect(seller.getByText("Order accepted.")).toBeVisible();
   await seller.getByRole("button", { name: "Mark as packed" }).click();
@@ -145,20 +146,35 @@ test("seller marketplace: register → approve → list → sell → ship → ea
   expect(slipHtml).toContain("Ravi Kumar");
   expect(slipHtml).not.toContain("₹349");
 
-  // 7. Earnings: Krip owes the seller ₹372.02 (no Easy Split in tests); admin records the payout.
-  await seller.goto("/vendor/earnings");
-  await expect(seller.getByText("Krip pays you")).toBeVisible();
+  // 7. Wallet: the full ₹379 is credited on delivery; the seller withdraws; Krip pays and records the reference.
+  await seller.goto("/vendor/wallet");
+  await expect(seller.getByText("Available to withdraw")).toBeVisible();
+  await expect(seller.getByLabel("Amount to withdraw (₹)")).toHaveValue("379");
+  await seller.getByLabel("Amount to withdraw (₹)").fill("500");
+  await seller.getByRole("button", { name: "Withdraw to bank" }).click();
+  await expect(seller.getByText(/You can withdraw up to ₹379/)).toBeVisible();
+  await seller.getByLabel("Amount to withdraw (₹)").fill("379");
+  await seller.getByRole("button", { name: "Withdraw to bank" }).click();
+  await expect(seller.getByText(/requested on/)).toBeVisible();
+
+  await admin.goto("/admin/vendors/withdrawals");
+  await expect(admin.getByText("Asha Home Store").first()).toBeVisible();
+  await admin.getByLabel("Bank / UPI reference").fill("UTR12345678");
+  await admin.getByRole("button", { name: "Mark as paid" }).click();
+  await expect(admin.getByText("No withdrawal requests")).toBeVisible();
+
+  await seller.goto("/vendor/wallet");
+  await expect(seller.getByText(/ref UTR12345678/)).toBeVisible();
+  await expect(seller.getByText("Available to withdraw").locator("..").getByText("₹0")).toBeVisible();
+
   await admin.goto("/admin/vendors");
   await admin.getByRole("link", { name: "Asha Home Store" }).click();
-  await expect(admin.getByText(/Krip owes ₹372\.02/)).toBeVisible();
-  await admin.getByLabel("Bank / UPI reference").fill("UTR12345678");
-  await admin.getByRole("button", { name: "Record payout" }).click();
-  await expect(admin.getByText("Payout of ₹372.02 recorded.")).toBeVisible();
+  await expect(admin.getByText("Wallet — ₹0")).toBeVisible();
   await admin.getByRole("button", { name: "Show full account number" }).click();
   await expect(admin.getByText("123456789012")).toBeVisible();
 
   // Suspending hides their products from the shop.
-  await admin.getByLabel("Reason (seller sees this)").fill("Testing suspension");
+  await admin.getByLabel("Reason (seller sees this)", { exact: true }).fill("Testing suspension");
   await admin.getByRole("button", { name: "Suspend" }).click();
   await expect(admin.getByRole("button", { name: "Reinstate" })).toBeVisible();
   await shopper.goto(href!);

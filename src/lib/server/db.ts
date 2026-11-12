@@ -3,7 +3,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import crypto from "node:crypto";
 import os from "node:os";
-import type { Vendor, VendorPayout, VendorSession, AdminSession, AuditEntry, CustomerMeta, CustomRole, InventoryMovement, LoginEvent, Offer, Order, ProductRecord, Settings, StaffUser, StoreProfile } from "../types";
+import type { Vendor, VendorAdjustment, VendorPayout, VendorSession, VendorWithdrawal, AdminSession, AuditEntry, CustomerMeta, CustomRole, InventoryMovement, LoginEvent, Offer, Order, ProductRecord, Settings, StaffUser, StoreProfile } from "../types";
 import { normalizeCoupon } from "../coupons";
 import { buildSeedProducts, CATALOG_VERSION, IMAGE_ORDER_FIXES, IMAGE_RENAMES } from "@/data/catalog";
 import { DEFAULT_DELIVERY } from "@/lib/pincode";
@@ -37,6 +37,8 @@ export interface DB {
   vendors: Vendor[];
   vendorSessions: VendorSession[];
   vendorPayouts: VendorPayout[];
+  vendorWithdrawals: VendorWithdrawal[];
+  vendorAdjustments: VendorAdjustment[];
 }
 
 export const DEFAULT_STORE: StoreProfile = {
@@ -70,6 +72,7 @@ export const DEFAULT_SETTINGS: Settings = {
   delivery: { ...DEFAULT_DELIVERY },
   festivalOffers: structuredClone(DEFAULT_FESTIVAL_OFFERS),
   vendorCommission: { ...DEFAULT_COMMISSION },
+  vendorWalletSince: new Date(0).toISOString(),
 };
 
 function seed(): DB {
@@ -98,6 +101,8 @@ function emptyBackOffice() {
     vendors: [] as Vendor[],
     vendorSessions: [] as VendorSession[],
     vendorPayouts: [] as VendorPayout[],
+    vendorWithdrawals: [] as VendorWithdrawal[],
+    vendorAdjustments: [] as VendorAdjustment[],
   };
 }
 
@@ -115,6 +120,12 @@ function migrate(db: DB) {
   // Commission moved from a flat ₹10 per unit to a % of the price; orders already placed keep their own terms.
   db.settings.vendorCommission ??= { ...DEFAULT_COMMISSION };
   delete db.settings.vendorCommissionPerUnit;
+  // Sellers moved to wallets: the whole sale (price + their delivery charge) goes to the seller, no commission.
+  // Runs once; the commission can be set again later in admin.
+  if (!db.settings.vendorWalletSince) {
+    db.settings.vendorWalletSince = new Date().toISOString();
+    db.settings.vendorCommission = { ...DEFAULT_COMMISSION };
+  }
   // Catalogue additions reach existing stores once; products removed or edited in admin aren't touched.
   if ((db.catalogVersion ?? 1) < CATALOG_VERSION) {
     const have = new Set(db.products.map((p) => p.id));

@@ -80,7 +80,7 @@ export function RegisterForm({ plans, states, initialPlan, commission }: { plans
       </fieldset>
       <label className="flex items-start gap-2 text-sm">
         <input type="checkbox" name="terms" className="mt-0.5 h-5 w-5 accent-leaf" />
-        <span>I’ll only list genuine products I’m allowed to sell, ship orders on time, and accept Krip’s commission ({commission} of each product’s selling price) and the <a href="/help/terms" className="text-leaf underline" target="_blank">terms</a>.</span>
+        <span>I’ll only list genuine products I’m allowed to sell, ship orders on time, and {commission ? <>accept Krip’s commission ({commission} of each product’s selling price) and </> : <>accept </>}the <a href="/help/terms" className="text-leaf underline" target="_blank">terms</a>.</span>
       </label>
       {err.terms && <p className="text-xs text-danger">{err.terms}</p>}
       {(state?.error || (state?.errors && Object.keys(state.errors).length > 0)) && (

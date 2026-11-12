@@ -5,10 +5,12 @@ import { computeQuote } from "../../src/lib/pricing.ts";
 import type { Order, ProductPublic, Settings } from "../../src/lib/types.ts";
 import { normalizeCoupon } from "../../src/lib/coupons.ts";
 import { DEFAULT_DELIVERY } from "../../src/lib/pincode.ts";
-import { addWorkingDays, DEFAULT_COMMISSION, describeCommission, unitCommission, validateCommission, validateShipping, vendorShares } from "../../src/lib/vendorPlans.ts";
+import { addWorkingDays, DEFAULT_COMMISSION, describeCommission, noCommission, unitCommission, validateCommission, validateShipping, vendorShares } from "../../src/lib/vendorPlans.ts";
 import { applyVendorOp, allowedVendorOps, FulfilmentError } from "../../src/lib/vendorFulfilment.ts";
 import { validateRegistration, validateVendorProduct } from "../../src/lib/vendorInput.ts";
+import { vendorLedger, type WalletSource } from "../../src/lib/vendorWallet.ts";
 
+const PCT = { upTo: 100, lowPct: 1, highPct: 2 };
 const base = buildSeedProducts("fashion").map(({ private: _p, ...pub }) => pub);
 const kripP = base.find((p) => p.status === "active" && p.price >= 300 && p.variants[0].stock > 2)!;
 const sellerP: ProductPublic = { ...base.find((p) => p.status === "active" && p.id !== kripP.id && p.variants[0].stock > 2)!, vendorId: "VND-AAAAAA", price: 400 };
@@ -48,21 +50,29 @@ test("Cash on Delivery is off when the bag has a seller's item", () => {
   assert.equal(computeQuote({ items: [k()], pincode: "560001", paymentMethod: "cod" }, products, settings).codAvailable, true);
 });
 
-test("commission: 1% on products up to ₹100, 2% above ₹100, to the paisa", () => {
-  assert.equal(unitCommission(49, DEFAULT_COMMISSION), 0.49);
-  assert.equal(unitCommission(100, DEFAULT_COMMISSION), 1);
-  assert.equal(unitCommission(101, DEFAULT_COMMISSION), 2.02);
-  assert.equal(unitCommission(499, DEFAULT_COMMISSION), 9.98);
-  assert.equal(describeCommission(DEFAULT_COMMISSION), "1% on products up to ₹100, 2% above ₹100");
+test("default: no commission, sellers get the whole sale", () => {
+  assert.ok(noCommission(DEFAULT_COMMISSION));
+  assert.equal(unitCommission(499, DEFAULT_COMMISSION), 0);
+  assert.equal(describeCommission(DEFAULT_COMMISSION), "no commission");
+  const o = { items: [{ vendorId: "V1", unitPrice: 349, qty: 2 }], vendorParts: [{ vendorId: "V1", delivery: 30 }] } as unknown as Order;
+  assert.equal(vendorShares(o, DEFAULT_COMMISSION).get("V1")!.payout, 728);
+});
+
+test("optional % commission: 1% on products up to ₹100, 2% above ₹100, to the paisa", () => {
+  assert.equal(unitCommission(49, PCT), 0.49);
+  assert.equal(unitCommission(100, PCT), 1);
+  assert.equal(unitCommission(101, PCT), 2.02);
+  assert.equal(unitCommission(499, PCT), 9.98);
+  assert.equal(describeCommission(PCT), "1% on products up to ₹100, 2% above ₹100");
   assert.equal(unitCommission(499, 10), 10, "older orders keep the flat ₹10");
 });
 
 test("seller payout = items + their delivery charge − commission", () => {
   const o = { items: [{ vendorId: "V1", unitPrice: 499, qty: 3 }, { vendorId: "V1", unitPrice: 80, qty: 2 }, { vendorId: null, unitPrice: 200, qty: 1 }], vendorParts: [{ vendorId: "V1", delivery: 40 }] } as unknown as Order;
-  const s = vendorShares(o, DEFAULT_COMMISSION).get("V1")!;
+  const s = vendorShares(o, PCT).get("V1")!;
   // 3 × 9.98 + 2 × 0.80 = 31.54
   assert.deepEqual(s, { items: 1657, units: 5, delivery: 40, commission: 31.54, payout: 1665.46 });
-  assert.equal(vendorShares(o, DEFAULT_COMMISSION).size, 1);
+  assert.equal(vendorShares(o, PCT).size, 1);
 });
 
 test("commission settings are validated", () => {
@@ -155,4 +165,51 @@ test("seller listing validation: https photos, MRP not below price, rights confi
   const bad = validateVendorProduct({ ...raw, mrp: "100", images: "http://x/a.jpg", rights: "" }, ["kitchen"]);
   assert.equal(bad.ok, false);
   if (!bad.ok) assert.deepEqual(Object.keys(bad.errors).sort(), ["images", "mrp", "rights"]);
+});
+
+function walletDb(): WalletSource {
+  const order = (id: string, status: Order["status"], price: number, partStatus: string): Order => ({
+    id, status, createdAt: "2026-11-01T10:00:00Z", paymentMethod: "online",
+    statusHistory: [{ status, at: "2026-11-03T10:00:00Z" }],
+    items: [{ vendorId: "V1", sku: "A", title: "Chopper", qty: 1, unitPrice: price }],
+    vendorParts: [{ vendorId: "V1", status: partStatus, delivery: 30, dispatchBy: "", history: partStatus === "delivered" ? [{ status: "delivered", at: "2026-11-04T10:00:00Z" }] : [], shipmentId: null }],
+  }) as unknown as Order;
+  return {
+    orders: [
+      order("D1", "delivered", 349, "delivered"), // credited: 379
+      order("S1", "shipped", 200, "shipped"), // pending: 230
+      order("C1", "cancelled", 999, "new"), // void
+      order("P1", "payment_pending", 500, "new"), // ignored
+    ],
+    vendorPayouts: [], vendorWithdrawals: [], vendorAdjustments: [], settings: {},
+  };
+}
+
+test("wallet: delivered sales are credited in full, undelivered wait, cancelled don't count", () => {
+  const led = vendorLedger(walletDb(), "V1");
+  assert.equal(led.totals.credited, 379);
+  assert.equal(led.totals.pending, 230);
+  assert.equal(led.totals.balance, 379);
+  assert.equal(led.totals.available, 379);
+  assert.equal(led.sales.length, 3);
+  assert.equal(led.history[0].kind, "sale");
+  assert.equal(led.history[0].at, "2026-11-04T10:00:00Z");
+});
+
+test("wallet: a withdrawal request holds money; paying it moves it out; adjustments apply", () => {
+  const db = walletDb();
+  db.vendorWithdrawals.push({ id: "w1", vendorId: "V1", amount: 300, status: "requested", requestedAt: "2026-11-05T00:00:00Z", decidedAt: null, reference: "", note: "", by: null });
+  let t = vendorLedger(db, "V1").totals;
+  assert.equal(t.balance, 379);
+  assert.equal(t.available, 79);
+  assert.equal(vendorLedger(db, "V1").openWithdrawal?.id, "w1");
+  db.vendorWithdrawals[0].status = "paid";
+  db.vendorPayouts.push({ id: "p1", vendorId: "V1", amount: 300, reference: "UTR1", at: "2026-11-06T00:00:00Z", by: "Owner", note: "", withdrawalId: "w1" });
+  db.vendorAdjustments.push({ id: "a1", vendorId: "V1", amount: -49.5, reason: "Return refunded", at: "2026-11-07T00:00:00Z", by: "Owner", orderId: "D1" });
+  t = vendorLedger(db, "V1").totals;
+  assert.equal(t.paidOut, 300);
+  assert.equal(t.balance, 29.5);
+  assert.equal(t.available, 29.5);
+  assert.equal(vendorLedger(db, "V1").openWithdrawal, null);
+  assert.equal(vendorLedger(db, "V2").totals.balance, 0, "other sellers unaffected");
 });
