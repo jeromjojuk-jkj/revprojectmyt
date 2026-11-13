@@ -44,20 +44,22 @@ export function addSelectionToBag(p: ProductPublic, sel: Selection, from?: Eleme
   if (sel.needsSize && !sel.size) return { ok: false, error: "Please select a size." };
   const v = sel.variant;
   if (!v) return { ok: false, error: "Please choose an option." };
-  if (v.stock <= 0) return { ok: false, error: `${v.color}${v.size ? " / " + v.size : ""} is out of stock. Try another option.` };
+  if (v.stock <= 0) return { ok: false, error: sel.colors.length > 1 || v.size ? `${[sel.colors.length > 1 ? v.color : "", v.size].filter(Boolean).join(" / ")} is out of stock. Try another option.` : "This product is out of stock." };
+  // Only name the option when there's a real choice (e.g. "Astronaut"), not "Assorted colours".
+  const option = sel.colors.length > 1 ? v.color : "";
   useStore.getState().addToCart({
     sku: v.sku,
     productId: p.id,
     slug: p.slug,
     title: p.title,
-    color: v.color,
+    color: option,
     size: v.size,
     image: imageForColor(p.images[0] ?? "", v.colorHex),
     price: p.price,
   });
   flyToBag(imageForColor(p.images[0] ?? "", v.colorHex), from ?? null);
   toast({
-    message: `Added to bag — ${v.color}${v.size ? ", " + v.size : ""}`,
+    message: `Added to bag${[option, v.size].filter(Boolean).length ? ` — ${[option, v.size].filter(Boolean).join(", ")}` : ""}`,
     action: { label: "View bag", href: "/cart" },
   });
   return { ok: true };
@@ -77,46 +79,51 @@ export function VariantPicker({
   compact?: boolean;
 }) {
   const isBeauty = product.category === "beauty";
-  const colorLabel = isBeauty ? (product.variants.length > 1 ? "Shade" : "Variant") : "Colour";
+  const colorLabel = isBeauty ? "Shade" : "Choose";
   const stockFor = (size: string) => product.variants.find((v) => v.color === sel.color && v.size === size)?.stock ?? 0;
   const colorStock = product.variants.filter((v) => v.color === sel.color).some((v) => v.stock > 0);
 
   return (
     <div className="space-y-4">
-      <fieldset>
-        <legend className="mb-2 text-sm">
-          <span className="font-semibold">{colorLabel}:</span> <span className="text-ink-soft">{sel.color}</span>
-          {!sel.needsSize && (
-            <span className={`ml-2 text-xs font-semibold ${colorStock ? "text-leaf" : "text-danger"}`}>
-              {colorStock ? "In stock" : "Out of stock"}
-            </span>
-          )}
-        </legend>
-        <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={colorLabel}>
-          {sel.colors.map((c) => {
-            const checked = c.color === sel.color;
-            return (
-              <button
-                key={c.color}
-                type="button"
-                role="radio"
-                aria-checked={checked}
-                aria-label={`${c.color}${c.inStock ? "" : " (out of stock)"}`}
-                onClick={() => sel.setColor(c.color)}
-                className={`pressable relative flex h-11 min-w-11 items-center gap-2 rounded-full border-2 px-1.5 pr-3 text-xs ${
-                  checked ? "border-leaf bg-leaf-soft" : "border-line bg-white"
-                } ${compact ? "pr-1.5" : ""}`}
-              >
-                <span className="h-7 w-7 rounded-full border border-black/10" style={{ background: `#${c.hex}` }} />
-                {!compact && <span className={c.inStock ? "" : "text-ink-soft line-through"}>{c.color}</span>}
-                {!c.inStock && compact && (
-                  <span className="absolute inset-0 m-auto h-0.5 w-8 rotate-45 bg-ink-soft" aria-hidden />
-                )}
-              </button>
-            );
-          })}
-        </div>
-      </fieldset>
+      {sel.colors.length > 1 ? (
+        <fieldset>
+          <legend className="mb-2 text-sm">
+            <span className="font-semibold">{colorLabel}:</span> <span className="text-ink-soft">{sel.color}</span>
+            {!sel.needsSize && (
+              <span className={`ml-2 text-xs font-semibold ${colorStock ? "text-leaf" : "text-danger"}`}>
+                {colorStock ? "In stock" : "Out of stock"}
+              </span>
+            )}
+          </legend>
+          <div className="flex flex-wrap gap-2" role="radiogroup" aria-label={colorLabel}>
+            {sel.colors.map((c) => {
+              const checked = c.color === sel.color;
+              return (
+                <button
+                  key={c.color}
+                  type="button"
+                  role="radio"
+                  aria-checked={checked}
+                  aria-label={`${c.color}${c.inStock ? "" : " (out of stock)"}`}
+                  onClick={() => sel.setColor(c.color)}
+                  className={`pressable relative flex h-11 min-w-11 items-center gap-2 rounded-full border-2 px-1.5 pr-3 text-xs ${
+                    checked ? "border-leaf bg-leaf-soft" : "border-line bg-white"
+                  } ${compact ? "pr-1.5" : ""}`}
+                >
+                  <span className="h-7 w-7 rounded-full border border-black/10" style={{ background: `#${c.hex}` }} />
+                  {!compact && <span className={c.inStock ? "" : "text-ink-soft line-through"}>{c.color}</span>}
+                  {!c.inStock && compact && (
+                    <span className="absolute inset-0 m-auto h-0.5 w-8 rotate-45 bg-ink-soft" aria-hidden />
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </fieldset>
+      ) : (
+        // A single option ("Assorted colours", "White & clear"…) isn't a choice, so it isn't shown.
+        !sel.needsSize && <p className={`text-sm font-semibold ${colorStock ? "text-leaf" : "text-danger"}`}>{colorStock ? "In stock" : "Out of stock"}</p>
+      )}
 
       {sel.needsSize && (
         <fieldset>

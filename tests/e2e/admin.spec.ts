@@ -319,3 +319,28 @@ test("a sold-out product can't be bought, and the socket covers carry their reel
   await page.goto("/product/daluci-baby-safety-socket-covers");
   await expect(page.locator("video[aria-label$='product reel'] source").first()).toHaveAttribute("src", "/reels/daluci-socket-covers.mp4");
 });
+
+test("admin can delete a product permanently (typed confirmation)", async ({ page }) => {
+  await signIn(page, OWNER.email, OWNER.password);
+  await page.goto("/admin/products/k015");
+  await page.getByRole("button", { name: "Duplicate as draft" }).click();
+  await expect(page.getByRole("heading", { name: /\(copy\)/ })).toBeVisible();
+  const copyUrl = page.url();
+  await page.getByText("Delete this product").click();
+  await page.getByRole("button", { name: "Delete permanently" }).click();
+  await expect(page.getByText("Type DELETE to confirm.")).toBeVisible();
+  await page.getByLabel("Type DELETE to confirm").fill("DELETE");
+  await page.getByRole("button", { name: "Delete permanently" }).click();
+  await expect(page).toHaveURL(/\/admin\/products\?deleted=/);
+  await expect(page.getByText(/Deleted “Stainless Steel Kitchen Sink Strainer.*\(copy\)”/)).toBeVisible();
+  expect((await page.request.get(copyUrl)).status()).toBe(404);
+});
+
+test("shoppers don't see a colour line unless there's a real choice", async ({ page }) => {
+  await page.goto("/product/magic-eraser-cleaning-sponge-pack-of-4");
+  await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+  await expect(page.getByRole("radiogroup")).toHaveCount(0);
+  await expect(page.getByText("White", { exact: true })).toHaveCount(0);
+  await page.goto("/product/cute-charger-protector-set-apple-20w");
+  await expect(page.getByRole("radio", { name: "Astronaut" })).toBeVisible();
+});

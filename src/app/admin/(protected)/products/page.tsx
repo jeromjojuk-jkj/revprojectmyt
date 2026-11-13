@@ -10,7 +10,7 @@ import { ProductTable, type ProductRow } from "./ProductTable";
 
 export const metadata = { title: "Products" };
 
-type SP = { q?: string; status?: string; category?: string; stock?: string; sort?: string; page?: string };
+type SP = { q?: string; status?: string; category?: string; stock?: string; sort?: string; page?: string; deleted?: string };
 
 export default async function AdminProducts({ searchParams }: { searchParams: Promise<SP> }) {
   const ctx = await requirePerm("products.view");
@@ -61,6 +61,7 @@ export default async function AdminProducts({ searchParams }: { searchParams: Pr
           {ctx.can("products.create") && <Link href="/admin/products/new" className={btn.primary}><Plus size={16} aria-hidden /> Add product</Link>}
         </>}
       />
+      {sp.deleted && <p role="status" className="mb-4 rounded-xl bg-leaf-soft p-3 text-sm text-leaf">Deleted “{sp.deleted}”. Past orders keep their copy of the item.</p>}
       <form className="mb-4 grid gap-3 rounded-2xl bg-white p-4 ring-1 ring-line sm:grid-cols-2 lg:grid-cols-5">
         <div className="sm:col-span-2"><label className={label} htmlFor="pq">Search</label><input id="pq" name="q" defaultValue={sp.q} placeholder="Title, SKU, brand, supplier" className={field} /></div>
         <div><label className={label} htmlFor="ps">Status</label>

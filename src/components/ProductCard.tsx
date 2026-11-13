@@ -99,17 +99,11 @@ export function ProductCard({
         {product.returnPolicy.type !== "non-returnable" && (
           <p className="text-[11px] font-medium text-leaf">{product.returnPolicy.days}-day {product.returnPolicy.type === "exchange-only" ? "exchange" : "returns"}</p>
         )}
-        <div className="mt-auto flex items-center gap-1.5 pt-1">
-          <span className="flex -space-x-1" aria-hidden>
-            {colors.slice(0, 4).map((c) => (
-              <span key={c.color} className="h-3.5 w-3.5 rounded-full border border-white ring-1 ring-black/10" style={{ background: `#${c.hex}` }} />
-            ))}
-          </span>
-          <span className="truncate text-[11px] text-ink-soft">
-            {colors.length > 1 ? `${colors.length} ${product.category === "beauty" ? "shades" : "colours"}` : colors[0]?.color}
-            {sizes.length > 1 ? ` · ${sizes[0]}–${sizes[sizes.length - 1]}` : ""}
-          </span>
-        </div>
+        {(colors.length > 1 || sizes.length > 1) && (
+          <p className="mt-auto truncate pt-1 text-[11px] text-ink-soft">
+            {[colors.length > 1 ? `${colors.length} ${product.category === "beauty" ? "shades" : "options"}` : "", sizes.length > 1 ? `${sizes[0]}–${sizes[sizes.length - 1]}` : ""].filter(Boolean).join(" · ")}
+          </p>
+        )}
       </div>
     </article>
     <QuickView product={product} open={quick} onClose={() => setQuick(false)} />

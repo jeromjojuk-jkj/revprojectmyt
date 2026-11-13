@@ -53,7 +53,8 @@ export function ProductTable({ rows, params, canEdit, canEditStock, canArchive, 
                   <option value="">Choose action…</option>
                   {canEdit && <option value="activate">Activate</option>}
                   {canEdit && <option value="draft">Move to draft</option>}
-                  {canArchive && <option value="archive">Archive</option>}
+                  {canArchive && <option value="archive">Archive (hide, keep record)</option>}
+                  {canArchive && <option value="delete">Delete permanently</option>}
                   {canEdit && <option value="category">Change category</option>}
                   {canEdit && <option value="price">Adjust price</option>}
                 </select>
@@ -65,6 +66,9 @@ export function ProductTable({ rows, params, canEdit, canEditStock, canArchive, 
                     <select name="priceMode" aria-label="Price change type" className={`${field} h-9 w-auto text-ink`}><option value="percent">% change</option><option value="amount">₹ change</option></select>
                     <input name="priceValue" aria-label="Price change" placeholder="e.g. -10" inputMode="decimal" className={`${field} h-9 w-24 text-ink`} />
                   </>
+                )}
+                {op === "delete" && (
+                  <input name="confirmDelete" aria-label="Type DELETE to confirm" placeholder="Type DELETE" autoComplete="off" className={`${field} h-9 w-32 text-ink`} />
                 )}
                 <button disabled={!op || pending} className="h-9 rounded-lg bg-sun px-3 text-sm font-semibold text-ink disabled:opacity-50">{pending ? "Applying…" : "Apply"}</button>
               </>

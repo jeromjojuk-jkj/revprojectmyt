@@ -374,6 +374,8 @@ export interface OrderItem {
   sku: string;
   title: string;
   color: string;
+  /** Shown to the customer only when the product had more than one option. */
+  option?: string | null;
   size: string | null;
   image: string;
   unitPrice: number;
@@ -457,6 +459,8 @@ export interface QuoteLine {
   slug: string | null;
   title: string;
   color: string;
+  /** The option the shopper chose, shown on bag/checkout/order: only when the product has more than one (e.g. "Astronaut"). */
+  option: string | null;
   size: string | null;
   image: string;
   unitPrice: number;

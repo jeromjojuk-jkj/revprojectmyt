@@ -11,6 +11,7 @@ import { requireApprovedVendor } from "@/lib/server/vendors";
 import { withDb } from "@/lib/server/db";
 import { audit } from "@/lib/server/audit";
 import { moveStock } from "@/lib/server/inventory";
+import { deleteProductRecords } from "@/lib/server/catalog";
 
 export type ProductFormState = { errors?: Record<string, string>; message?: string; values?: Record<string, string> } | null;
 
@@ -99,4 +100,17 @@ export async function toggleFeaturedAction(fd: FormData) {
   });
   revalidatePath("/vendor/products");
   revalidatePath("/", "layout");
+}
+
+/** A seller permanently deletes one of their own products. Past orders keep their copy of the item. */
+export async function deleteVendorProductAction(fd: FormData) {
+  const v = await requireApprovedVendor();
+  const id = String(fd.get("id") ?? "");
+  await withDb((db) => {
+    const gone = deleteProductRecords(db, [id], v.id);
+    if (gone[0]) audit(db, { id: v.id, name: `Seller: ${v.businessName}` }, "vendor.product.delete", "product", id, { before: { title: gone[0].title } });
+  });
+  revalidatePath("/vendor/products");
+  revalidatePath("/", "layout");
+  redirect("/vendor/products?deleted=1");
 }

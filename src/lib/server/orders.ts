@@ -155,7 +155,7 @@ export async function createOrder(input: CreateOrderInput): Promise<Order> {
       idempotencyKey: input.idempotencyKey,
       createdAt: now.toISOString(),
       items: quote.lines.map((l) => ({
-        productId: l.productId!, slug: l.slug!, sku: l.sku, title: l.title, color: l.color, size: l.size,
+        productId: l.productId!, slug: l.slug!, sku: l.sku, title: l.title, color: l.color, option: l.option, size: l.size,
         image: l.image, unitPrice: l.unitPrice, qty: l.qty,
         vendorId: db.products.find((p) => p.id === l.productId)?.vendorId ?? null,
       })),

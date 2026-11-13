@@ -39,7 +39,7 @@ export default async function PackingSlip({ params }: { params: Promise<{ id: st
         </div>
         <table className="mt-3 w-full text-left">
           <thead><tr className="border-b border-black"><th className="py-1">Item</th><th className="py-1">SKU</th><th className="py-1 text-right">Qty</th></tr></thead>
-          <tbody>{items.map((i) => <tr key={i.sku} className="border-b border-black/20"><td className="py-1">{i.title} ({i.color}{i.size ? `, ${i.size}` : ""})</td><td className="py-1 font-mono">{i.sku}</td><td className="py-1 text-right">{i.qty}</td></tr>)}</tbody>
+          <tbody>{items.map((i) => <tr key={i.sku} className="border-b border-black/20"><td className="py-1">{i.title}{[i.option, i.size].filter(Boolean).length ? ` (${[i.option, i.size].filter(Boolean).join(", ")})` : ""}</td><td className="py-1 font-mono">{i.sku}</td><td className="py-1 text-right">{i.qty}</td></tr>)}</tbody>
         </table>
       </div>
     </div>

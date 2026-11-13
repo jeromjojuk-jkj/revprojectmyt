@@ -68,7 +68,7 @@ export default function CartPage() {
       <p className="font-semibold">A friend shared a bag with you</p>
       <ul className="mt-1 text-sm text-ink-soft">
         {shared.lines.map((l) => (
-          <li key={l.sku}>{l.qty} × {l.title}{l.color ? ` (${l.color}${l.size ? `, ${l.size}` : ""})` : ""}{l.ok ? "" : ` — ${l.problem}`}</li>
+          <li key={l.sku}>{l.qty} × {l.title}{[l.option, l.size].filter(Boolean).length ? ` (${[l.option, l.size].filter(Boolean).join(", ")})` : ""}{l.ok ? "" : ` — ${l.problem}`}</li>
         ))}
       </ul>
       <div className="mt-3 flex gap-2">
@@ -132,10 +132,10 @@ export default function CartPage() {
                   </Link>
                   <div className="min-w-0 flex-1">
                     <Link href={`/product/${l.slug}`} className="line-clamp-2 text-sm font-medium hover:underline">{l.title}</Link>
-                    <p className="mt-0.5 text-xs text-ink-soft">
-                      {l.color}
-                      {l.size ? ` · Size ${l.size}` : ""}
-                    </p>
+                    {(() => {
+                      const opt = [info ? info.option : l.color, l.size ? `Size ${l.size}` : ""].filter(Boolean).join(" · ");
+                      return opt ? <p className="mt-0.5 text-xs text-ink-soft">{opt}</p> : null;
+                    })()}
                     <p className="mt-1 font-semibold">{formatPrice(info?.ok ? info.unitPrice : l.price)}</p>
                     {priceChanged && <p className="text-xs font-medium text-ink">Price updated since you added this.</p>}
                     {info && !info.ok && <p role="alert" className="mt-1 text-xs font-semibold text-danger">{info.problem}</p>}

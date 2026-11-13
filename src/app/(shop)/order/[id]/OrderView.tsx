@@ -69,7 +69,7 @@ export function OrderView({ order, token }: { order: CustomerOrder; token: strin
 
   const restore = () => {
     for (const it of order.items) {
-      addToCart({ sku: it.sku, productId: it.productId, slug: it.slug, title: it.title, color: it.color, size: it.size, image: it.image, price: it.unitPrice }, it.qty);
+      addToCart({ sku: it.sku, productId: it.productId, slug: it.slug, title: it.title, color: it.option ?? "", size: it.size, image: it.image, price: it.unitPrice }, it.qty);
     }
     toast({ message: "Items added back to your bag", action: { label: "View bag", href: "/cart" } });
   };
@@ -173,7 +173,7 @@ export function OrderView({ order, token }: { order: CustomerOrder; token: strin
               </Link>
               <span className="flex-1">
                 <span className="block font-medium">{it.title}</span>
-                <span className="text-xs text-ink-soft">{it.color}{it.size ? ` · ${it.size}` : ""} · Qty {it.qty}</span>
+                <span className="text-xs text-ink-soft">{[it.option, it.size, `Qty ${it.qty}`].filter(Boolean).join(" · ")}</span>
               </span>
               <span className="font-medium">{formatPrice(it.unitPrice * it.qty)}</span>
             </li>

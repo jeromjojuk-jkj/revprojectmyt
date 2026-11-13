@@ -4,6 +4,7 @@ import { CATEGORIES } from "@/lib/constants";
 import { readDb } from "@/lib/server/db";
 import { requireApprovedVendor } from "@/lib/server/vendors";
 import { VendorProductForm } from "../VendorProductForm";
+import { DeleteVendorProduct } from "../DeleteVendorProduct";
 import { commissionOf, describeCommission } from "@/lib/vendorPlans";
 import { getSettings } from "@/lib/server/catalog";
 
@@ -26,6 +27,10 @@ export default async function EditVendorProduct({ params }: { params: Promise<{ 
       <h1 className="text-2xl font-bold">Edit product</h1>
       {r?.status === "rejected" && <p className="rounded-xl bg-danger-soft p-3 text-sm text-danger"><b>Krip didn’t approve this listing:</b> {r.note || "Please check the details and photos."} Fix it and save to send it again.</p>}
       <VendorProductForm initial={initial} categories={CATEGORIES.map((c) => ({ id: c.id, name: c.name }))} commission={describeCommission(commissionOf(await getSettings()))} live={p.status === "active"} />
+      <div className="rounded-2xl bg-white p-4 ring-1 ring-line">
+        <p className="mb-2 text-sm text-ink-soft">Don’t sell this any more? Delete it permanently. To pause it instead, set the stock to 0.</p>
+        <DeleteVendorProduct id={p.id} title={p.title} wide />
+      </div>
     </div>
   );
 }
