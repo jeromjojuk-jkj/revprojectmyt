@@ -42,7 +42,7 @@ export function computeQuote(
     if (!hit) {
       lines.push({
         sku, qty: rawQty, ok: false, problem: "This item is no longer available.", productId: null, slug: null,
-        title: "Unavailable item", color: "", size: null, image: "", unitPrice: 0, mrp: null, available: 0, lineTotal: 0,
+        title: "Unavailable item", color: "", option: null, size: null, image: "", unitPrice: 0, mrp: null, available: 0, lineTotal: 0,
       });
       continue;
     }
@@ -64,6 +64,7 @@ export function computeQuote(
       slug: product.slug,
       title: product.title,
       color: v.color,
+      option: new Set(product.variants.map((x) => x.color)).size > 1 ? v.color : null,
       size: v.size,
       image: product.images[0] ?? "",
       unitPrice: product.price,

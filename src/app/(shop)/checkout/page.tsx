@@ -272,7 +272,7 @@ export default function CheckoutPage() {
                   </span>
                   <span className="min-w-0 flex-1">
                     <span className="line-clamp-1">{l.title}</span>
-                    <span className="block text-xs text-ink-soft">{l.color}{l.size ? ` · ${l.size}` : ""} · Qty {l.qty}</span>
+                    <span className="block text-xs text-ink-soft">{[l.option, l.size, `Qty ${l.qty}`].filter(Boolean).join(" · ")}</span>
                     {!l.ok && <span className="block text-xs font-semibold text-danger">{l.problem}</span>}
                   </span>
                   <span className="font-medium">{formatPrice(l.lineTotal)}</span>

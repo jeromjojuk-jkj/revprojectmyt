@@ -173,6 +173,16 @@ test("seller marketplace: register → approve → list → sell → ship → ea
   await admin.getByRole("button", { name: "Show full account number" }).click();
   await expect(admin.getByText("123456789012")).toBeVisible();
 
+  // The seller deletes their product: gone from their list and the shop; the order and wallet history stay.
+  await seller.goto("/vendor/products");
+  seller.once("dialog", (d) => d.accept());
+  await seller.getByRole("button", { name: "Delete" }).click();
+  await expect(seller.getByText("Product deleted.")).toBeVisible();
+  await expect(seller.getByText("Steel Vegetable Chopper 3 Blades")).toHaveCount(0);
+  expect(await (await seller.request.get("/api/products")).text()).not.toContain("Steel Vegetable Chopper 3 Blades");
+  await seller.goto("/vendor/wallet");
+  await expect(seller.getByText(/ref UTR12345678/)).toBeVisible();
+
   // Suspending hides their products from the shop.
   await admin.getByLabel("Reason (seller sees this)", { exact: true }).fill("Testing suspension");
   await admin.getByRole("button", { name: "Suspend" }).click();

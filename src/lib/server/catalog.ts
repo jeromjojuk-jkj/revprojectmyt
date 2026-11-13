@@ -54,3 +54,19 @@ export async function getFeaturedSellerProducts(): Promise<ProductPublic[]> {
   const db = await readDb();
   return sellableProducts(db).filter((p) => p.vendorId && p.private.featured && p.status === "active" && p.variants.some((v) => v.stock > 0)).slice(0, 12).map(toPublicProduct);
 }
+
+/**
+ * Permanently removes products. Orders keep their own copy of each item (title, photo, price), so past
+ * orders, invoices and seller wallets are unaffected; stock history stays in the ledger.
+ * Returns the products removed. Runs inside a write lock.
+ */
+export function deleteProductRecords(db: DB, ids: string[], onlyVendorId?: string): ProductRecord[] {
+  const set = new Set(ids);
+  const gone = db.products.filter((p) => set.has(p.id) && (onlyVendorId === undefined || p.vendorId === onlyVendorId));
+  if (!gone.length) return [];
+  const goneIds = new Set(gone.map((p) => p.id));
+  db.products = db.products.filter((p) => !goneIds.has(p.id));
+  db.deletedProductIds = [...new Set([...(db.deletedProductIds ?? []), ...goneIds])].slice(-5000);
+  for (const o of db.offers ?? []) o.productIds = o.productIds.filter((id) => !goneIds.has(id));
+  return gone;
+}

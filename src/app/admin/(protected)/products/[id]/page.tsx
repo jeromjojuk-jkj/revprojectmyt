@@ -7,6 +7,7 @@ import { productEstimates } from "@/lib/server/estimates";
 import { toRawInput } from "@/lib/productInput";
 import { formatPrice } from "@/lib/format";
 import { ProductForm } from "./ProductForm";
+import { DeleteProduct } from "./DeleteProduct";
 
 export default async function EditProduct({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ saved?: string }> }) {
   const { id } = await params;
@@ -47,6 +48,7 @@ export default async function EditProduct({ params, searchParams }: { params: Pr
         </details>
       )}
       <ProductForm initial={p ? toRawInput(p) : { status: "draft", returnType: "returnable", returnDays: "7", shippingCost: "50", brand: "Krip Studio" }} id={p?.id ?? ""} />
+      {p && ctx.can("products.delete") && <DeleteProduct id={p.id} title={p.title} vendor={p.vendorId ? db.vendors.find((v) => v.id === p.vendorId)?.businessName ?? p.vendorId : null} />}
     </div>
   );
 }

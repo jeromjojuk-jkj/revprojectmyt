@@ -4,12 +4,13 @@ import { requireApprovedVendor } from "@/lib/server/vendors";
 import { planOf, shippingOf } from "@/lib/vendorPlans";
 import { formatPrice } from "@/lib/format";
 import { toggleFeaturedAction } from "@/app/vendor/productActions";
+import { DeleteVendorProduct } from "./DeleteVendorProduct";
 
 export const metadata = { title: "Seller products", robots: { index: false } };
 
-export default async function VendorProducts({ searchParams }: { searchParams: Promise<{ saved?: string }> }) {
+export default async function VendorProducts({ searchParams }: { searchParams: Promise<{ saved?: string; deleted?: string }> }) {
   const v = await requireApprovedVendor();
-  const { saved } = await searchParams;
+  const { saved, deleted } = await searchParams;
   const db = await readDb();
   const plan = planOf(v.plan);
   const mine = db.products.filter((p) => p.vendorId === v.id && p.status !== "archived").sort((a, b) => b.createdAt.localeCompare(a.createdAt));
@@ -34,6 +35,7 @@ export default async function VendorProducts({ searchParams }: { searchParams: P
           : <p className="text-sm text-danger">Product limit reached for your plan.</p>}
       </div>
       {saved && <p role="status" className="rounded-xl bg-leaf-soft p-3 text-sm font-medium text-leaf">Saved. If anything needs Krip’s review, you’ll see it here once it’s checked.</p>}
+      {deleted && <p role="status" className="rounded-xl bg-leaf-soft p-3 text-sm font-medium text-leaf">Product deleted.</p>}
       {shippingOf(v).onHoliday && <p className="rounded-xl bg-sun-soft p-3 text-sm">Holiday mode is on — your products are hidden from the shop. <Link href="/vendor/shipping" className="underline">Change</Link></p>}
       {mine.length === 0 ? <p className="rounded-2xl bg-white p-6 text-center text-ink-soft ring-1 ring-line">No products yet. Add your first one — Krip reviews it before it goes live.</p> : (
         <ul className="space-y-2">
@@ -49,7 +51,7 @@ export default async function VendorProducts({ searchParams }: { searchParams: P
                   <span className={`mt-1 inline-block rounded-full px-2 py-0.5 text-xs font-medium ${cls}`}>{label}</span>
                   {p.private.review?.status === "rejected" && p.private.review.note && <p className="mt-1 text-xs text-danger">{p.private.review.note}</p>}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   {plan.featuredSlots > 0 && p.status === "active" && (
                     <form action={toggleFeaturedAction}>
                       <input type="hidden" name="id" value={p.id} />
@@ -58,6 +60,7 @@ export default async function VendorProducts({ searchParams }: { searchParams: P
                   )}
                   {p.status === "active" && <Link href={`/product/${p.slug}`} className="flex h-10 items-center rounded-xl px-3 text-sm font-medium ring-1 ring-line">View</Link>}
                   <Link href={`/vendor/products/${p.id}`} className="flex h-10 items-center rounded-xl bg-ink px-3 text-sm font-medium text-white">Edit</Link>
+                  <DeleteVendorProduct id={p.id} title={p.title} />
                 </div>
               </li>
             );

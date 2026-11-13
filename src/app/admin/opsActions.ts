@@ -7,6 +7,7 @@ import { getStaff, requirePerm } from "@/lib/server/auth";
 import { withDb } from "@/lib/server/db";
 import { audit } from "@/lib/server/audit";
 import { moveStock } from "@/lib/server/inventory";
+import { deleteProductRecords } from "@/lib/server/catalog";
 import { adminOrderAction, OrderError } from "@/lib/server/orders";
 import type { OrderOp } from "@/lib/orderflow";
 import { validateCouponInput } from "@/lib/coupons";
@@ -58,7 +59,7 @@ export async function bulkProductsAction(_: ActionState, fd: FormData): Promise<
   const ids = fd.getAll("ids").map(String).slice(0, 500);
   const op = String(fd.get("bulkOp"));
   if (!ids.length) return { error: "Select at least one product." };
-  const perm: Permission = op === "archive" ? "products.delete" : "products.edit";
+  const perm: Permission = op === "archive" || op === "delete" ? "products.delete" : "products.edit";
   const { actor } = await requirePerm(perm);
   let message = "";
   try {
@@ -79,6 +80,12 @@ export async function bulkProductsAction(_: ActionState, fd: FormData): Promise<
         case "activate": status("active"); break;
         case "draft": status("draft"); break;
         case "archive": status("archived"); break;
+        case "delete": {
+          if (String(fd.get("confirmDelete")) !== "DELETE") throw new Error("Type DELETE to confirm permanent deletion.");
+          const gone = deleteProductRecords(db, ids);
+          message = `Deleted ${gone.length} product(s) permanently. Past orders keep their copy of each item.`;
+          break;
+        }
         case "category": {
           const c = String(fd.get("category"));
           if (!CATEGORIES.some((x) => x.id === c)) throw new Error("Choose a category.");
@@ -366,4 +373,20 @@ export async function deleteFestivalOfferAction(fd: FormData) {
     list.splice(i, 1);
   });
   revalidatePath("/", "layout");
+}
+
+/** Permanently deletes one product from its edit page. */
+export async function deleteProductAction(_: ActionState, fd: FormData): Promise<ActionState> {
+  const { actor } = await requirePerm("products.delete");
+  const id = String(fd.get("id") ?? "");
+  if (String(fd.get("confirmDelete")) !== "DELETE") return { error: "Type DELETE to confirm." };
+  let title = "";
+  await withDb((db) => {
+    const gone = deleteProductRecords(db, [id]);
+    title = gone[0]?.title ?? "";
+    if (gone[0]) audit(db, actor, "product.delete", "product", id, { before: { title, vendorId: gone[0].vendorId ?? null } });
+  });
+  if (!title) return { error: "Product not found (maybe already deleted)." };
+  revalidatePath("/", "layout");
+  redirect(`/admin/products?deleted=${encodeURIComponent(title.slice(0, 80))}`);
 }

@@ -39,6 +39,8 @@ export interface DB {
   vendorPayouts: VendorPayout[];
   vendorWithdrawals: VendorWithdrawal[];
   vendorAdjustments: VendorAdjustment[];
+  /** Products deleted in admin or by sellers, so catalogue updates never bring them back. */
+  deletedProductIds: string[];
 }
 
 export const DEFAULT_STORE: StoreProfile = {
@@ -103,6 +105,7 @@ function emptyBackOffice() {
     vendorPayouts: [] as VendorPayout[],
     vendorWithdrawals: [] as VendorWithdrawal[],
     vendorAdjustments: [] as VendorAdjustment[],
+    deletedProductIds: [] as string[],
   };
 }
 
@@ -128,7 +131,7 @@ function migrate(db: DB) {
   }
   // Catalogue additions reach existing stores once; products removed or edited in admin aren't touched.
   if ((db.catalogVersion ?? 1) < CATALOG_VERSION) {
-    const have = new Set(db.products.map((p) => p.id));
+    const have = new Set([...db.products.map((p) => p.id), ...db.deletedProductIds]);
     db.products.push(...buildSeedProducts().filter((p) => !have.has(p.id)));
     for (const p of db.products) p.images = p.images.map((u) => IMAGE_RENAMES[u] ?? u);
     for (const f of IMAGE_ORDER_FIXES) {
