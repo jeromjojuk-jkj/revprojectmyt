@@ -108,16 +108,12 @@ export default async function HomePage() {
             .filter((t) => t.items.length >= 1)
             .map((t) => (
               <li key={t.key}>
-                <Link href={t.href} className="pressable flex h-full flex-col rounded-lg bg-white p-2 ring-1 ring-line">
-                  <span className="px-0.5 text-[15px] font-bold leading-tight">{t.label}</span>
-                  <span className="mt-1.5 grid grid-cols-2 gap-1">
-                    {t.items.slice(0, 4).map((p) => (
-                      <span key={p.id} className="relative aspect-square overflow-hidden rounded-md bg-paper">
-                        <ProductImage src={p.images[0]} alt="" sizes="(min-width: 768px) 12vw, 22vw" />
-                      </span>
-                    ))}
+                <Link href={t.href} className="pressable flex h-full items-center justify-between gap-2 rounded-lg bg-paper px-3 py-3 ring-1 ring-line">
+                  <span className="min-w-0">
+                    <span className="block text-[15px] font-bold leading-tight">{t.label}</span>
+                    <span className="mt-0.5 block text-xs text-ink-soft">{t.count} {IS_FASHION ? "styles" : "items"}</span>
                   </span>
-                  <span className="mt-1.5 px-0.5 text-xs font-semibold text-leaf">{t.count} {IS_FASHION ? "styles" : "items"} · See all</span>
+                  <IconChevron size={16} className="shrink-0 text-leaf" />
                 </Link>
               </li>
             ))}
