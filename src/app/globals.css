@@ -16,6 +16,8 @@
   --color-danger: #b42318;
   --color-danger-soft: #fdecea;
   --font-sans: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  /* Codes (order numbers, AWB, SKUs) use Poppins too, with even-width digits so they line up. */
+  --font-mono: "Poppins", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --radius-card: 14px;
   --ease-snap: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
@@ -299,3 +301,6 @@ body:has([data-festive="diwali"]) {
   background-size: 100% 100%, 100% 100%, 100% 100%, 80px 80px, 80px 80px;
   background-attachment: fixed;
 }
+
+/* Poppins for codes: tabular digits keep order numbers, AWBs and SKUs aligned. */
+.font-mono { font-variant-numeric: tabular-nums; letter-spacing: 0.01em; }
