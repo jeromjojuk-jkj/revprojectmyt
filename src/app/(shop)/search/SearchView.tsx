@@ -7,7 +7,7 @@ import {
   activeFilterCount, emptyState, parseSearch, runSearch, serializeSearch, SORTS,
   type Facet, type SearchState,
 } from "@/lib/search";
-import { CATEGORY_NAME, COLLECTIONS, VIBES } from "@/lib/constants";
+import { CATEGORY_NAME, COLLECTIONS, IS_FASHION, VIBES } from "@/lib/constants";
 import { ProductGrid } from "@/components/ProductCard";
 import { Sheet } from "@/components/Sheet";
 import { IconFilter, IconSort, IconX, IconCheck } from "@/components/Icons";
@@ -124,14 +124,14 @@ export function SearchView({ products }: { products: ProductPublic[] }) {
 
       {/* Quick filters, one tap each */}
       <div className="no-scrollbar -mx-4 mt-2 flex gap-2 overflow-x-auto px-4 pb-1" aria-label="Quick filters">
-        {([
+        {(([
           ["Women", { ...state, cats: state.cats.includes("women") ? state.cats.filter((c) => c !== "women") : [...state.cats, "women"] }, state.cats.includes("women")],
           ["Men", { ...state, cats: state.cats.includes("men") ? state.cats.filter((c) => c !== "men") : [...state.cats, "men"] }, state.cats.includes("men")],
           ["Under ₹299", { ...state, max: state.max === 299 ? null : 299 }, state.max === 299],
           ["Under ₹499", { ...state, max: state.max === 499 ? null : 499 }, state.max === 499],
           ["In stock", { ...state, inStock: !state.inStock }, state.inStock],
           ["Price: low to high", { ...state, sort: state.sort === "price-asc" ? (state.q ? "relevance" : "newest") : "price-asc" }, state.sort === "price-asc"],
-        ] as [string, SearchState, boolean][]).map(([label, next, on]) => (
+        ] as [string, SearchState, boolean][]).filter(([label]) => IS_FASHION || (label !== "Women" && label !== "Men"))).map(([label, next, on]) => (
           <button key={label} type="button" aria-pressed={on} onClick={() => apply(next)}
             className={`flex h-9 shrink-0 items-center rounded-full px-3.5 text-xs font-medium ring-1 ${on ? "bg-ink text-white ring-ink" : "bg-white ring-line"}`}>
             {label}

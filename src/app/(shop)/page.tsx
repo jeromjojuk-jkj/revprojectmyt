@@ -44,12 +44,12 @@ export default async function HomePage() {
     <div className="pb-4">
       {activeFestival()?.id === "diwali" && <DiwaliHero />}
       {/* 2. Category shortcuts */}
-      <nav aria-label="Shop by category" className="pt-3">
-        <ul className="no-scrollbar flex gap-3 overflow-x-auto px-4 pb-1 md:justify-center">
+      <nav aria-label="Shop by category" className="bg-white pb-2 pt-3">
+        <ul className="no-scrollbar flex gap-2.5 overflow-x-auto px-3 pb-1 md:justify-center">
           {CATEGORIES.map((c) => (
             <li key={c.id} className="shrink-0">
-              <Link href={`/search?cat=${c.id}`} className="pressable flex w-[68px] flex-col items-center gap-1.5 text-center">
-                <span className="relative h-[64px] w-[64px] overflow-hidden rounded-2xl bg-white ring-1 ring-line">
+              <Link href={`/search?cat=${c.id}`} className="pressable flex w-[66px] flex-col items-center gap-1.5 text-center">
+                <span className="relative h-[60px] w-[60px] overflow-hidden rounded-full bg-paper ring-1 ring-line">
                   <ProductImage src={c.image ?? `/art/${c.art}-${c.hex}-2.svg`} alt="" sizes="64px" priority fit="cover" />
                 </span>
                 <span className="text-[12px] font-medium leading-tight">{c.short}</span>
@@ -94,24 +94,33 @@ export default async function HomePage() {
         <ProductGrid products={trending} priorityCount={4} />
       </Section>
 
-      {/* 5. Budget edits */}
-      <Section id="budget" title="Budget edits" kicker="Your kind of price">
-        <ul className="grid grid-cols-3 gap-2.5">
-          {BUDGETS.map((b, i) => {
-            const count = products.filter((p) => p.price <= b.max && inStock(p)).length;
-            return (
-              <li key={b.max}>
-                <Link
-                  href={`/search?max=${b.max}&sort=price-asc`}
-                  className={`pressable flex h-full flex-col justify-between gap-3 rounded-2xl p-3 ring-1 ring-line ${i === 0 ? "bg-sun" : i === 1 ? "bg-white" : "bg-leaf-soft"}`}
-                >
-                  <span className="text-[11px] font-medium text-ink/80">Everything</span>
-                  <span className="text-lg font-bold leading-none md:text-2xl">{b.label}</span>
-                  <span className="text-[11px] font-medium text-ink/80">{count} {IS_FASHION ? "styles" : "items"}</span>
+      {/* 5. Shop by price: photo tiles of real in-stock products at each price */}
+      <Section id="budget" title="Shop by price" kicker="Real prices, nothing hidden">
+        <ul className="grid grid-cols-2 gap-2 md:grid-cols-4">
+          {[...BUDGETS.map((b, i) => {
+              // Photos from this price band first (e.g. ₹300–₹499 for "Under ₹499") so the tiles don't repeat.
+              const low = i ? BUDGETS[i - 1].max : 0;
+              const all = products.filter((p) => p.price <= b.max && inStock(p));
+              const band = all.filter((p) => p.price > low);
+              return { key: `u${b.max}`, label: b.label, href: `/search?max=${b.max}&sort=price-asc`, items: [...band, ...all.filter((p) => p.price <= low)], count: all.length };
+            }),
+            { key: "new", label: "New arrivals", href: "/drops", items: newest.filter(inStock), count: newest.filter(inStock).length }]
+            .filter((t) => t.items.length >= 1)
+            .map((t) => (
+              <li key={t.key}>
+                <Link href={t.href} className="pressable flex h-full flex-col rounded-lg bg-white p-2 ring-1 ring-line">
+                  <span className="px-0.5 text-[15px] font-bold leading-tight">{t.label}</span>
+                  <span className="mt-1.5 grid grid-cols-2 gap-1">
+                    {t.items.slice(0, 4).map((p) => (
+                      <span key={p.id} className="relative aspect-square overflow-hidden rounded-md bg-paper">
+                        <ProductImage src={p.images[0]} alt="" sizes="(min-width: 768px) 12vw, 22vw" />
+                      </span>
+                    ))}
+                  </span>
+                  <span className="mt-1.5 px-0.5 text-xs font-semibold text-leaf">{t.count} {IS_FASHION ? "styles" : "items"} · See all</span>
                 </Link>
               </li>
-            );
-          })}
+            ))}
         </ul>
       </Section>
 

@@ -51,7 +51,7 @@ export function ProductCard({
     <article
       onPointerMove={onMove}
       onPointerLeave={onLeave}
-      className="card3d reveal pressable group relative flex flex-col overflow-hidden rounded-[var(--radius-card)] bg-white shadow-[0_1px_0_rgba(0,0,0,0.04)] ring-1 ring-line"
+      className="card3d reveal pressable group relative flex h-full flex-col overflow-hidden rounded-[var(--radius-card)] bg-white ring-1 ring-line"
     >
       <div className="relative aspect-square overflow-hidden bg-white">
         <span aria-hidden className="glare pointer-events-none absolute inset-0 z-[1]" />
@@ -81,23 +81,24 @@ export function ProductCard({
         <button
           type="button"
           onClick={() => setQuick(true)}
-          className="absolute bottom-2 right-2 flex h-8 items-center gap-1 rounded-full bg-white/95 px-2.5 text-[11px] font-semibold text-ink shadow-sm ring-1 ring-black/5"
+          className="absolute bottom-1.5 right-1.5 grid h-9 w-9 place-items-center rounded-full bg-white/95 text-ink shadow-sm ring-1 ring-black/5"
           aria-label={`Quick view: ${product.title}`}
           aria-haspopup="dialog"
+          title="Quick view"
         >
-          <IconEye size={15} /> Quick View
+          <IconEye size={16} />
         </button>
       </div>
-      <div className="flex flex-1 flex-col gap-1 p-2.5">
-        <p className="text-[11px] font-medium uppercase tracking-wide text-ink-soft">{product.brand}</p>
-        <h3 className="line-clamp-2 text-[13px] leading-snug font-medium">
+      <div className="flex flex-1 flex-col gap-0.5 border-t border-line/70 px-2 pb-2 pt-1.5">
+        {product.brand && product.brand.toLowerCase() !== "generic" && <p className="truncate text-[11px] font-semibold text-ink-soft">{product.brand}</p>}
+        <h3 className="line-clamp-2 text-[13px] leading-snug">
           <Link href={href} onClick={onNavigate} className="hover:underline">
             {product.title}
           </Link>
         </h3>
         <Price price={product.price} mrp={product.mrp} size="md" />
         {product.returnPolicy.type !== "non-returnable" && (
-          <p className="text-[11px] font-medium text-leaf">{product.returnPolicy.days}-day {product.returnPolicy.type === "exchange-only" ? "exchange" : "returns"}</p>
+          <p className="text-[11px] text-ink-soft">{product.returnPolicy.days}-day {product.returnPolicy.type === "exchange-only" ? "exchange" : "returns"}</p>
         )}
         {(colors.length > 1 || sizes.length > 1) && (
           <p className="mt-auto truncate pt-1 text-[11px] text-ink-soft">
@@ -121,7 +122,7 @@ export function ProductGrid({
   onNavigate?: () => void;
 }) {
   return (
-    <ul className="grid grid-cols-2 gap-2.5 sm:gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+    <ul className="grid grid-cols-2 gap-2 sm:gap-3 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
       {products.map((p, i) => (
         <li key={p.id} className="min-w-0">
           <ProductCard product={p} priority={i < priorityCount} onNavigate={onNavigate} />
@@ -133,9 +134,9 @@ export function ProductGrid({
 
 export function ProductRail({ products }: { products: ProductPublic[] }) {
   return (
-    <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-2.5 overflow-x-auto px-4 pb-1">
+    <ul className="no-scrollbar -mx-4 flex snap-x snap-mandatory gap-2 overflow-x-auto px-4 pb-1">
       {products.map((p) => (
-        <li key={p.id} className="w-[44%] shrink-0 snap-start sm:w-[30%] md:w-[22%] lg:w-[18%]">
+        <li key={p.id} className="w-[40%] shrink-0 snap-start sm:w-[28%] md:w-[20%] lg:w-[16%]">
           <ProductCard product={p} />
         </li>
       ))}
