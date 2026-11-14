@@ -159,7 +159,10 @@ export function Footer({ store, paymentsDemo = true }: { store: StoreProfile; pa
           <div className="mx-auto flex max-w-7xl flex-col items-center gap-4 px-6 py-5 text-xs text-white/70 md:flex-row md:justify-between">
             <div className="flex items-center gap-3">
               <Logo onDark className="text-[22px]" />
-              <p>© 2026 Krip. All rights reserved.</p>
+              <p>
+                © 2026 Krip. All rights reserved. Powered by{" "}
+                <a href="https://zerabytes.com/" target="_blank" rel="noopener noreferrer" className="font-semibold text-white underline-offset-2 hover:underline">ZeraBytes</a>
+              </p>
             </div>
             <ul className="flex flex-wrap items-center justify-center gap-2" aria-label="Region settings">
               <li className="flex h-9 items-center gap-1.5 rounded border border-white/25 px-3"><span aria-hidden>🇮🇳</span> Country / Region: India</li>
