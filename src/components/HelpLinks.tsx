@@ -9,7 +9,8 @@ import { IS_FASHION } from "@/lib/constants";
 type FooterLink = { href?: string; label: string; note?: string; external?: boolean };
 
 function columns(store: StoreProfile): { title: string; links: FooterLink[] }[] {
-  const social = (label: string, href: string): FooterLink => (href ? { label, href, external: true } : { label, note: "soon" });
+  // Social accounts appear only once a real profile link is added in Admin → Store settings.
+  const social = (label: string, href: string): FooterLink[] => (href ? [{ label, href, external: true }] : []);
   const extraSocial = [
     store.social.youtube && { label: "YouTube", href: store.social.youtube, external: true },
     store.social.x && { label: "X", href: store.social.x, external: true },
@@ -27,7 +28,7 @@ function columns(store: StoreProfile): { title: string; links: FooterLink[] }[] 
     {
       // Social accounts show as labels until real profile links are added in Admin → Store settings.
       title: "Connect with Us",
-      links: [social("Instagram", store.social.instagram), social("Facebook", store.social.facebook), ...extraSocial],
+      links: [...social("Instagram", store.social.instagram), ...social("Facebook", store.social.facebook), ...extraSocial],
     },
     {
       title: "Let Us Help You",
@@ -42,7 +43,7 @@ function columns(store: StoreProfile): { title: string; links: FooterLink[] }[] 
       links: [
         { href: "/search", label: "Shop All" },
         { href: "/drops", label: "New Drops" },
-        { href: "/swipe", label: "Style Swipe" },
+        { href: "/swipe", label: IS_FASHION ? "Style Swipe" : "Swipe & Shortlist" },
         { href: "/categories", label: "Categories" },
       ],
     },
@@ -55,7 +56,6 @@ function columns(store: StoreProfile): { title: string; links: FooterLink[] }[] 
         { href: "/help/returns", label: "Returns & Refunds" },
         { href: "/help/exchange", label: "Exchange Policy" },
         { href: "/orders", label: "Order Tracking" },
-        { href: "/help/cancellation", label: "Cancellation Policy" },
         // Only shown once a real WhatsApp support number is configured.
         ...(store.whatsapp ? [{ href: whatsappLink(store.whatsapp), label: "WhatsApp Support", external: true }] : []),
       ],
@@ -92,8 +92,8 @@ export function Footer({ store, paymentsDemo = true }: { store: StoreProfile; pa
         <h2 id="picks-title" className="text-xl font-bold md:text-2xl">{IS_FASHION ? "See picks for your vibe" : "Shortlist things you’ll love"}</h2>
         <p className="mx-auto mt-1 max-w-md text-sm text-ink-soft">{IS_FASHION ? "Swipe through styles to train your wishlist, or answer four quick questions." : "Swipe right on anything useful — it goes straight to your wishlist."}</p>
         <div className="mx-auto mt-4 flex max-w-sm flex-col gap-2 sm:flex-row sm:justify-center">
-          <Link href="/swipe" className="flex h-11 flex-1 items-center justify-center rounded-full bg-sun px-6 text-sm font-semibold text-ink">
-            Start Style Swipe
+          <Link href="/swipe" className="flex h-12 shrink-0 items-center justify-center rounded-full bg-sun px-8 text-sm font-semibold text-ink">
+            {IS_FASHION ? "Start Style Swipe" : "Start swiping"}
           </Link>
         </div>
         {IS_FASHION && (
@@ -105,7 +105,7 @@ export function Footer({ store, paymentsDemo = true }: { store: StoreProfile; pa
 
       <div className="bg-[#1c1c1c] text-white">
         <nav aria-label="Footer" className="mx-auto grid max-w-7xl grid-cols-2 gap-x-6 gap-y-8 px-6 py-10 sm:grid-cols-3 lg:grid-cols-6">
-          {columns(store).map((col) => (
+          {columns(store).filter((col) => col.links.length > 0).map((col) => (
             <div key={col.title}>
               <h2 className="mb-2 text-[15px] font-bold">{col.title}</h2>
               <ul>

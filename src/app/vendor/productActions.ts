@@ -76,6 +76,8 @@ export async function saveVendorProductAction(_: ProductFormState, fd: FormData)
       }
       const sku = rec.variants[0]?.sku;
       if (sku && rec.variants[0].stock !== p.stock) moveStock(db, sku, p.stock - rec.variants[0].stock, "correction", "seller update", actor.name);
+      // Listings approved while at zero stock were parked as "out-of-stock"; bring them back once restocked.
+      if (rec.status === "out-of-stock" && rec.private.review?.status === "approved") rec.status = "active";
       audit(db, actor, "vendor.product.update", "product", rec.id, { after: { reviewAgain: changed } });
     });
   } catch (e) {

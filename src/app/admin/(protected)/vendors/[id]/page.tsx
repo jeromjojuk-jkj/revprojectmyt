@@ -9,7 +9,7 @@ import { formatMoney, formatPrice } from "@/lib/format";
 import { Badge, Card, Notice, PageHeader, Table, btn, field, label, td, th } from "@/app/admin/_components/ui";
 import { VForm } from "../VForm";
 import { STATUS } from "../status";
-import { revealBankAction, vendorPayoutAction, vendorStatusAction, vendorVerifyAction, walletAdjustmentAction, withdrawalAction } from "@/app/admin/vendorActions";
+import { vendorPasswordResetAction, revealBankAction, vendorPayoutAction, vendorStatusAction, vendorVerifyAction, walletAdjustmentAction, withdrawalAction } from "@/app/admin/vendorActions";
 
 export const metadata = { title: "Seller" };
 export const dynamic = "force-dynamic";
@@ -55,6 +55,7 @@ export default async function Seller({ params }: { params: Promise<{ id: string 
           {canManage && (
             <div className="mt-3 flex flex-wrap gap-2">
               <VForm action={revealBankAction} hidden={{ id: v.id }}><button className={btn.secondary}>Show full account number</button></VForm>
+              <VForm action={vendorPasswordResetAction} hidden={{ id: v.id }}><button className={btn.secondary}>Reset seller’s password</button></VForm>
             </div>
           )}
         </Card>

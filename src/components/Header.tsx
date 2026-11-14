@@ -16,7 +16,7 @@ const STRIP: { href: string; label: string; wide?: boolean }[] = [
   ...CATEGORIES.map((c) => ({ href: `/search?cat=${c.id}`, label: c.short })),
   { href: "/drops", label: "New Drops" },
   IS_FASHION ? { href: "/search?max=499&sort=price-asc", label: "Under ₹499", wide: true } : { href: "/search?max=199&sort=price-asc", label: "Under ₹199", wide: true },
-  { href: "/swipe", label: "Style Swipe", wide: true },
+  { href: "/swipe", label: IS_FASHION ? "Style Swipe" : "Swipe & Shortlist", wide: true },
   ...(IS_FASHION ? [{ href: "/looks", label: "Complete the Look", wide: true }, { href: "/vibe", label: "Vibe Finder", wide: true }] : []),
 ];
 
@@ -48,7 +48,7 @@ export function CartButton() {
 
 function AllMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const groups: { title: string; links: { href: string; label: string }[] }[] = [
-    { title: "Trending", links: [{ href: "/search?collection=trending", label: "Trending Now" }, { href: "/drops", label: "New Drops" }, { href: "/#offers", label: "Seasonal offers" }, ...(IS_FASHION ? [{ href: "/fit", label: "Build a Fit" }, { href: "/colour-match", label: "Colour Match" }, { href: "/swipe", label: "Style Swipe" }, { href: "/looks", label: "Complete the Look" }, { href: "/vibe", label: "Vibe Finder" }] : [{ href: "/swipe", label: "Style Swipe" }])] },
+    { title: "Trending", links: [{ href: "/search?collection=trending", label: "Trending Now" }, { href: "/drops", label: "New Drops" }, { href: "/#offers", label: "Seasonal offers" }, ...(IS_FASHION ? [{ href: "/fit", label: "Build a Fit" }, { href: "/colour-match", label: "Colour Match" }, { href: "/swipe", label: "Style Swipe" }, { href: "/looks", label: "Complete the Look" }, { href: "/vibe", label: "Vibe Finder" }] : [{ href: "/swipe", label: "Swipe & Shortlist" }])] },
     { title: "Shop by category", links: CATEGORIES.map((c) => ({ href: `/search?cat=${c.id}`, label: c.name })) },
     ...(IS_FASHION ? [{ title: "Shop by vibe", links: VIBES.map((v) => ({ href: `/search?vibe=${v.id}`, label: v.name })) }] : []),
     { title: "Help & settings", links: [{ href: "/account", label: "Your account" }, { href: "/orders", label: "Your orders" }, { href: "/wishlist", label: "Wishlist & lists" }, { href: "/help", label: "Help & contact" }, { href: "/help/returns", label: "Returns & exchanges" }, { href: "/sell", label: "Sell on Krip" }] },

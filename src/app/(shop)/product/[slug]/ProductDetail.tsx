@@ -120,6 +120,8 @@ export function ProductDetail({
   const isBeauty = product.category === "beauty";
   const delivery = useDeliveryRules();
   const est = hydrated && pincode ? estimateDelivery(pincode, delivery) : null;
+  // "Generic" isn't a brand worth showing.
+  const realBrand = !!product.brand && product.brand.toLowerCase() !== "generic";
   const images = product.images.map((src) => imageForColor(src, sel.hex));
 
   useEffect(() => viewed(product.id), [product.id, viewed]);
@@ -178,7 +180,7 @@ export function ProductDetail({
           )}
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{product.brand}</p>
+              {realBrand && <p className="text-xs font-semibold uppercase tracking-wide text-ink-soft">{product.brand}</p>}
               <h1 className="text-xl font-semibold leading-snug md:text-2xl">{product.title}</h1>
             </div>
             <div className="-mr-2 flex shrink-0">
@@ -243,7 +245,7 @@ export function ProductDetail({
           </div>
 
           <ul aria-label="Buying from Krip" className="grid grid-cols-3 gap-2 text-center text-[11px] leading-tight">
-            <li className="rounded-xl bg-white px-2 py-2.5 ring-1 ring-line"><span className="block text-lg" aria-hidden>💵</span>Cash on Delivery on eligible pincodes</li>
+            <li className="rounded-xl bg-white px-2 py-2.5 ring-1 ring-line"><span className="block text-lg" aria-hidden>{product.vendorId ? "🔒" : "💵"}</span>{product.vendorId ? "Pay securely online (UPI, cards)" : "Cash on Delivery on eligible pincodes"}</li>
             <li className="rounded-xl bg-white px-2 py-2.5 ring-1 ring-line"><span className="block text-lg" aria-hidden>↩️</span>{rp.type === "returnable" ? `${rp.days}-day returns if unused` : rp.type === "exchange-only" ? `${rp.days}-day exchange` : "Replacement if it arrives damaged"}</li>
             <li className="rounded-xl bg-white px-2 py-2.5 ring-1 ring-line"><span className="block text-lg" aria-hidden>🧾</span>Price includes GST; delivery shown before you pay</li>
           </ul>
@@ -284,15 +286,15 @@ export function ProductDetail({
           {/* Seller */}
           <section aria-labelledby="seller-title" className="flex items-center gap-3 rounded-2xl bg-white p-4 ring-1 ring-line">
             <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-sun text-sm font-bold text-ink" aria-hidden>
-              {product.brand.slice(0, 1)}
+              {(product.seller ?? "Krip").slice(0, 1).toUpperCase()}
             </span>
             <div className="min-w-0 flex-1">
               <h2 id="seller-title" className="text-xs text-ink-soft">Sold by</h2>
               <p className="flex items-center gap-1.5 font-semibold"><span className="truncate">{product.seller ?? "Krip"}</span>{product.vendorId && product.sellerVerified && <span className="shrink-0 rounded-full bg-leaf-soft px-2 py-0.5 text-[11px] font-semibold text-leaf" title="Krip has checked this seller’s business documents">✓ Verified seller</span>}</p>
               {product.vendorId && <p className="text-xs text-ink-soft">Packed and shipped by this seller · Krip marketplace</p>}
-              <p className="text-xs text-ink-soft">Brand: {product.brand}{product.origin ? ` · Made in ${product.origin}` : ""}</p>
+              {(realBrand || product.origin) && <p className="text-xs text-ink-soft">{[realBrand ? `Brand: ${product.brand}` : "", product.origin ? `Made in ${product.origin}` : ""].filter(Boolean).join(" · ")}</p>}
             </div>
-            {product.brand !== "Generic" && (
+            {realBrand && (
               <Link href={`/search?q=${encodeURIComponent(product.brand)}`} className="flex h-10 shrink-0 items-center rounded-lg px-3 text-sm font-semibold text-leaf ring-1 ring-leaf">
                 View brand
               </Link>
@@ -344,7 +346,7 @@ export function ProductDetail({
             {(product.seller || product.origin) && (
               <Detail title="Seller & origin">
                 <dl>
-                  <Row k="Brand" v={product.brand} />
+                  {realBrand && <Row k="Brand" v={product.brand} />}
                   {product.seller && <Row k="Sold by" v={product.seller} />}
                   {product.origin && <Row k="Country of origin" v={product.origin} />}
                 </dl>

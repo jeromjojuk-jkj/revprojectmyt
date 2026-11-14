@@ -144,7 +144,7 @@ test("seasonal offer tile opens a matching, price-capped listing", async ({ page
 
 test("Style Swipe saves to the wishlist", async ({ page }) => {
   await page.goto("/swipe");
-  await expect(page.getByRole("heading", { name: "Style Swipe" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Swipe & Shortlist" })).toBeVisible();
   await page.getByRole("button", { name: /^Save / }).click();
   await page.getByRole("button", { name: /^Skip / }).click();
   await expect(page.getByText(/1 saved/)).toBeVisible();
@@ -225,7 +225,7 @@ test("Krip Lab: Build a Fit totals, Colour Match reads a sample, Size Finder sug
 
 test("footer columns and legal pages", async ({ page }) => {
   await page.goto("/");
-  for (const h of ["Get to Know Us", "Connect with Us", "Let Us Help You", "Shop", "Customer Support", "Legal & Policies"]) {
+  for (const h of ["Get to Know Us", "Let Us Help You", "Shop", "Customer Support", "Legal & Policies"]) {
     await expect(page.getByRole("heading", { name: h, exact: true })).toBeVisible();
   }
   const footer = page.getByRole("navigation", { name: "Footer" });

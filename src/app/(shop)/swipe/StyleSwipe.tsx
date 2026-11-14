@@ -1,5 +1,6 @@
 "use client";
 
+import { IS_FASHION } from "@/lib/constants";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { CategoryId, ProductPublic } from "@/lib/types";
@@ -69,7 +70,7 @@ export function StyleSwipe({ products }: { products: ProductPublic[] }) {
   return (
     <div className="mx-auto max-w-md px-4 pt-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-gold-ink">New on Krip</p>
-      <h1 className="text-xl font-semibold">Style Swipe</h1>
+      <h1 className="text-xl font-semibold">{IS_FASHION ? "Style Swipe" : "Swipe & Shortlist"}</h1>
       <p className="text-sm text-ink-soft">Swipe right to save, left to skip. Saves go to your wishlist on this device.</p>
 
       <div className="no-scrollbar -mx-4 mt-3 flex gap-2 overflow-x-auto px-4" role="radiogroup" aria-label="Category">

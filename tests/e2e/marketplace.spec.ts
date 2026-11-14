@@ -192,6 +192,27 @@ test("seller marketplace: register → approve → list → sell → ship → ea
   await seller.goto("/vendor/wallet");
   await expect(seller.getByText(/ref UTR12345678/)).toBeVisible();
 
+  // Forgotten password: Krip resets it to a temporary one; the old session stops working; the seller then sets their own.
+  await admin.goto("/admin/vendors");
+  await admin.getByRole("link", { name: "Asha Home Store" }).click();
+  await admin.getByRole("button", { name: "Reset seller’s password" }).click();
+  const temp = (await admin.locator("p.font-mono").last().textContent())!.trim();
+  expect(temp).toMatch(/^Krip-/);
+  await seller.goto("/vendor");
+  await expect(seller).toHaveURL(/\/vendor\/login/);
+  await seller.getByLabel("Email").fill("asha.seller@example.com");
+  await seller.getByLabel("Password").fill(temp);
+  await seller.getByRole("button", { name: "Sign in" }).click();
+  await expect(seller).toHaveURL(/\/vendor$/);
+  await seller.getByText("Change password").first().click();
+  await seller.getByLabel("Current password").fill(temp);
+  await seller.getByLabel("New password", { exact: true }).fill("fresh-kitchen-pass-77");
+  await seller.getByLabel("Confirm new password").fill("fresh-kitchen-pass-77");
+  await seller.getByRole("button", { name: "Change password" }).click();
+  await expect(seller.getByText(/Password changed/)).toBeVisible();
+  await seller.goto("/vendor/wallet");
+  await expect(seller.getByRole("heading", { name: "Wallet", exact: true })).toBeVisible();
+
   // Suspending hides their products from the shop.
   await admin.getByLabel("Reason (seller sees this)", { exact: true }).fill("Testing suspension");
   await admin.getByRole("button", { name: "Suspend" }).click();
