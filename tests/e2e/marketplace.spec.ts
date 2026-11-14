@@ -132,10 +132,19 @@ test("seller marketplace: register → approve → list → sell → ship → ea
   await seller.getByRole("button", { name: "Post update" }).click();
   await expect(seller.getByText("Tracking update posted.")).toBeVisible();
 
+  // Krip admin can step in on the seller's part: post a preset tracking update for them.
+  const orderId = shopper.url().match(/KRP-[A-Z0-9-]+/)![0];
+  await admin.goto(`/admin/orders/${orderId}`);
+  await admin.getByText(/Update for this seller \(/).click();
+  await admin.getByLabel("Post a tracking update").selectOption("Reached destination city");
+  await admin.getByRole("button", { name: "Post update" }).click();
+  await expect(admin.getByText("Tracking update posted.")).toBeVisible();
+
   // Shopper sees the courier and the update.
   await shopper.goto(orderUrl);
   await expect(shopper.getByText("D98765432")).toBeVisible();
   await expect(shopper.getByText("Out for delivery")).toBeVisible();
+  await expect(shopper.getByText("Reached destination city")).toBeVisible();
 
   await seller.getByRole("button", { name: "Mark as delivered" }).click();
   await expect(seller.getByText(/this order is delivered/)).toBeVisible();

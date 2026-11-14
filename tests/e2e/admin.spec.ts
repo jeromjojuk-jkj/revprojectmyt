@@ -142,6 +142,10 @@ test("coupon rules are enforced at checkout, and an order runs through fulfilmen
   await page.getByLabel("AWB / tracking number").fill("DL998877");
   await page.getByRole("button", { name: "Mark shipped" }).click();
   await expect(page.getByText(/Delhivery · AWB/)).toBeVisible();
+  await page.getByRole("button", { name: "Add tracking update" }).click();
+  await page.getByLabel("Tracking status").selectOption("Out for delivery");
+  await page.getByRole("button", { name: "Add update" }).click();
+  await expect(page.getByText("Out for delivery").first()).toBeVisible();
   await page.getByRole("button", { name: "Mark delivered" }).click();
   await page.getByRole("button", { name: "Mark COD collected" }).click();
   await expect(page.getByText("COD collected").first()).toBeVisible();

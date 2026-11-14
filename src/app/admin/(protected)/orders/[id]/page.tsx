@@ -9,7 +9,10 @@ import { orderEstimate } from "@/lib/server/estimates";
 import { customerKey } from "@/lib/server/orders";
 import { Badge, Card, PageHeader, btn } from "@/app/admin/_components/ui";
 import { OrderActions } from "./OrderActions";
-import { PART_LABEL, dispatchState } from "@/lib/vendorFulfilment";
+import { PART_LABEL, TRACKING_UPDATES, allowedVendorOps, dispatchState } from "@/lib/vendorFulfilment";
+import { shippingOf } from "@/lib/vendorPlans";
+import { VendorOrderActions } from "@/app/vendor/(panel)/orders/[id]/VendorOrderActions";
+import { adminVendorPartAction } from "@/app/admin/opsActions";
 import { orderCommission, vendorShares } from "@/lib/vendorPlans";
 import { formatMoney } from "@/lib/format";
 
@@ -61,7 +64,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
       <div className="grid gap-4 lg:grid-cols-3">
         <div className="space-y-4 lg:col-span-2">
           <Card title="Actions">
-            {(o.vendorParts?.length ?? 0) > 0 && <p className="mb-3 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-900">{o.items.some((i) => !i.vendorId) ? "Pack / ship here is for Krip’s own items only — sellers ship theirs from their panel." : "Only sellers’ items: the sellers update this order from their panel and its status follows them. Use these actions only to step in."}</p>}
+            {(o.vendorParts?.length ?? 0) > 0 && <p className="mb-3 rounded-lg bg-sky-50 px-3 py-2 text-xs text-sky-900">{o.items.some((i) => !i.vendorId) ? "Pack / ship here is for Krip’s own items only. Sellers update theirs from their panel — or use “Update for this seller” below." : "Only sellers’ items: the order’s status follows the sellers’ updates. To step in, use “Update for this seller” below."}</p>}
             <OrderActions id={o.id} ops={ops} canRefund={ctx.can("orders.refund")} remaining={paid - refunded} demo={o.demo} codManual={o.paymentMethod === "cod"} />
           </Card>
           {(o.vendorParts?.length ?? 0) > 0 && (
@@ -79,6 +82,18 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
                       </div>
                       <p className="text-xs text-ink-soft">{o.items.filter((i) => i.vendorId === p.vendorId).map((i) => `${i.qty} × ${i.title}`).join(", ")} · delivery {formatPrice(p.delivery)} · dispatch by {dt(p.dispatchBy)}{sh ? ` · seller earns ${formatMoney(sh.payout)}, Krip commission ${formatMoney(sh.commission)}` : ""}</p>
                       {p.history.at(-1)?.note && <p className="text-xs">Latest: {p.history.at(-1)!.note}</p>}
+                      {(() => {
+                        const partOps = allowedVendorOps(o, p).filter((x) => x !== "issue");
+                        if (!ctx.can("orders.edit") || !partOps.length) return null;
+                        return (
+                          <details className="mt-2 rounded-xl bg-paper p-3">
+                            <summary className="cursor-pointer text-xs font-semibold text-leaf">Update for this seller (packed, shipped, out for delivery…)</summary>
+                            <div className="mt-3 max-w-md">
+                              <VendorOrderActions orderId={o.id} vendorId={p.vendorId} ops={partOps} defaultCourier={v ? shippingOf(v).courier : ""} updates={[...TRACKING_UPDATES]} serverAction={adminVendorPartAction} />
+                            </div>
+                          </details>
+                        );
+                      })()}
                     </li>
                   );
                 })}
