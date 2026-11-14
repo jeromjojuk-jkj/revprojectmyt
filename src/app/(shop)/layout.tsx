@@ -5,7 +5,7 @@ import { Footer } from "@/components/HelpLinks";
 import { BackBar } from "@/components/BackBar";
 import { ScrollAssist } from "@/components/ScrollAssist";
 import { Logo } from "@/components/Logo";
-import { getLiveOffers, getSettings, getStore } from "@/lib/server/catalog";
+import { getSettings, getStore } from "@/lib/server/catalog";
 import { DeliveryRulesProvider } from "@/components/DeliveryRules";
 import { paymentConfig } from "@/lib/server/payments";
 import { InstallApp } from "@/components/InstallApp";
@@ -26,7 +26,7 @@ export function generateViewport(): Viewport {
 }
 
 export default async function ShopLayout({ children }: { children: React.ReactNode }) {
-  const [offers, store, settings] = await Promise.all([getLiveOffers(), getStore(), getSettings()]);
+  const [store, settings] = await Promise.all([getStore(), getSettings()]);
   const staff = store.maintenance.active ? await isAdmin() : false;
 
   if (store.maintenance.active && !staff) {
@@ -42,7 +42,6 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
     );
   }
 
-  const promo = offers.length ? { label: offers[0].offer.badge, href: "/#offers" } : null;
   const festival = activeFestival();
   const festOffer = activeFestivalOffer(settings.festivalOffers);
   const ann = store.announcement;
@@ -63,7 +62,7 @@ export default async function ShopLayout({ children }: { children: React.ReactNo
           ) : ann.text}
         </div>
       )}
-      <Header promo={promo} />
+      <Header />
       <BackBar />
       <main id="main" className="mx-auto w-full max-w-7xl">
         {children}
