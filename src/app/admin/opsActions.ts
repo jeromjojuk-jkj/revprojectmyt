@@ -7,6 +7,7 @@ import { getStaff, requirePerm } from "@/lib/server/auth";
 import { withDb } from "@/lib/server/db";
 import { audit } from "@/lib/server/audit";
 import { moveStock } from "@/lib/server/inventory";
+import { applyVendorOp, FulfilmentError, type VendorOp } from "@/lib/vendorFulfilment";
 import { deleteProductRecords } from "@/lib/server/catalog";
 import { adminOrderAction, OrderError } from "@/lib/server/orders";
 import type { OrderOp } from "@/lib/orderflow";
@@ -42,7 +43,7 @@ export async function orderAction(_: ActionState, fd: FormData): Promise<ActionS
   const id = String(fd.get("id"));
   const str = (k: string) => String(fd.get(k) ?? "");
   try {
-    await adminOrderAction(id, { op, note: str("note"), carrier: str("carrier"), awb: str("awb"), trackingUrl: str("trackingUrl"), amount: Number(str("amount")), reason: str("reason"), reference: str("reference") }, actor);
+    await adminOrderAction(id, { op, note: str("note"), carrier: str("carrier"), awb: str("awb"), trackingUrl: str("trackingUrl"), amount: Number(str("amount")), reason: str("reason"), reference: str("reference"), update: str("update") }, actor);
   } catch (e) {
     // Hand the input back so the form can show it again (React resets forms after an action).
     if (e instanceof OrderError) return { error: e.message, values: Object.fromEntries([...fd.entries()].filter(([, v]) => typeof v === "string")) as Record<string, string> };
@@ -389,4 +390,31 @@ export async function deleteProductAction(_: ActionState, fd: FormData): Promise
   if (!title) return { error: "Product not found (maybe already deleted)." };
   revalidatePath("/", "layout");
   redirect(`/admin/products?deleted=${encodeURIComponent(title.slice(0, 80))}`);
+}
+
+/** Krip staff update a seller's part of an order on the seller's behalf (same steps as the seller panel). */
+export async function adminVendorPartAction(_: { ok?: string; error?: string } | null, fd: FormData): Promise<{ ok?: string; error?: string }> {
+  const { actor } = await requirePerm("orders.edit");
+  const id = String(fd.get("orderId") ?? "");
+  const vendorId = String(fd.get("vendorId") ?? "");
+  const op = String(fd.get("op") ?? "") as VendorOp;
+  if (!["accept", "pack", "ship", "tracking", "deliver"].includes(op)) return { error: "Unknown action." };
+  const s = (k: string) => String(fd.get(k) ?? "");
+  try {
+    await withDb((db) => {
+      const o = db.orders.find((x) => x.id === id);
+      if (!o) throw new FulfilmentError("Order not found.");
+      const vendor = db.vendors.find((v) => v.id === vendorId)?.businessName ?? vendorId;
+      const what = applyVendorOp(o, vendorId, op, { carrier: s("carrier"), awb: s("awb"), trackingUrl: s("trackingUrl"), update: s("update"), note: s("note") }, `Krip (${actor.name}) for ${vendor}`);
+      audit(db, actor, `order.seller_part.${op}`, "order", o.id, { after: { vendorId, what } });
+    });
+  } catch (e) {
+    if (e instanceof FulfilmentError) return { error: e.message };
+    throw e;
+  }
+  revalidatePath(`/admin/orders/${id}`);
+  revalidatePath("/vendor/orders");
+  revalidatePath("/admin", "layout");
+  const done: Record<string, string> = { accept: "Accepted for the seller.", pack: "Marked as packed for the seller.", ship: "Marked as shipped — the customer can track it.", tracking: "Tracking update posted.", deliver: "Marked as delivered — the seller’s wallet is credited." };
+  return { ok: done[op] };
 }

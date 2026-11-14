@@ -4,6 +4,7 @@ import { useActionState, useEffect, useState } from "react";
 import { orderAction } from "@/app/admin/opsActions";
 import type { OrderOp } from "@/lib/orderflow";
 import { btn, field, label } from "@/app/admin/_components/ui";
+import { TRACKING_UPDATES } from "@/lib/vendorFulfilment";
 
 const PRIMARY: Partial<Record<OrderOp, string>> = { confirm: "Confirm order", pack: "Mark packed", deliver: "Mark delivered", cod_collected: "Mark COD collected", release: "Release hold" };
 
@@ -44,8 +45,13 @@ export function OrderActions({ id, ops, canRefund, remaining, demo, codManual }:
       {open === "tracking" && (
         <form action={action} className="flex flex-wrap gap-2 rounded-xl bg-paper p-3">
           {hidden("tracking")}
-          <label className="sr-only" htmlFor="tnote">Tracking update</label>
-          <input id="tnote" name="note" required placeholder="e.g. Out for delivery" className={`${field} min-w-0 flex-1`} />
+          <label className="sr-only" htmlFor="tupd">Tracking status</label>
+          <select id="tupd" name="update" defaultValue={back("update")} className={`${field} w-auto`}>
+            <option value="">Choose…</option>
+            {TRACKING_UPDATES.map((u) => <option key={u}>{u}</option>)}
+          </select>
+          <label className="sr-only" htmlFor="tnote">Note for the customer</label>
+          <input id="tnote" name="note" placeholder="Note for the customer (optional)" className={`${field} min-w-0 flex-1`} />
           <button disabled={pending} className={btn.primary}>Add update</button>
         </form>
       )}

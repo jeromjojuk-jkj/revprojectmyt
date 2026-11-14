@@ -366,6 +366,8 @@ export interface OrderActionInput {
   amount?: number;
   reason?: string;
   reference?: string;
+  /** Preset tracking status, e.g. "Out for delivery". */
+  update?: string;
 }
 
 /**
@@ -409,13 +411,15 @@ export async function adminOrderAction(id: string, input: OrderActionInput, acto
         break;
       }
       case "tracking": {
-        const s = order.shipments?.at(-1);
-        if (!s || !note) throw new OrderError("Enter a tracking update.", "invalid");
-        s.events.push({ at: now, status: "Update", note });
+        // Krip's own parcel (not a seller's), else the latest one.
+        const s = [...(order.shipments ?? [])].reverse().find((x) => !x.vendorId) ?? order.shipments?.at(-1);
+        const update = input.update?.trim().slice(0, 60) ?? "";
+        if (!s || (!note && !update)) throw new OrderError("Choose an update or write one.", "invalid");
+        s.events.push({ at: now, status: update || "Update", note });
         break;
       }
       case "deliver":
-        order.shipments?.at(-1)?.events.push({ at: now, status: "Delivered", note });
+        ([...(order.shipments ?? [])].reverse().find((x) => !x.vendorId) ?? order.shipments?.at(-1))?.events.push({ at: now, status: "Delivered", note });
         setStatus(order, "delivered", note ?? "Marked delivered.");
         break;
       case "cod_collected":
