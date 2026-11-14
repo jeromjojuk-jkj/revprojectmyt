@@ -398,6 +398,20 @@ export async function adminVendorPartAction(_: { ok?: string; error?: string } |
   const id = String(fd.get("orderId") ?? "");
   const vendorId = String(fd.get("vendorId") ?? "");
   const op = String(fd.get("op") ?? "") as VendorOp;
+  if (String(fd.get("op")) === "reopen") {
+    // Undo a seller's "can't ship" report (e.g. reported by mistake, or stock found).
+    let done = false;
+    await withDb((db) => {
+      const part = db.orders.find((x) => x.id === id)?.vendorParts?.find((p) => p.vendorId === vendorId);
+      if (!part || part.status !== "cancel_requested") return;
+      part.status = "new";
+      part.history.push({ status: "new", at: new Date().toISOString(), note: `Reopened by Krip (${actor.name})` });
+      audit(db, actor, "order.seller_part.reopen", "order", id, { after: { vendorId } });
+      done = true;
+    });
+    revalidatePath(`/admin/orders/${id}`);
+    return done ? { ok: "Reopened — the seller can ship it again." } : { error: "Nothing to reopen." };
+  }
   if (!["accept", "pack", "ship", "tracking", "deliver"].includes(op)) return { error: "Unknown action." };
   const s = (k: string) => String(fd.get(k) ?? "");
   try {

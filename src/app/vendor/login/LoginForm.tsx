@@ -13,6 +13,7 @@ export function LoginForm() {
       <div><label htmlFor="v-pw" className="mb-1 block text-sm font-medium">Password</label><input id="v-pw" name="password" type="password" autoComplete="current-password" className={input} /></div>
       {state?.error && <p role="alert" className="text-sm text-danger">{state.error}</p>}
       <button disabled={pending} className="h-11 w-full rounded-xl bg-leaf font-semibold text-white disabled:opacity-60">{pending ? "Signing in…" : "Sign in"}</button>
+      <p className="text-center text-xs text-ink-soft">Forgot your password? Contact Krip support and we’ll send you a temporary one.</p>
     </form>
   );
 }

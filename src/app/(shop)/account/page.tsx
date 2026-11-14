@@ -18,7 +18,7 @@ export default function AccountPage() {
     { href: "/wishlist", label: "Wishlist & lists", sub: hydrated ? `${saved} saved` : "", Icon: IconHeart },
     IS_FASHION
       ? { href: "/vibe", label: "Vibe Finder", sub: "Find styles by vibe and budget", Icon: IconSpark }
-      : { href: "/swipe", label: "Style Swipe", sub: "Swipe right to shortlist things you like", Icon: IconSpark },
+      : { href: "/swipe", label: "Swipe & Shortlist", sub: "Swipe right to shortlist things you like", Icon: IconSpark },
   ];
 
   return (

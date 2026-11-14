@@ -6,6 +6,7 @@ import { paymentConfig } from "@/lib/server/payments";
 import { commissionOf, describeCommission, noCommission, planOf } from "@/lib/vendorPlans";
 import { formatMoney, formatPrice } from "@/lib/format";
 import { FeeCheckout } from "./FeeCheckout";
+import { ChangePassword } from "./ChangePassword";
 import { dispatchState } from "@/lib/vendorFulfilment";
 import { demoPayFeeAction } from "../actions";
 
@@ -77,6 +78,7 @@ export default async function VendorDashboard() {
         {plan.verifiedBadge && <p className="mt-2 text-sm">{v.verified ? "✅ Verified seller badge is on." : "Verified seller badge: shown after Krip finishes checking your documents."}</p>}
         {plan.prioritySupport && db.store.supportEmail && <p className="mt-1 text-sm">Priority support: <a className="text-leaf underline" href={`mailto:${db.store.supportEmail}?subject=Priority%20seller%20support%20${v.id}`}>{db.store.supportEmail}</a></p>}
       </section>
+      <ChangePassword />
     </div>
   );
 }

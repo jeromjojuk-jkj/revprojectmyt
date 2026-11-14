@@ -13,6 +13,7 @@ import { PART_LABEL, TRACKING_UPDATES, allowedVendorOps, dispatchState } from "@
 import { shippingOf } from "@/lib/vendorPlans";
 import { VendorOrderActions } from "@/app/vendor/(panel)/orders/[id]/VendorOrderActions";
 import { adminVendorPartAction } from "@/app/admin/opsActions";
+import { VForm } from "@/app/admin/(protected)/vendors/VForm";
 import { orderCommission, vendorShares } from "@/lib/vendorPlans";
 import { formatMoney } from "@/lib/format";
 
@@ -82,6 +83,12 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
                       </div>
                       <p className="text-xs text-ink-soft">{o.items.filter((i) => i.vendorId === p.vendorId).map((i) => `${i.qty} × ${i.title}`).join(", ")} · delivery {formatPrice(p.delivery)} · dispatch by {dt(p.dispatchBy)}{sh ? ` · seller earns ${formatMoney(sh.payout)}, Krip commission ${formatMoney(sh.commission)}` : ""}</p>
                       {p.history.at(-1)?.note && <p className="text-xs">Latest: {p.history.at(-1)!.note}</p>}
+                      {p.status === "cancel_requested" && o.status !== "cancelled" && ctx.can("orders.edit") && (
+                        <div className="mt-2 rounded-xl bg-danger-soft p-3 text-xs">
+                          <p className="text-danger">The seller says they can’t ship this. Cancel the order (and refund the customer), or reopen it if it was a mistake.</p>
+                          <VForm action={adminVendorPartAction} hidden={{ orderId: o.id, vendorId: p.vendorId, op: "reopen" }}><button className="mt-2 h-9 rounded-lg bg-white px-3 font-semibold ring-1 ring-line">Reopen for the seller</button></VForm>
+                        </div>
+                      )}
                       {(() => {
                         const partOps = allowedVendorOps(o, p).filter((x) => x !== "issue");
                         if (!ctx.can("orders.edit") || !partOps.length) return null;
@@ -107,7 +114,7 @@ export default async function OrderDetail({ params }: { params: Promise<{ id: st
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={it.image} alt="" className="h-16 w-14 shrink-0 rounded-lg bg-paper object-cover" />
                   <div className="min-w-0 flex-1 text-sm">
-                    <Link href={`/admin/products/${it.productId}`} className="font-medium hover:text-leaf">{it.title}</Link>
+                    {db.products.some((x) => x.id === it.productId) ? <Link href={`/admin/products/${it.productId}`} className="font-medium hover:text-leaf">{it.title}</Link> : <span className="font-medium">{it.title} <span className="text-xs font-normal text-ink-soft">(product deleted)</span></span>}
                     <p className="text-xs text-ink-soft">{it.color}{it.size ? ` · ${it.size}` : ""} · <span className="font-mono">{it.sku}</span></p>
                   </div>
                   <div className="text-right text-sm tabular-nums"><p>{it.qty} × {formatPrice(it.unitPrice)}</p><p className="font-semibold">{formatPrice(it.qty * it.unitPrice)}</p></div>

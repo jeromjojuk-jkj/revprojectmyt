@@ -129,23 +129,17 @@ export default async function HomePage() {
 
       {!IS_FASHION && (
         <>
-          {categoryRows.map(({ c, items }) => (
+          {categoryRows.filter((r) => r.items.length > 1).map(({ c, items }) => (
             <Section key={c.id} id={`cat-${c.id}`} title={c.name} kicker={`${items.length} ${items.length === 1 ? "item" : "items"} in stock`} href={`/search?cat=${c.id}`}>
               <ProductRail products={items.slice(0, 10)} />
             </Section>
           ))}
-          <Section id="swipe" title="Can’t decide?" kicker="Swipe to shortlist">
-            <Link href="/swipe" className="constellation-bg flex min-h-16 items-center justify-between gap-3 overflow-hidden rounded-2xl bg-ink px-4 py-3 text-white">
-              <span>
-                <span className="block font-semibold">Swipe right on things you like</span>
-                <span className="block text-xs text-white/75">They go straight to your wishlist</span>
-              </span>
-              <span className="swipe-cards relative h-14 w-16 shrink-0" aria-hidden>
-                <span className="absolute inset-0 rotate-[-10deg] rounded-lg bg-sun" />
-                <span className="absolute inset-0 rotate-[6deg] rounded-lg bg-leaf ring-2 ring-white/70" />
-              </span>
-            </Link>
-          </Section>
+          {/* Categories with a single product share one shelf instead of a mostly empty row each. */}
+          {categoryRows.filter((r) => r.items.length === 1).length > 0 && (
+            <Section id="more" title="More to explore" kicker={categoryRows.filter((r) => r.items.length === 1).map((r) => r.c.short).join(" · ")} href="/categories" hrefLabel="All categories">
+              <ProductRail products={categoryRows.filter((r) => r.items.length === 1).map((r) => r.items[0])} />
+            </Section>
+          )}
         </>
       )}
 

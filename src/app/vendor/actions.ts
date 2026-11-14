@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { validateRegistration } from "@/lib/vendorInput";
-import { demoPayFee, loginVendor, logoutVendor, registerVendor, VendorError } from "@/lib/server/vendors";
+import { changeVendorPassword, demoPayFee, loginVendor, logoutVendor, registerVendor, requireVendor, VendorError } from "@/lib/server/vendors";
 
 export type FormState = { errors?: Record<string, string>; error?: string; values?: Record<string, string> } | null;
 
@@ -35,4 +35,12 @@ export async function vendorLogoutAction() {
 export async function demoPayFeeAction() {
   await demoPayFee();
   revalidatePath("/vendor");
+}
+
+export async function changeVendorPasswordAction(_: { ok?: string; error?: string } | null, fd: FormData): Promise<{ ok?: string; error?: string }> {
+  const v = await requireVendor();
+  const next = String(fd.get("next") ?? "");
+  if (next !== String(fd.get("next2") ?? "")) return { error: "The new passwords don’t match." };
+  const err = await changeVendorPassword(v.id, String(fd.get("current") ?? ""), next);
+  return err ? { error: err } : { ok: "Password changed. Other devices have been signed out." };
 }

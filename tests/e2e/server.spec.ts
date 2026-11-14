@@ -109,3 +109,12 @@ test("health check for uptime monitors: ok, uncached, nothing sensitive", async 
   expect(JSON.stringify(d)).not.toMatch(/secret|token|password|redis|upstash|@/i);
   expect((await request.head("/api/health")).status()).toBe(200);
 });
+
+test("robots.txt keeps private areas out of search; sitemap lists products", async ({ request }) => {
+  const robots = await (await request.get("/robots.txt")).text();
+  for (const p of ["/admin", "/vendor", "/api/", "/checkout"]) expect(robots).toContain(`Disallow: ${p}`);
+  expect(robots).toContain("Sitemap:");
+  const map = await (await request.get("/sitemap.xml")).text();
+  expect(map).toContain("/product/magic-eraser-cleaning-sponge-pack-of-4");
+  expect(map).not.toMatch(/\/admin|\/vendor/);
+});

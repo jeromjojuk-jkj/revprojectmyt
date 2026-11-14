@@ -5,7 +5,7 @@ import { cookies, headers } from "next/headers";
 import { redirect } from "next/navigation";
 import type { Vendor } from "../types";
 import { readDb, withDb } from "./db";
-import { hashPassword, verifyPassword } from "../passwords";
+import { hashPassword, passwordProblem, verifyPassword } from "../passwords";
 import { seal } from "./vault";
 import { audit } from "./audit";
 import { planOf } from "../vendorPlans";
@@ -61,6 +61,43 @@ export async function registerVendor(r: VendorRegistration): Promise<string> {
   });
   await startSession(id);
   return id;
+}
+
+/** The seller changes their own password; other devices are signed out and this one gets a fresh session. */
+export async function changeVendorPassword(vendorId: string, current: string, next: string): Promise<string | null> {
+  let err: string | null = null;
+  await withDb((db) => {
+    const v = db.vendors.find((x) => x.id === vendorId);
+    if (!v) { err = "Account not found."; return; }
+    if (!verifyPassword(current, v.passwordHash)) { err = "Your current password is wrong."; return; }
+    const problem = passwordProblem(next, v.email);
+    if (problem) { err = problem; return; }
+    if (verifyPassword(next, v.passwordHash)) { err = "Choose a password you haven’t used here."; return; }
+    v.passwordHash = hashPassword(next);
+    v.passwordChangedAt = new Date().toISOString();
+    audit(db, { id: v.id, name: `Seller: ${v.businessName}` }, "vendor.password.change", "vendor", v.id);
+  });
+  if (err) return err;
+  await new Promise((r) => setTimeout(r, 5)); // the new session must be newer than passwordChangedAt
+  await startSession(vendorId);
+  return null;
+}
+
+/** Krip staff reset a seller's password to a one-time temporary one (shown once). Signs the seller out everywhere. */
+export async function resetVendorPassword(vendorId: string, actor: { id: string; name: string }): Promise<string | null> {
+  const temp = `Krip-${crypto.randomBytes(9).toString("base64url")}`;
+  let ok = false;
+  await withDb((db) => {
+    const v = db.vendors.find((x) => x.id === vendorId);
+    if (!v) return;
+    v.passwordHash = hashPassword(temp);
+    v.passwordChangedAt = new Date().toISOString();
+    v.failedLogins = 0;
+    v.lockedUntil = null;
+    audit(db, actor, "vendor.password.reset", "vendor", v.id);
+    ok = true;
+  });
+  return ok ? temp : null;
 }
 
 // Per-IP throttle on top of the per-account lockout.

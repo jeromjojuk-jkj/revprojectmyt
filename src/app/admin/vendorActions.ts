@@ -6,6 +6,7 @@ import { requirePerm } from "@/lib/server/auth";
 import { withDb, readDb } from "@/lib/server/db";
 import { audit } from "@/lib/server/audit";
 import { unseal } from "@/lib/server/vault";
+import { resetVendorPassword } from "@/lib/server/vendors";
 import { vendorLedger } from "@/lib/vendorWallet";
 import { describeCommission, planOf, validateCommission } from "@/lib/vendorPlans";
 import type { VendorStatus } from "@/lib/types";
@@ -177,7 +178,8 @@ export async function reviewListingAction(_: VendorAdminState, fd: FormData): Pr
     p.private.review = { status: op === "approve" ? "approved" : "rejected", note: op === "reject" ? note : "", at: now };
     if (op === "approve") {
       p.private.rightsConfirmed = true;
-      p.status = p.variants.some((x) => x.stock > 0) ? "active" : "out-of-stock";
+      // Always "active": the shop shows "Out of stock" from the stock count, and it sells again as soon as the seller restocks.
+      p.status = "active";
     } else {
       p.status = "draft";
       p.private.featured = false;
@@ -202,4 +204,12 @@ export async function commissionAction(_: VendorAdminState, fd: FormData): Promi
   refresh();
   revalidatePath("/sell");
   return { ok: `Saved: ${describeCommission(r.value)}. Applies to new orders; orders already placed keep theirs.` };
+}
+
+/** Gives the seller a temporary password (shown once here) when they've forgotten theirs. */
+export async function vendorPasswordResetAction(_: VendorAdminState, fd: FormData): Promise<VendorAdminState> {
+  const { actor } = await requirePerm("vendors.manage");
+  const temp = await resetVendorPassword(str(fd, "id", 20), actor);
+  if (!temp) return { error: "Seller not found." };
+  return { ok: "Temporary password (shown once) — send it to the seller privately and ask them to change it after signing in:", secret: temp };
 }

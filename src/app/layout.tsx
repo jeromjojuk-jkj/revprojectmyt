@@ -7,8 +7,10 @@ import "@fontsource/poppins/700.css";
 import "./globals.css";
 import { Toaster } from "@/components/Toaster";
 import { BRAND } from "@/lib/constants";
+import { siteUrl } from "@/lib/siteUrl";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl()),
   title: { default: `krip — ${BRAND.tagline}`, template: "%s · krip" },
   description: IS_FASHION ? "Trending, affordable fashion, beauty and accessories. Trending looks. Your kind of price." : "Clever home gadgets and useful little things for every room, at your kind of price.",
   applicationName: "krip",
