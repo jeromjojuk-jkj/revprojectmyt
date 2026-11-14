@@ -94,29 +94,24 @@ export default async function HomePage() {
         <ProductGrid products={trending} priorityCount={4} />
       </Section>
 
-      {/* 5. Shop by price: photo tiles of real in-stock products at each price */}
-      <Section id="budget" title="Shop by price" kicker="Real prices, nothing hidden">
-        <ul className="grid grid-cols-2 gap-2 md:grid-cols-4">
-          {[...BUDGETS.map((b, i) => {
-              // Photos from this price band first (e.g. ₹300–₹499 for "Under ₹499") so the tiles don't repeat.
-              const low = i ? BUDGETS[i - 1].max : 0;
-              const all = products.filter((p) => p.price <= b.max && inStock(p));
-              const band = all.filter((p) => p.price > low);
-              return { key: `u${b.max}`, label: b.label, href: `/search?max=${b.max}&sort=price-asc`, items: [...band, ...all.filter((p) => p.price <= low)], count: all.length };
-            }),
-            { key: "new", label: "New arrivals", href: "/drops", items: newest.filter(inStock), count: newest.filter(inStock).length }]
-            .filter((t) => t.items.length >= 1)
-            .map((t) => (
-              <li key={t.key}>
-                <Link href={t.href} className="pressable flex h-full items-center justify-between gap-2 rounded-lg bg-paper px-3 py-3 ring-1 ring-line">
-                  <span className="min-w-0">
-                    <span className="block text-[15px] font-bold leading-tight">{t.label}</span>
-                    <span className="mt-0.5 block text-xs text-ink-soft">{t.count} {IS_FASHION ? "styles" : "items"}</span>
-                  </span>
-                  <IconChevron size={16} className="shrink-0 text-leaf" />
+      {/* 5. Shop by price */}
+      <Section id="budget" title="Shop by price" kicker="Your kind of price">
+        <ul className="grid grid-cols-3 gap-2.5">
+          {BUDGETS.map((b, i) => {
+            const count = products.filter((p) => p.price <= b.max && inStock(p)).length;
+            return (
+              <li key={b.max}>
+                <Link
+                  href={`/search?max=${b.max}&sort=price-asc`}
+                  className={`pressable flex h-full flex-col justify-between gap-3 rounded-2xl p-3 ring-1 ring-line ${i === 0 ? "bg-sun" : i === 1 ? "bg-white" : "bg-leaf-soft"}`}
+                >
+                  <span className="text-[11px] font-medium text-ink/80">Everything</span>
+                  <span className="text-lg font-bold leading-none md:text-2xl">{b.label}</span>
+                  <span className="text-[11px] font-medium text-ink/80">{count} {IS_FASHION ? "styles" : "items"}</span>
                 </Link>
               </li>
-            ))}
+            );
+          })}
         </ul>
       </Section>
 
