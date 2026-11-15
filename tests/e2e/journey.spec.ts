@@ -233,7 +233,7 @@ test("footer columns and legal pages", async ({ page }) => {
   // WhatsApp support only appears once a number is configured.
   await expect(footer.getByRole("link", { name: "WhatsApp Support" })).toHaveCount(0);
   await expect(page.getByText("© 2026 Krip. All rights reserved.")).toBeVisible();
-  await expect(page.getByRole("link", { name: "ZeraBytes" })).toHaveAttribute("href", "https://zerabytes.com/");
+  await expect(page.getByRole("link", { name: "Zera Vista" })).toHaveAttribute("href", "https://zeravista.com/");
   await expect(page.getByText("Currency: INR (₹)")).toBeVisible();
   await footer.getByRole("link", { name: "Return & Refund Policy" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Return & Refund Policy" })).toBeVisible();
