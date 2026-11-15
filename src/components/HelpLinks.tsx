@@ -161,7 +161,7 @@ export function Footer({ store, paymentsDemo = true }: { store: StoreProfile; pa
               <Logo onDark className="text-[22px]" />
               <p>
                 © 2026 Krip. All rights reserved. Powered by{" "}
-                <a href="https://zerabytes.com/" target="_blank" rel="noopener noreferrer" className="font-semibold text-white underline-offset-2 hover:underline">ZeraBytes</a>
+                <a href="https://zeravista.com/" target="_blank" rel="noopener noreferrer" className="font-semibold text-white underline-offset-2 hover:underline">Zera Vista</a>
               </p>
             </div>
             <ul className="flex flex-wrap items-center justify-center gap-2" aria-label="Region settings">
