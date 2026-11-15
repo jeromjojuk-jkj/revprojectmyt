@@ -21,12 +21,12 @@ export const VENDOR_PLANS: VendorPlan[] = [
     perks: ["List up to 25 products", "Your own seller panel: products, orders, earnings", "Ship your orders and add tracking"],
   },
   {
-    id: "premium", name: "Premium", fee: 1500, productLimit: 100, featuredSlots: 2, verifiedBadge: true, prioritySupport: false, salesReports: false,
-    perks: ["List up to 100 products", "“Verified seller” badge after Krip’s checks", "2 products featured on the Krip homepage", "Everything in Normal"],
+    id: "premium", name: "Premium", fee: 1500, productLimit: 150, featuredSlots: 2, verifiedBadge: true, prioritySupport: false, salesReports: false,
+    perks: ["List up to 150 products", "“Verified seller” badge after Krip’s checks", "2 products featured on the Krip homepage", "Everything in Normal"],
   },
   {
     id: "advance", name: "Advance Business", fee: 1800, productLimit: null, featuredSlots: 5, verifiedBadge: true, prioritySupport: true, salesReports: true,
-    perks: ["Unlimited products", "“Verified seller” badge after Krip’s checks", "5 products featured on the Krip homepage", "Priority support", "Download sales reports (CSV)"],
+    perks: ["Unlimited products", "“Verified seller” badge after Krip’s checks", "5 products featured on the Krip homepage", "Priority support", "Personal help from Krip to set up and customise your listings", "Download sales reports (CSV)"],
   },
 ];
 
